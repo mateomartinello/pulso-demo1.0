@@ -1,7 +1,6 @@
 // ==== CUESTIONARIO INICIAL ====
 // Cada pregunta: 4 opciones + «Otro» (con texto). type: single | multi | numbers
 const PREGUNTAS = [
-  {id:"datos", sec:"Vos", t:"¿Cómo te llamás?", sub:"Tu nombre lo usamos para hablarte por tu nombre. Tu mail, para novedades y encuestas de Pulso.", type:"datos"},
   {id:"sexo", sec:"Vos", t:"¿Con qué sexo te identificás?", sub:"Se usa solo para estimar tu gasto de energía.", type:"single",
    opts:[["h","Hombre"],["m","Mujer"],["nb","No binario"],["pnd","Prefiero no decirlo"]]},
   {id:"cuerpo", sec:"Vos", t:"Tus datos físicos", sub:"Con esto se calcula tu energía diaria. Quedan guardados en tu dispositivo.", type:"numbers",
@@ -588,7 +587,8 @@ function renderOnb(){
   if(ONB.paso==="avisos"){ cronoMarcar(null); renderOfertaAvisos(box); return; }
   if(!DB.auth && ONB.paso!=="instalar" && (DB.perfil?.completo || ONB.i>=0)) ONB.paso="ingreso";
   if(ONB.paso==="ingreso"){ cronoMarcar(null); renderIngreso(box); return; }
-  if(DB.perfil?.completo && !DB.consent?.acepta && !ONB.soloDatos) ONB.i=total;   // perfil de una versión anterior: falta aceptar los términos
+  if(ONB.paso==="bienvenida" && DB.auth){ cronoMarcar(null); renderBienvenida(box); return; }
+  if(DB.perfil?.completo && !DB.consent?.acepta) ONB.i=total;   // perfil de una versión anterior: falta aceptar los términos
   if(ONB.i<0){
     cronoMarcar(null);
     if(ONB.paso==="instalar"){ renderInstalar(box); return; }
@@ -597,13 +597,13 @@ function renderOnb(){
       el("p",{class:"lead"},"Comer, moverte y descansar mejor, con un plan hecho para vos."),
       el("p",{},"Pulso te sugiere qué comer según tus horarios, tus gustos y tu cocina; arma tu semana de movimiento y te ayuda a registrar cómo dormís y cómo te sentís con la comida."),
       el("p",{},"Es gratis."),
-      el("p",{class:"note"}, inst? "Primero vas a agregarla a tu pantalla de inicio; después, "+total+" preguntas rápidas para armar tu plan." : "Para armar tu plan, "+total+" preguntas rápidas: casi todas se responden con un toque."),
+      el("p",{class:"note"}, inst? "Primero vas a agregarla a tu pantalla de inicio. Después creás tu cuenta con tu mail y respondés "+total+" preguntas rápidas para armar tu plan." : "Creás tu cuenta con tu mail y respondés "+total+" preguntas rápidas para armar tu plan."),
       el("button",{class:"btn primary big",type:"button",onclick:()=>{ if(inst) ONB.paso="instalar"; else if(!DB.auth) ONB.paso="ingreso"; else ONB.i=0; renderOnb(); window.scrollTo(0,0); }},"Empezar")));
     return;
   }
   if(ONB.i>=total){ cronoMarcar(null); if(DB.consent?.acepta){ finalizarCuestionario(); return; } renderConsent(box); return; }
   const q=PREGUNTAS[ONB.i]; cronoMarcar(q.id);
-  const next=()=>{ if(ONB.soloDatos && q.type==="datos"){ ONB.soloDatos=false; ONB.i=total; } else ONB.i++; renderOnb(); window.scrollTo(0,0); };
+  const next=()=>{ ONB.i++; renderOnb(); window.scrollTo(0,0); };
   const atras=()=>{ ONB.i--; renderOnb(); };
   const prog=el("div",{class:"onb-prog"}, el("i",{style:`width:${(ONB.i/total)*100}%`}));
   const card=el("div",{class:"onb-card"}, prog, el("div",{class:"eyebrow"},`${q.sec} · ${ONB.i+1} de ${total}`), el("h2",{},q.t), q.sub? el("p",{class:"note"},q.sub):null);

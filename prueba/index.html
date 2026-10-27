@@ -1205,10 +1205,14 @@ async function alIngresar(j){
     if(u.anon_id) DB.anonId=u.anon_id;
     if(r.secret){ DB.secret=r.secret; secretHash=null; }
   }
-  DB.cuentaId=DB.auth.user.id; DB.respaldoFirma=null; persist();
-  ONB.paso=null; ONB.draft=null; INGRESO.paso="mail"; INGRESO.msg="";
-  if(DB.perfil?.completo){ ONB.soloDatos=!DB.perfil.resp.datos?.nombre; ONB.i=ONB.soloDatos? 0 : PREGUNTAS.length; } else ONB.i=0;
-  render(); window.scrollTo(0,0); respaldoPronto(true);
+  // Nombre y apellido: los de la cuenta si ya los tenía; si no, los que escribió al ingresar. El mail es siempre el de la cuenta.
+  const escritos={nombre:INGRESO.nombre, apellido:INGRESO.apellido};
+  const datosDe = d => ({nombre:d?.nombre||escritos.nombre, apellido:d?.apellido||escritos.apellido, email:DB.auth.user.email});
+  DB.cuentaId=DB.auth.user.id; DB.respaldoFirma=null;
+  ONB.draft=null; INGRESO.paso="mail"; INGRESO.msg="";
+  if(DB.perfil?.completo){ DB.perfil.resp.datos=datosDe(DB.perfil.resp.datos); ONB.paso=null; ONB.i=PREGUNTAS.length; }
+  else { ONB.draft={datos:datosDe(null)}; ONB.paso="bienvenida"; ONB.i=-1; }
+  persist(); render(); window.scrollTo(0,0); respaldoPronto(true);
 }
 // Ingreso por enlace: mientras el mail de Supabase traiga un enlace en lugar del código (hasta configurar un servidor
 // de envío propio), el enlace vuelve a la app con la sesión en la dirección (#access_token=…).
@@ -1221,6 +1225,14 @@ async function ingresoPorEnlace(){
     if(!res.ok) throw 0;
     await alIngresar({access_token:at, refresh_token:p.get("refresh_token"), expires_in:+p.get("expires_in")||3600, user:await res.json()});
   }catch(e){ INGRESO.paso="mail"; INGRESO.msg="No se pudo entrar con ese enlace. Pedí uno nuevo."; ONB.paso="ingreso"; render(); }
+}
+// Pantalla intermedia: después de confirmar el código, antes del cuestionario.
+function renderBienvenida(box){
+  const nombre=ONB.draft?.datos?.nombre;
+  box.append(el("div",{class:"onb-card"}, el("div",{class:"eyebrow"},"Tu cuenta"),
+    el("h2",{},`¡Perfecto${nombre? ", "+nombre : ""}! Ya entraste a tu cuenta.`),
+    el("p",{},`Ahora, ${PREGUNTAS.length} preguntas rápidas para armar tu plan: casi todas se responden con un toque.`),
+    el("button",{class:"btn primary big",type:"button",onclick:()=>{ ONB.paso=null; ONB.i=0; renderOnb(); window.scrollTo(0,0); }},"Empezar el cuestionario")));
 }
 function trasInstalar(){ if(DB.auth){ ONB.paso=null; ONB.i=0; } else ONB.paso="ingreso"; renderOnb(); window.scrollTo(0,0); }
 
@@ -1237,20 +1249,25 @@ function renderIngreso(box){
   const msg=el("p",{class:"note",role:"status"},INGRESO.msg||"");
   const card=el("div",{class:"onb-card"}, el("div",{class:"eyebrow"},"Tu cuenta"));
   if(INGRESO.paso==="mail"){
-    const inp=el("input",{type:"email",id:"ing-mail",autocomplete:"email",inputmode:"email",autocapitalize:"off",spellcheck:"false",value:INGRESO.email,placeholder:"tu@mail.com"});
+    const campo=(id,lab,attrs)=>{ const i=el("input",{id,spellcheck:"false",...attrs}); return [i, el("label",{class:"campo",for:id}, el("span",{},lab), i)]; };
+    const [nom,lNom]=campo("ing-nombre","Nombre",{type:"text",autocomplete:"given-name",autocapitalize:"words",value:INGRESO.nombre||""});
+    const [ape,lApe]=campo("ing-apellido","Apellido",{type:"text",autocomplete:"family-name",autocapitalize:"words",value:INGRESO.apellido||""});
+    const [inp,lMail]=campo("ing-mail","Mail",{type:"email",autocomplete:"email",inputmode:"email",autocapitalize:"off",value:INGRESO.email,placeholder:"tu@mail.com"});
     const btn=el("button",{class:"btn primary big",type:"button"},"Siguiente");
-    const enviarCod=async()=>{ const e=inp.value.trim().toLowerCase();
+    const enviarCod=async()=>{ const n=nom.value.trim(), a=ape.value.trim(), e=inp.value.trim().toLowerCase();
+      if(!n){ msg.textContent="Escribí tu nombre."; nom.focus(); return; }
+      if(!a){ msg.textContent="Escribí tu apellido."; ape.focus(); return; }
       if(!EMAIL_RE.test(e)){ msg.textContent="Revisá el mail: parece incompleto."; inp.focus(); return; }
-      btn.disabled=true; msg.textContent="Enviando…"; const r=await pedirCodigo(e); btn.disabled=false;
-      if(r.ok){ INGRESO.email=e; INGRESO.paso="codigo"; INGRESO.msg=""; INGRESO.enviadoEn=Date.now(); renderOnb(); } else msg.textContent=r.msg; };
-    btn.addEventListener("click",enviarCod); inp.addEventListener("keydown",ev=>{ if(ev.key==="Enter") enviarCod(); });
-    agregar(card, el("h2",{},"Ingresá con tu mail"),
-      el("p",{},"Si ya usaste Pulso, recuperás tus respuestas y tus registros."),
+      btn.disabled=true; msg.textContent="Enviando el código…"; const r=await pedirCodigo(e); btn.disabled=false;
+      if(r.ok){ Object.assign(INGRESO,{nombre:n, apellido:a, email:e, paso:"codigo", msg:"", enviadoEn:Date.now()}); renderOnb(); window.scrollTo(0,0); } else msg.textContent=r.msg; };
+    btn.addEventListener("click",enviarCod); for(const i of [nom,ape,inp]) i.addEventListener("keydown",ev=>{ if(ev.key==="Enter") enviarCod(); });
+    agregar(card, el("h2",{},"Tus datos"),
+      el("p",{},"Te vamos a mandar un código a tu mail para confirmar que es tuyo. Si ya usaste Pulso, recuperás tus respuestas y tus registros."),
       DB.perfil?.completo && !DB.cuentaId? el("p",{class:"note"},"Ahora Pulso guarda tus datos en tu cuenta. Lo que ya registraste en este dispositivo se suma a ella.") : null,
-      el("label",{class:"campo",for:"ing-mail"}, el("span",{},"Mail"), inp), btn, msg);
+      el("div",{class:"campos"}, lNom, lApe, lMail), btn, msg);
   } else {
     const inp=el("input",{type:"text",id:"ing-cod",autocomplete:"one-time-code",inputmode:"numeric",maxlength:"6",placeholder:"123456"});
-    const btn=el("button",{class:"btn primary big",type:"button"},"Entrar");
+    const btn=el("button",{class:"btn primary big",type:"button"},"Confirmar código");
     const entrar=async()=>{ const t=inp.value.replace(/\D/g,"");
       if(t.length<6){ msg.textContent="El código tiene 6 dígitos."; inp.focus(); return; }
       btn.disabled=true; msg.textContent="Verificando…";
@@ -1264,7 +1281,7 @@ function renderIngreso(box){
       if(Date.now()-INGRESO.enviadoEn<60000){ msg.textContent="Esperá un minuto antes de pedir otro código."; return; }
       msg.textContent="Enviando…"; const r=await pedirCodigo(INGRESO.email); if(r.ok){ INGRESO.enviadoEn=Date.now(); msg.textContent="Te mandamos un código nuevo."; } else msg.textContent=r.msg; }},"Reenviar el código");
     agregar(card, el("h2",{},"Revisá tu mail"),
-      el("p",{},`Te mandamos un código de 6 dígitos a ${INGRESO.email}. Escribilo acá. Si no lo ves, revisá la carpeta de spam.`),
+      el("p",{},`Te mandamos un mail a ${INGRESO.email} con un código de 6 dígitos. Buscalo (si no está, revisá la carpeta de spam) y escribí el código acá.`),
       el("label",{class:"campo",for:"ing-cod"}, el("span",{},"Código"), inp), btn, msg,
       el("div",{class:"row"}, reenviar, el("button",{class:"btn link",type:"button",onclick:()=>{ INGRESO.paso="mail"; INGRESO.msg=""; renderOnb(); }},"Usar otro mail")));
   }
@@ -1330,7 +1347,6 @@ window.addEventListener("hashchange",()=>render());
 // ==== CUESTIONARIO INICIAL ====
 // Cada pregunta: 4 opciones + «Otro» (con texto). type: single | multi | numbers
 const PREGUNTAS = [
-  {id:"datos", sec:"Vos", t:"¿Cómo te llamás?", sub:"Tu nombre lo usamos para hablarte por tu nombre. Tu mail, para novedades y encuestas de Pulso.", type:"datos"},
   {id:"sexo", sec:"Vos", t:"¿Con qué sexo te identificás?", sub:"Se usa solo para estimar tu gasto de energía.", type:"single",
    opts:[["h","Hombre"],["m","Mujer"],["nb","No binario"],["pnd","Prefiero no decirlo"]]},
   {id:"cuerpo", sec:"Vos", t:"Tus datos físicos", sub:"Con esto se calcula tu energía diaria. Quedan guardados en tu dispositivo.", type:"numbers",
@@ -1917,7 +1933,8 @@ function renderOnb(){
   if(ONB.paso==="avisos"){ cronoMarcar(null); renderOfertaAvisos(box); return; }
   if(!DB.auth && ONB.paso!=="instalar" && (DB.perfil?.completo || ONB.i>=0)) ONB.paso="ingreso";
   if(ONB.paso==="ingreso"){ cronoMarcar(null); renderIngreso(box); return; }
-  if(DB.perfil?.completo && !DB.consent?.acepta && !ONB.soloDatos) ONB.i=total;   // perfil de una versión anterior: falta aceptar los términos
+  if(ONB.paso==="bienvenida" && DB.auth){ cronoMarcar(null); renderBienvenida(box); return; }
+  if(DB.perfil?.completo && !DB.consent?.acepta) ONB.i=total;   // perfil de una versión anterior: falta aceptar los términos
   if(ONB.i<0){
     cronoMarcar(null);
     if(ONB.paso==="instalar"){ renderInstalar(box); return; }
@@ -1926,13 +1943,13 @@ function renderOnb(){
       el("p",{class:"lead"},"Comer, moverte y descansar mejor, con un plan hecho para vos."),
       el("p",{},"Pulso te sugiere qué comer según tus horarios, tus gustos y tu cocina; arma tu semana de movimiento y te ayuda a registrar cómo dormís y cómo te sentís con la comida."),
       el("p",{},"Es gratis."),
-      el("p",{class:"note"}, inst? "Primero vas a agregarla a tu pantalla de inicio; después, "+total+" preguntas rápidas para armar tu plan." : "Para armar tu plan, "+total+" preguntas rápidas: casi todas se responden con un toque."),
+      el("p",{class:"note"}, inst? "Primero vas a agregarla a tu pantalla de inicio. Después creás tu cuenta con tu mail y respondés "+total+" preguntas rápidas para armar tu plan." : "Creás tu cuenta con tu mail y respondés "+total+" preguntas rápidas para armar tu plan."),
       el("button",{class:"btn primary big",type:"button",onclick:()=>{ if(inst) ONB.paso="instalar"; else if(!DB.auth) ONB.paso="ingreso"; else ONB.i=0; renderOnb(); window.scrollTo(0,0); }},"Empezar")));
     return;
   }
   if(ONB.i>=total){ cronoMarcar(null); if(DB.consent?.acepta){ finalizarCuestionario(); return; } renderConsent(box); return; }
   const q=PREGUNTAS[ONB.i]; cronoMarcar(q.id);
-  const next=()=>{ if(ONB.soloDatos && q.type==="datos"){ ONB.soloDatos=false; ONB.i=total; } else ONB.i++; renderOnb(); window.scrollTo(0,0); };
+  const next=()=>{ ONB.i++; renderOnb(); window.scrollTo(0,0); };
   const atras=()=>{ ONB.i--; renderOnb(); };
   const prog=el("div",{class:"onb-prog"}, el("i",{style:`width:${(ONB.i/total)*100}%`}));
   const card=el("div",{class:"onb-card"}, prog, el("div",{class:"eyebrow"},`${q.sec} · ${ONB.i+1} de ${total}`), el("h2",{},q.t), q.sub? el("p",{class:"note"},q.sub):null);
