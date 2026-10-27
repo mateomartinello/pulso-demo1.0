@@ -68,12 +68,24 @@ async function alIngresar(j){
   if(DB.perfil?.completo){ ONB.soloDatos=!DB.perfil.resp.datos?.nombre; ONB.i=ONB.soloDatos? 0 : PREGUNTAS.length; } else ONB.i=0;
   render(); window.scrollTo(0,0); respaldoPronto(true);
 }
+// Ingreso por enlace: mientras el mail de Supabase traiga un enlace en lugar del código (hasta configurar un servidor
+// de envío propio), el enlace vuelve a la app con la sesión en la dirección (#access_token=…).
+async function ingresoPorEnlace(){
+  if(!/(access_token|error_code)=/.test(location.hash)) return;
+  const p=new URLSearchParams(location.hash.slice(1)); history.replaceState(null,"",location.pathname);
+  if(p.get("error_code")){ INGRESO.paso="mail"; INGRESO.msg="El enlace venció o ya se usó. Pedí uno nuevo."; ONB.paso="ingreso"; render(); return; }
+  try{ const at=p.get("access_token");
+    const res=await fetch(AUTH_URL()+"/user",{headers:{"apikey":CONFIG.SUPABASE_ANON_KEY,"Authorization":"Bearer "+at}});
+    if(!res.ok) throw 0;
+    await alIngresar({access_token:at, refresh_token:p.get("refresh_token"), expires_in:+p.get("expires_in")||3600, user:await res.json()});
+  }catch(e){ INGRESO.paso="mail"; INGRESO.msg="No se pudo entrar con ese enlace. Pedí uno nuevo."; ONB.paso="ingreso"; render(); }
+}
 function trasInstalar(){ if(DB.auth){ ONB.paso=null; ONB.i=0; } else ONB.paso="ingreso"; renderOnb(); window.scrollTo(0,0); }
 
 // ---- Pantalla de ingreso ----
 const INGRESO={paso:"mail", email:"", msg:"", enviadoEn:0};
 async function pedirCodigo(email){
-  try{ const r=await authPost("/otp",{email, create_user:true});
+  try{ const r=await authPost("/otp?redirect_to="+encodeURIComponent(location.origin+location.pathname),{email, create_user:true});
     if(r.ok) return {ok:true};
     if(r.status===429) return {ok:false, msg:"Se pidieron demasiados códigos. Esperá unos minutos y probá de nuevo."};
     return {ok:false, msg:"No pudimos enviar el código. Revisá el mail y probá de nuevo."};
@@ -110,7 +122,7 @@ function renderIngreso(box){
       if(Date.now()-INGRESO.enviadoEn<60000){ msg.textContent="Esperá un minuto antes de pedir otro código."; return; }
       msg.textContent="Enviando…"; const r=await pedirCodigo(INGRESO.email); if(r.ok){ INGRESO.enviadoEn=Date.now(); msg.textContent="Te mandamos un código nuevo."; } else msg.textContent=r.msg; }},"Reenviar el código");
     card.append(el("h2",{},"Escribí el código"),
-      el("p",{},`Te lo mandamos a ${INGRESO.email}. Si no lo ves, revisá la carpeta de spam.`),
+      el("p",{},`Te lo mandamos a ${INGRESO.email}. Si no lo ves, revisá la carpeta de spam. Si el mail trae un enlace en lugar de un código, abrí el enlace.`),
       el("label",{class:"campo",for:"ing-cod"}, el("span",{},"Código"), inp), btn, msg,
       el("div",{class:"row"}, reenviar, el("button",{class:"btn link",type:"button",onclick:()=>{ INGRESO.paso="mail"; INGRESO.msg=""; renderOnb(); }},"Usar otro mail")));
   }

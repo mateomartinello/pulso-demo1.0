@@ -1,6 +1,9 @@
-import re,sys,os,hashlib
+import re,sys,os,hashlib,shutil
 B=os.path.dirname(os.path.abspath(__file__)); S=B+"/src/"
 # Arma index.html (la app publicada) a partir de src/. Uso: python3 build.py
+# Versión de prueba en la carpeta prueba/ (se publica en /pulso/prueba/): python3 build.py prueba
+OUT=B+"/prueba" if sys.argv[1:2]==["prueba"] else B
+os.makedirs(OUT,exist_ok=True)
 r=lambda f: open(S+f,encoding="utf-8").read()
 shell=r("shell.html")
 css_extra=re.search(r"<!--CSS_EXTRA-->(.*)<!--/CSS_EXTRA-->",shell,re.S).group(1)
@@ -40,8 +43,9 @@ body{{margin:0}} img{{max-width:100%}} [hidden]{{display:none!important}}
 </body>
 </html>
 '''
-open(B+"/index.html","w",encoding="utf-8").write(full)
+open(OUT+"/index.html","w",encoding="utf-8").write(full)
 # PWA: manifiesto y service worker (con versión nueva en cada armado). Los íconos los genera iconos.py.
-open(B+"/manifest.webmanifest","w",encoding="utf-8").write(r("manifest.webmanifest"))
-open(B+"/sw.js","w",encoding="utf-8").write(r("sw.js").replace("__VERSION__",hashlib.sha256(full.encode()).hexdigest()[:10]))
-print("ok", len(full))
+open(OUT+"/manifest.webmanifest","w",encoding="utf-8").write(r("manifest.webmanifest"))
+open(OUT+"/sw.js","w",encoding="utf-8").write(r("sw.js").replace("__VERSION__",hashlib.sha256(full.encode()).hexdigest()[:10]))
+if OUT!=B: shutil.copytree(B+"/iconos", OUT+"/iconos", dirs_exist_ok=True)
+print("ok", OUT, len(full))

@@ -671,9 +671,10 @@ function finalizarCuestionario(){
 }
 
 // ==== ARRANQUE ====
-{ const m=new URLSearchParams(location.search).get("momento"); if(m && SLOTDEF[m]){ S.slot=m; S.view="hoy"; } if(location.search) history.replaceState(null,"",location.pathname); }
+{ const m=new URLSearchParams(location.search).get("momento"); if(m && SLOTDEF[m]){ S.slot=m; S.view="hoy"; } if(location.search) history.replaceState(null,"",location.pathname+location.hash); }
 sesionIniciar();
 render();
+ingresoPorEnlace();
 flushSoon();
 sincronizarAvisos();
 setInterval(()=>{ const k=dayKey(new Date()); if(k!==S.today){ S.today=k; S.slot=null; S.offsets={}; render(); } },60000);
