@@ -593,8 +593,7 @@ function renderOnb(){
     cronoMarcar(null);
     if(ONB.paso==="instalar"){ renderInstalar(box); return; }
     const inst=necesitaInstalar();
-    box.append(el("div",{class:"onb-card"}, el("div",{class:"eyebrow"},"Bienvenida"), el("h1",{},"Pulso"),
-      CONFIG.DEMO? el("div",{class:"demo"},CONFIG.DEMO) : null,
+    box.append(el("div",{class:"onb-card"}, el("div",{class:"eyebrow"}, CONFIG.DEMO? "Bienvenido a la "+CONFIG.DEMO : "Bienvenida"), el("h1",{},"Pulso"),
       el("p",{class:"lead"},"Comer, moverte, y descansar mejor.", el("br"), "Un plan hecho sólo para vos."),
       el("p",{},"Pulso te acompaña con tus comidas, según tus gustos y tu cocina.", el("br"), "Además, contempla tu actividad física, tu sueño, y tu relación con la comida."),
       el("p",{},"Es gratis."),
