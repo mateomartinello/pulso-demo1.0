@@ -1943,8 +1943,8 @@ function renderOnb(){
     const inst=necesitaInstalar();
     box.append(el("div",{class:"onb-card"}, el("div",{class:"eyebrow"},"Bienvenida"), el("h1",{},"Pulso"),
       CONFIG.DEMO? el("div",{class:"demo"},CONFIG.DEMO) : null,
-      el("p",{class:"lead"},"Comer, moverte y descansar mejor, con un plan hecho para vos."),
-      el("p",{},"Pulso te sugiere qué comer según tus horarios, tus gustos y tu cocina; arma tu semana de movimiento y te ayuda a registrar cómo dormís y cómo te sentís con la comida."),
+      el("p",{class:"lead"},"Comer, moverte, y descansar mejor.", el("br"), "Un plan hecho sólo para vos."),
+      el("p",{},"Pulso te acompaña con tus comidas, según tus gustos y tu cocina.", el("br"), "Además, contempla tu actividad física, tu sueño, y tu relación con la comida."),
       el("p",{},"Es gratis."),
       el("button",{class:"btn primary big",type:"button",onclick:()=>{ if(inst) ONB.paso="instalar"; else if(!DB.auth) ONB.paso="ingreso"; else ONB.i=0; renderOnb(); window.scrollTo(0,0); }},"Empezar")));
     return;
