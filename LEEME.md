@@ -13,20 +13,22 @@ Para actualizarla, subí el `index.html` nuevo con el mismo nombre (reemplaza al
 
 ## 2. Activar la base común en Supabase (unos 10 minutos)
 
-1. Creá una cuenta en supabase.com y un proyecto nuevo (plan gratuito). Elegí una región cercana (São Paulo) y guardá la contraseña de la base.
+1. Creá una cuenta en supabase.com y un proyecto nuevo (plan gratuito). Elegí una región cercana (São Paulo) y guardá la contraseña de la base. En *Security*, desmarcá **Automatically expose new tables** y marcá **Enable automatic RLS**.
 2. En el proyecto: **SQL Editor → New query**, pegá todo el contenido de `supabase.sql` y tocá **Run**.
-3. En **Project Settings → API** copiá:
-   - **Project URL** (algo como `https://xxxx.supabase.co`)
-   - la clave **anon public**
-4. Abrí `index.html` con un editor de texto, buscá `const CONFIG` al principio del script y pegá los dos valores:
+3. En **Project Settings → API Keys** copiá la **Publishable key** (`sb_publishable_…`). La **Project URL** es `https://<id-del-proyecto>.supabase.co`.
+4. Pegá los dos valores en `src/config.js`:
    ```js
    SUPABASE_URL: "https://xxxx.supabase.co",
-   SUPABASE_ANON_KEY: "eyJ...",
+   SUPABASE_ANON_KEY: "sb_publishable_...",
    ```
    También completá `CONTACTO` con un mail para pedidos de acceso o borrado de datos.
-5. Subí ese `index.html` a GitHub (paso 1.2).
+5. Corré `python3 build.py` y subí los cambios a GitHub.
 
-La clave **anon public** puede estar en la página: con las reglas de `supabase.sql`, solo sirve para **agregar** registros, no para leerlos. **Nunca** pegues en la página la clave `service_role`.
+La clave publicable puede estar en la página: con los permisos de `supabase.sql`, solo sirve para **agregar** registros, no para leerlos, modificarlos ni borrarlos. **Nunca** pegues en la página una clave secreta (`sb_secret_…` o `service_role`).
+
+**Proyecto actual:** `pulso` (id `aihixquihhpirxmjhumg`, región São Paulo).
+
+**Borrar los datos de prueba antes de abrir la app al público:** en **SQL Editor**, correr `truncate public.eventos restart identity;`.
 
 ## 3. Ver y analizar los datos
 

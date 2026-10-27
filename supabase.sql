@@ -18,6 +18,10 @@ create index if not exists eventos_anon_idx  on public.eventos (anon_id);
 create index if not exists eventos_tipo_idx  on public.eventos (tipo, fecha);
 
 -- Seguridad: la app (clave pública) solo puede AGREGAR filas. No puede leer, modificar ni borrar.
+-- Permisos explícitos (el proyecto se crea sin «Automatically expose new tables»): solo INSERT para la clave pública.
+revoke all on public.eventos from anon, authenticated;
+grant usage on schema public to anon;
+grant insert on public.eventos to anon;
 alter table public.eventos enable row level security;
 drop policy if exists "solo_insertar" on public.eventos;
 create policy "solo_insertar" on public.eventos for insert to anon with check (
@@ -46,7 +50,7 @@ revoke all on function public.borrar_mis_datos(text, text) from public;
 grant execute on function public.borrar_mis_datos(text, text) to anon;
 
 -- Vistas útiles para analizar (solo las ve el dueño del proyecto, no la app):
-create or replace view public.resumen_usuarios as
+create or replace view public.resumen_usuarios with (security_invoker = on) as
   select anon_id, min(recibido) as primer_registro, max(recibido) as ultimo_registro,
          count(*) filter (where tipo='comida') as comidas,
          count(*) filter (where tipo='ejercicio') as actividades,
