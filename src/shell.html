@@ -11,8 +11,21 @@
 .onb-card h1{font-size:clamp(34px,9vw,46px)}
 .onb-card h2{font-size:26px;margin:0}
 .lead{font-family:var(--serif);font-size:20px;color:var(--ink);margin:0;text-wrap:balance}
-.onb-prog{height:4px;background:var(--box);border-radius:2px;overflow:hidden}
-.onb-prog i{display:block;height:100%;background:var(--green);transition:width .25s}
+.onb-prog{height:2px;background:var(--gold);overflow:hidden}
+.onb-prog i{display:block;height:100%;background:#fff;transition:width .25s}
+#cuenta{position:fixed;left:0;right:0;bottom:env(safe-area-inset-bottom,0px);height:5px;background:var(--box);z-index:40}
+#cuenta i{display:block;height:100%;width:0;background:var(--green)}
+.campos{display:flex;flex-direction:column;gap:12px}
+.campo{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600;color:var(--muted)}
+.campo input{font:inherit;font-size:16px;font-weight:400;color:var(--body);background:var(--card);border:1px solid var(--gold);border-radius:6px;padding:11px 12px}
+.campo input:focus-visible{outline:2px solid var(--green);outline-offset:1px}
+.aviso-tyc{background:var(--bad-bg);color:var(--bad);border-radius:8px;padding:12px 14px;font-weight:500}
+.btn-perfil{flex:0 0 auto;width:42px;height:42px;border-radius:50%;border:1px solid var(--gold);background:var(--card);color:var(--ink);display:grid;place-items:center;cursor:pointer;padding:0}
+.btn-perfil svg{width:22px;height:22px}
+.btn-perfil[aria-current="page"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.btn-perfil:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.top{align-items:flex-start;flex-wrap:nowrap}
+.top .date{margin-top:4px}
 .choices{display:flex;flex-direction:column;gap:8px}
 .choice{font:inherit;font-size:15px;text-align:left;background:var(--card);color:var(--body);border:1px solid var(--gold);border-radius:8px;padding:13px 14px;cursor:pointer}
 .choice.on{border-color:var(--green);background:var(--ok-bg);color:var(--ink);font-weight:600}
@@ -42,8 +55,9 @@ input[type=text]{font:inherit;color:var(--body);background:var(--card);border:1p
     <div>
       <div class="eyebrow">Comer · moverte · descansar</div>
       <h1>Pulso</h1>
+      <div class="date" id="fecha"></div>
     </div>
-    <div class="date" id="fecha"></div>
+    <button type="button" id="btnPerfil" class="btn-perfil" aria-label="Perfil" title="Perfil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20.5c0-4.2 3.6-6.5 8-6.5s8 2.3 8 6.5"/></svg></button>
   </div>
   <div class="tabs" role="tablist">
     <button class="tab" role="tab" data-v="hoy">Hoy</button>
@@ -51,7 +65,6 @@ input[type=text]{font:inherit;color:var(--body);background:var(--card);border:1p
     <button class="tab" role="tab" data-v="semana">Semana</button>
     <button class="tab" role="tab" data-v="historial">Historial</button>
     <button class="tab" role="tab" data-v="recetario">Recetario</button>
-    <button class="tab" role="tab" data-v="perfil">Perfil</button>
   </div>
   <div id="storeBanner" class="banner" hidden>Este navegador no está guardando tus datos (modo privado o almacenamiento bloqueado). Lo que registres se pierde al cerrar.</div>
   <div id="v-hoy" class="stack"></div>
@@ -62,5 +75,6 @@ input[type=text]{font:inherit;color:var(--body);background:var(--card);border:1p
   <div id="v-perfil" class="stack" hidden></div>
 </div>
 </div>
+<div id="cuenta" hidden aria-hidden="true"><i></i></div>
 <div id="sheet" hidden role="dialog" aria-modal="true" aria-label="Hambre y emociones"></div>
 <!--/BODY-->

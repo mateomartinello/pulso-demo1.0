@@ -1,6 +1,7 @@
 // ==== CUESTIONARIO INICIAL ====
 // Cada pregunta: 4 opciones + «Otro» (con texto). type: single | multi | numbers
 const PREGUNTAS = [
+  {id:"datos", sec:"Vos", t:"¿Cómo te llamás?", sub:"Tu nombre lo usamos para hablarte por tu nombre. Tu mail, para novedades y encuestas de Pulso.", type:"datos"},
   {id:"sexo", sec:"Vos", t:"¿Con qué sexo te identificás?", sub:"Se usa solo para estimar tu gasto de energía.", type:"single",
    opts:[["h","Hombre"],["m","Mujer"],["nb","No binario"],["pnd","Prefiero no decirlo"]]},
   {id:"cuerpo", sec:"Vos", t:"Tus datos físicos", sub:"Con esto se calcula tu energía diaria. Quedan guardados en tu dispositivo.", type:"numbers",
@@ -11,8 +12,8 @@ const PREGUNTAS = [
    opts:[["sed","Casi nada: paso sentado la mayor parte del día"],["lig","Poco: camino o entreno 1 o 2 días"],["mod","Bastante: entreno 3 o 4 días"],["alt","Mucho: entreno 5 días o más"]]},
   {id:"patron", sec:"Alimentación", t:"¿Cómo comés?", type:"single",
    opts:[["omni","Como de todo"],["flex","Mayormente vegetal, con algo de carne"],["veg","Vegetariano"],["vegano","Vegano"]]},
-  {id:"restric", sec:"Alimentación", t:"¿Tenés alguna restricción por salud?", sub:"Podés marcar varias.", type:"multi", none:"ninguna",
-   opts:[["gluten","Celiaquía o sin gluten"],["lactosa","Intolerancia a la lactosa"],["nuez","Alergia a frutos secos"],["ninguna","Ninguna"]]},
+  {id:"restric", sec:"Alimentación", t:"¿Tenés alguna restricción por salud?", sub:"Podés marcar varias.", type:"multi",
+   opts:[["gluten","Celiaquía o sin gluten"],["lactosa","Intolerancia a la lactosa"],["nuez","Alergia a frutos secos"],["huevo","Alergia al huevo"]]},
   {id:"nocome", sec:"Alimentación", t:"¿Qué no comés porque no te gusta?", sub:"Podés marcar varias.", type:"multi",
    opts:[["pescado","Pescado"],["cerdo","Carne de cerdo"],["legumbre","Legumbres"],["lacteo","Lácteos"]]},
   {id:"estructura", sec:"Tu día", t:"¿Cuántas comidas hacés por día?", type:"single",
@@ -26,7 +27,7 @@ const PREGUNTAS = [
   {id:"snacks", sec:"Tus gustos", t:"Entre comidas, ¿qué solés comer?", sub:"Podés marcar varios.", type:"multi",
    opts:[["galletitas","Galletitas o alfajores"],["fruta","Fruta"],["frutos","Frutos secos"],["salados","Snacks salados"]]},
   {id:"pan", sec:"Marcas", t:"¿Qué pan comprás?", type:"single",
-   opts:[["bimbo","Bimbo Artesano integral"],["lactal","Pan lactal blanco (Fargo, Bimbo)"],["panaderia","Pan de panadería"],["no","No como pan"]]},
+   opts:[["bimbo","Bimbo"],["fargo","Fargo"],["lactal","Lactal"],["panaderia","De panadería"],["no","No como pan"]]},
   {id:"lacteos", sec:"Marcas", t:"¿Qué marca de yogur o lácteos comprás?", type:"single",
    opts:[["serenisima","La Serenísima"],["yogurisimo","Yogurísimo"],["propia","Marca del supermercado"],["no","No consumo"]]},
   {id:"bebida", sec:"Marcas", t:"¿Qué tomás con las comidas?", type:"single",
@@ -92,7 +93,7 @@ function calcPlan(p){
   const pat=r.patron;
   if(pat==="veg"||pat==="vegano") ["vacuna","cerdo","pollo","pescado"].forEach(g=>excl.add(g));
   if(pat==="vegano") ["huevo","lacteo"].forEach(g=>excl.add(g));
-  for(const x of (r.restric||[])){ if(x==="gluten") excl.add("gluten"); if(x==="nuez") excl.add("nuez"); }
+  for(const x of (r.restric||[])){ if(x==="gluten") excl.add("gluten"); if(x==="nuez") excl.add("nuez"); if(x==="huevo") excl.add("huevo"); }
   for(const x of (r.nocome||[])){ if(["pescado","cerdo","legumbre","lacteo"].includes(x)) excl.add(x); }
   if(r.pan==="no") excl.add("pan");
   let eq = new Set((r.equipo||[]).filter(x=>x!=="otro")); if(!eq.size) eq=new Set(["hornalla"]);
@@ -194,21 +195,23 @@ async function getHash(){
   return secretHash;
 }
 function perfilCompartible(){
-  const r={...DB.perfil.resp}; if(r.relacion==="control"||r.relacion==="tca") r.relacion="no_informado"; delete r.relacion_otro; return r;
+  const r={...DB.perfil.resp}; if(r.relacion==="control"||r.relacion==="tca") r.relacion="no_informado"; delete r.relacion_otro; delete r.datos;
+  r.tiempos_s = DB.perfil.tiempos||{}; return r;
 }
-function enviar(tipo, datos, fecha){
+function enviar(tipo, datos, fecha, urgente){
   if(!DB.consent?.share) return;
-  DB.cola.push({tipo, fecha: fecha||S.today, datos, creado:new Date().toISOString()}); persist(); flushSoon();
+  DB.cola.push({tipo, fecha: fecha||S.today, datos, creado:new Date().toISOString()}); persist();
+  if(urgente) flush(true); else flushSoon();
 }
 let flushT=null, flushing=false;
 function flushSoon(){ clearTimeout(flushT); flushT=setTimeout(flush, 1500); }
-async function flush(){
+async function flush(urgente){
   if(flushing || !SYNC_ON() || !DB.cola.length || !navigator.onLine) return;
   flushing=true;
   try{
-    const h=await getHash(); const lote=DB.cola.slice(0,200);
+    const h=await getHash(); const lote=DB.cola.slice(0, urgente? 20 : 200);
     const rows=lote.map(e=>({anon_id:DB.anonId, secret_hash:h, tipo:e.tipo, fecha:e.fecha, datos:e.datos, creado:e.creado, app_version:CONFIG.APP_VERSION}));
-    const res=await fetch(CONFIG.SUPABASE_URL.replace(/\/$/,"")+"/rest/v1/eventos",{method:"POST",
+    const res=await fetch(CONFIG.SUPABASE_URL.replace(/\/$/,"")+"/rest/v1/eventos",{method:"POST", keepalive:!!urgente,
       headers:{"apikey":CONFIG.SUPABASE_ANON_KEY,"Authorization":"Bearer "+CONFIG.SUPABASE_ANON_KEY,"Content-Type":"application/json","Prefer":"return=minimal"},
       body:JSON.stringify(rows)});
     if(res.ok){ DB.cola.splice(0,lote.length); persist(); if(DB.cola.length) flushSoon(); }
@@ -221,10 +224,41 @@ async function borrarRemoto(){
     const res=await fetch(CONFIG.SUPABASE_URL.replace(/\/$/,"")+"/rest/v1/rpc/borrar_mis_datos",{method:"POST",
       headers:{"apikey":CONFIG.SUPABASE_ANON_KEY,"Authorization":"Bearer "+CONFIG.SUPABASE_ANON_KEY,"Content-Type":"application/json"},
       body:JSON.stringify({p_anon_id:DB.anonId, p_secret:DB.secret})});
-    return res.ok? {ok:true, msg:"Se borraron tus datos de la base común."} : {ok:false, msg:"No se pudo borrar ahora. Revisá la conexión y probá de nuevo."};
+    if(!res.ok) return {ok:false, msg:"No se pudo borrar ahora. Revisá la conexión y probá de nuevo."};
+    if(DB.contacto?.id) await rpc("borrar_contacto",{p_id:DB.contacto.id, p_secret:DB.contacto.secret});
+    return {ok:true, msg:"Se borraron tus datos y tu mail de la base común. Mientras uses la app, los registros nuevos se siguen compartiendo, como explican los términos."};
   }catch(e){ return {ok:false, msg:"No se pudo borrar ahora. Revisá la conexión y probá de nuevo."}; }
 }
 window.addEventListener("online", flushSoon);
+
+// ==== MAIL (tabla aparte, sin relación con los datos de salud) ====
+const EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+async function guardarContacto(){
+  const email=DB.perfil?.resp?.datos?.email;
+  if(!email || !DB.consent?.acepta || !CONFIG.SUPABASE_URL) return;
+  DB.contacto=DB.contacto||{id:uid(), secret:uid()+uid()};
+  if(DB.contacto.enviado===email) return;
+  try{ if(await rpc("guardar_contacto",{p_id:DB.contacto.id, p_secret:DB.contacto.secret, p_email:email})){ DB.contacto.enviado=email; persist(); } }catch(e){}
+}
+
+// ==== SESIONES DE USO ====
+// Una sesión va desde que la app se abre (o vuelve al frente) hasta que pasa a segundo plano o se cierra.
+// Si vuelve en menos de un minuto, sigue la misma sesión. Se envía cada vez que la app pasa a segundo plano,
+// con el mismo id: para analizar, vale el último envío de cada id.
+const SES_PAUSA=60000;
+function sesionEnviar(s, urgente){
+  enviar("sesion",{id:s.id, inicio:new Date(s.inicio).toISOString(), fin:new Date(s.fin).toISOString(), duracion_s:Math.round((s.fin-s.inicio)/1000)}, dayKey(new Date(s.inicio)), urgente);
+}
+function sesionIniciar(){
+  const ahora=Date.now(), s=DB.sesion;
+  if(s && s.fin && ahora-s.fin<SES_PAUSA){ s.fin=null; s.ultimo=ahora; persist(); return; }
+  if(s && !s.fin){ s.fin=s.ultimo||s.inicio; sesionEnviar(s); }   // se cerró sin aviso: termina en su último registro
+  DB.sesion={id:uid(), inicio:ahora, ultimo:ahora, fin:null}; persist();
+}
+function sesionPausar(){ const s=DB.sesion; if(!s || s.fin) return; s.fin=s.ultimo=Date.now(); persist(); sesionEnviar(s, true); }
+document.addEventListener("visibilitychange",()=>{ if(document.hidden) sesionPausar(); else sesionIniciar(); });
+window.addEventListener("pagehide", sesionPausar);
+setInterval(()=>{ if(DB.sesion && !DB.sesion.fin && !document.hidden){ DB.sesion.ultimo=Date.now(); persist(); } }, 30000);
 
 // ==== REGISTRO ====
 function addComida(e){ const c={id:uid(), hora:new Date().toISOString(), ...e}; day().comidas.push(c); persist(); enviar("comida", c); marcarAviso(S.today, c.slot, true); render(); }
@@ -259,17 +293,20 @@ function cerrarSheet(){ $("#sheet").hidden=true; $("#sheet").replaceChildren(); 
 
 // ==== RENDER: GENERAL ====
 function render(){
-  if(!DB.perfil?.completo || ONB.paso==="avisos"){ $("#app").hidden=true; $("#onb").hidden=false; renderOnb(); return; }
+  if(!DB.perfil?.completo || !DB.consent?.acepta || ONB.paso==="avisos"){ $("#app").hidden=true; $("#onb").hidden=false; renderOnb(); return; }
   PLAN = calcPlan(DB.perfil);
   if(!S.slot || !slotsHoy().some(s=>s[0]===S.slot)) S.slot=slotNow();
   $("#onb").hidden=true; $("#app").hidden=false;
-  $("#fecha").textContent = cap(keyDate(S.today).toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long"}));
+  const nombre=DB.perfil.resp.datos?.nombre;
+  $("#fecha").textContent = (nombre? `Hola, ${nombre} · ` : "") + cap(keyDate(S.today).toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long"}));
+  $("#btnPerfil").setAttribute("aria-current", S.view==="perfil"? "page" : "false");
   $("#storeBanner").hidden = persistOk;
   document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.v===S.view)));
   for(const v of ["hoy","mov","semana","historial","recetario","perfil"]) $("#v-"+v).hidden = v!==S.view;
   ({hoy:renderHoy, mov:renderMov, semana:renderSemana, historial:renderHistorial, recetario:renderRecetario, perfil:renderPerfil})[S.view]();
 }
 document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{ S.view=b.dataset.v; render(); window.scrollTo(0,0); }));
+$("#btnPerfil").addEventListener("click",()=>{ S.view="perfil"; render(); window.scrollTo(0,0); });
 
 // ==== HOY ====
 function ingRows(rec, f){
@@ -494,32 +531,30 @@ function renderRecetario(){
 function renderPerfil(){
   const box=$("#v-perfil"); box.replaceChildren(); const P=PLAN;
   const resumen=[];
-  for(const q of PREGUNTAS){ if(q.type==="numbers") continue; const v=ans(q.id); if(v==null) continue;
+  for(const q of PREGUNTAS){ if(q.type==="numbers" || q.type==="datos") continue; const v=ans(q.id); if(v==null) continue;
     const lab=x=> x==="otro"? (DB.perfil.resp[q.id+"_otro"]||"Otro") : (q.opts.find(o=>o[0]===x)||[,x])[1];
     resumen.push(el("li",{}, el("div",{}, el("div",{class:"s"},q.t), el("div",{}, Array.isArray(v)? (v.length? v.map(lab).join(", "):"Nada") : lab(v))))); }
-  const c=DB.perfil.resp.cuerpo||{};
+  const c=DB.perfil.resp.cuerpo||{}, dp=DB.perfil.resp.datos||{};
   box.append(
     el("section",{class:"card hero"}, el("div",{class:"label"},"Tu plan"),
       P.care? el("p",{},"Modo cuidado: sin calorías ni metas numéricas. El foco está en comer variado, en horarios regulares y en cómo te sentís.")
         : el("div",{class:"meta",style:"margin-top:8px"}, el("span",{},el("b",{},nf(P.kcal))," kcal por día de referencia"), el("span",{},el("b",{},nf(P.prot))," g de proteína como mínimo")),
       el("div",{class:"meta",style:"margin-top:8px"}, el("span",{},ESTRUCTURAS[P.est].n), ...slotsHoy().map(([k])=>el("span",{},`${SLOTDEF[k].n} ${P.horas[k]} h`))),
       el("p",{class:"note",style:"margin:10px 0 0"},"La energía se estima con la ecuación de Mifflin-St Jeor y tu nivel de actividad. Es una referencia: si tu peso cambia sin que lo busques, actualizá tus datos.")),
-    el("section",{class:"card"}, el("h3",{},"Tus respuestas"), el("p",{class:"note",style:"margin:0 0 6px"},`${c.edad||"—"} años · ${c.altura||"—"} cm · ${c.peso||"—"} kg`),
+    el("section",{class:"card"}, el("h3",{},"Tus respuestas"),
+      (dp.nombre||dp.email)? el("p",{style:"margin:0 0 4px"},[dp.nombre,dp.apellido].filter(Boolean).join(" ")+(dp.email?` · ${dp.email}`:"")) : null,
+      el("p",{class:"note",style:"margin:0 0 6px"},`${c.edad||"—"} años · ${c.altura||"—"} cm · ${c.peso||"—"} kg`),
       el("ul",{class:"log"}, resumen),
       el("div",{class:"row",style:"margin-top:12px"}, el("button",{class:"btn small",type:"button",onclick:()=>{ DB.perfil.completo=false; ONB.i=0; persist(); render(); }},"Editar respuestas"))),
     seccionAvisos(), seccionPrivacidad());
 }
 function seccionPrivacidad(){
   const msg=el("p",{class:"note",id:"privMsg",style:"margin:8px 0 0"});
-  const conf = !!(CONFIG.SUPABASE_URL && CONFIG.SUPABASE_ANON_KEY);
   const file=el("input",{type:"file",id:"impFile",accept:"application/json",hidden:true});
   file.addEventListener("change",async()=>{ try{ const t=await file.files[0].text(); const x=JSON.parse(t); if(!x||!x.dias||!x.perfil) throw 0; const av=DB.avisos; DB=x; DB.avisos=av; persist(); msg.textContent="Copia restaurada."; render(); }catch(e){ msg.textContent="El archivo no es una copia válida de la app."; } });
   return el("section",{class:"card"}, el("h3",{},"Privacidad y datos"),
-    el("p",{style:"margin:0 0 8px"}, DB.consent?.share? "Compartís tus datos de forma anónima para mejorar la app." : "No compartís datos: todo queda solo en este dispositivo."),
-    !conf && DB.consent?.share? el("p",{class:"note",style:"margin:0 0 8px"},"La base común todavía no está activa en esta versión; no se envió nada.") : null,
+    el("p",{style:"margin:0 0 8px"}, `Aceptaste los términos y condiciones el ${new Date(DB.consent.fecha).toLocaleDateString("es-AR",{day:"numeric",month:"long",year:"numeric"})}. Tus registros se comparten con la base de datos de Pulso como explican los términos.`),
     el("div",{class:"row"},
-      el("button",{class:"btn small",type:"button",onclick:()=>{ const on=!DB.consent?.share; DB.consent={share:on, fecha:new Date().toISOString(), version:CONFIG.APP_VERSION}; if(on){ enviar("perfil", perfilCompartible()); } else DB.cola=[]; persist(); render(); }},
-        DB.consent?.share? "Dejar de compartir" : "Compartir datos anónimos"),
       el("button",{class:"btn small",type:"button",onclick:async()=>{ msg.textContent="Borrando…"; const r=await borrarRemoto(); msg.textContent=r.msg; }},"Borrar mis datos compartidos")),
     el("div",{class:"row",style:"margin-top:8px"},
       el("button",{class:"btn small",type:"button",onclick:()=>{ try{ const a=el("a",{href:URL.createObjectURL(new Blob([JSON.stringify(DB,null,1)],{type:"application/json"})),download:"copia-pulso-"+S.today+".json"}); document.body.append(a); a.click(); a.remove(); msg.textContent="Copia descargada."; }catch(e){ msg.textContent="No se pudo descargar la copia en este navegador."; } }},"Descargar copia"),
@@ -530,86 +565,130 @@ function seccionPrivacidad(){
 function terminos(){
   return el("div",{class:"legal"},
     el("p",{},el("b",{},"Borrador para revisión legal.")," Pulso es una herramienta de bienestar general. No reemplaza la consulta con profesionales de la salud ni da diagnósticos."),
-    el("p",{},"Tus datos se guardan en tu dispositivo. Si aceptás compartirlos, se envían de forma anónima a una base de datos del equipo de Pulso: identificados con un código aleatorio, sin nombre, mail ni ningún dato que te identifique. Se comparten tus respuestas al cuestionario (salvo la pregunta sobre tu relación con la comida), tus comidas, tu actividad y tu descanso."),
+    el("p",{},"Para usar Pulso tenés que aceptar estos términos. Al aceptarlos, se envían a una base de datos del equipo de Pulso tus respuestas al cuestionario (salvo tu nombre, tu apellido, tu mail y la pregunta sobre tu relación con la comida), el tiempo que tardaste en cada pregunta, tus comidas, tu actividad, tu descanso y cuándo y por cuánto tiempo usás la app. Se identifican con un código aleatorio, sin tu nombre ni tu mail."),
+    el("p",{},"Textos libres: lo que escribas en campos de texto —por ejemplo, la descripción de una comida en «Comí otra cosa» o las respuestas «Otro»— se envía tal cual lo escribiste. No incluyas nombres ni datos que te identifiquen. La única excepción es la respuesta «Otro» sobre tu relación con la comida, que nunca sale de tu dispositivo."),
+    el("p",{},"Tu mail se guarda aparte, sin relación con los datos anteriores, para enviarte novedades de Pulso, invitarte a encuestas o estudios y responder tus consultas o pedidos de acceso y borrado. Tu nombre y tu apellido quedan solo en tu dispositivo: los usamos para hablarte por tu nombre."),
     el("p",{},"Para qué: entender cómo se usa la app y mejorar sus recomendaciones. No se venden ni se ceden a terceros."),
     el("p",{},"Recordatorios (opcionales, independientes de compartir datos): si los activás, guardamos en nuestro servidor la dirección de notificaciones de tu dispositivo, los horarios de tus comidas, tu zona horaria y qué momentos del día ya registraste (no qué comiste), con un código distinto del de los datos anónimos. Se usan solo para enviarte los avisos; las marcas diarias se borran a los pocos días y todo se borra al desactivarlos. Para enviarlos se usan los servicios de notificaciones de Apple, Google, Mozilla o Microsoft, según tu dispositivo."),
-    el("p",{},"Algunos de estos datos son de salud y la Ley 25.326 de Protección de Datos Personales los considera sensibles. Por eso compartirlos es opcional: podés usar la app sin hacerlo, dejar de compartir cuando quieras y borrar lo compartido desde esta sección. Para ejercer tus derechos de acceso, rectificación o supresión, escribí a "+CONFIG.CONTACTO+"."));
+    el("p",{},"Algunos de estos datos son de salud y la Ley 25.326 de Protección de Datos Personales los considera sensibles. Podés borrar lo compartido y tu mail desde Perfil › Privacidad y datos. Para ejercer tus derechos de acceso, rectificación o supresión, escribí a "+CONFIG.CONTACTO+"."));
 }
 
 // ==== CUESTIONARIO (UI) ====
-const ONB = {i:-1, draft:null};
+const ONB = {i:-1, draft:null, tiempos:{}};
+// Tiempo que la persona tarda en cada pregunta (sin contar el tiempo con la app en segundo plano).
+const CRONO = {id:null, desde:0};
+function cronoMarcar(id){
+  const ahora=performance.now();
+  if(CRONO.id && CRONO.desde) ONB.tiempos[CRONO.id]=(ONB.tiempos[CRONO.id]||0)+(ahora-CRONO.desde);
+  CRONO.id=id; CRONO.desde= id && !document.hidden ? ahora : 0;
+}
+document.addEventListener("visibilitychange",()=>{ if(!CRONO.id) return; if(document.hidden){ cronoMarcar(CRONO.id); cuentaParar(); } else CRONO.desde=performance.now(); });
+
+// Cuenta regresiva de las preguntas de varias opciones: barra verde al pie; al terminar, pasa a la siguiente.
+const CUENTA_MS=5000; let cuentaT=null;
+function cuentaParar(){
+  clearTimeout(cuentaT); cuentaT=null;
+  const b=$("#cuenta"), i=b.querySelector("i"); b.hidden=true; i.style.transition="none"; i.style.width="0";
+}
+function cuentaIniciar(alTerminar){
+  cuentaParar();
+  const b=$("#cuenta"), i=b.querySelector("i"); b.hidden=false; void i.offsetWidth;
+  i.style.transition=`width ${CUENTA_MS}ms linear`; i.style.width="100%";
+  cuentaT=setTimeout(()=>{ cuentaParar(); alTerminar(); }, CUENTA_MS);
+}
+
 function renderOnb(){
-  const box=$("#onb"); box.replaceChildren();
+  const box=$("#onb"); box.replaceChildren(); cuentaParar();
   if(!ONB.draft) ONB.draft = JSON.parse(JSON.stringify(DB.perfil?.resp||{}));
   const R=ONB.draft; const total=PREGUNTAS.length;
-  if(ONB.paso==="avisos"){ renderOfertaAvisos(box); return; }
+  if(ONB.paso==="avisos"){ cronoMarcar(null); renderOfertaAvisos(box); return; }
+  if(DB.perfil?.completo && !DB.consent?.acepta) ONB.i=total;   // perfil de una versión anterior: falta aceptar los términos
   if(ONB.i<0){
+    cronoMarcar(null);
     if(ONB.paso==="instalar"){ renderInstalar(box); return; }
     const inst=necesitaInstalar();
     box.append(el("div",{class:"onb-card"}, el("div",{class:"eyebrow"},"Bienvenida"), el("h1",{},"Pulso"),
       el("p",{class:"lead"},"Comer, moverte y descansar mejor, con un plan hecho para vos."),
       el("p",{},"Pulso te sugiere qué comer según tus horarios, tus gustos y tu cocina; arma tu semana de movimiento y te ayuda a registrar cómo dormís y cómo te sentís con la comida."),
-      el("p",{},"Es gratis y no necesita cuenta: tus registros quedan en tu dispositivo."),
+      el("p",{},"Es gratis y no necesita cuenta."),
       el("p",{class:"note"}, inst? "Primero vas a agregarla a tu pantalla de inicio; después, "+total+" preguntas rápidas para armar tu plan." : "Para armar tu plan, "+total+" preguntas rápidas: casi todas se responden con un toque."),
       el("button",{class:"btn primary big",type:"button",onclick:()=>{ if(inst) ONB.paso="instalar"; else ONB.i=0; renderOnb(); window.scrollTo(0,0); }},"Empezar")));
     return;
   }
-  if(ONB.i>=total){ renderConsent(box); return; }
-  const q=PREGUNTAS[ONB.i];
+  if(ONB.i>=total){ cronoMarcar(null); if(DB.consent?.acepta){ finalizarCuestionario(); return; } renderConsent(box); return; }
+  const q=PREGUNTAS[ONB.i]; cronoMarcar(q.id);
   const next=()=>{ ONB.i++; renderOnb(); window.scrollTo(0,0); };
+  const atras=()=>{ ONB.i--; renderOnb(); };
   const prog=el("div",{class:"onb-prog"}, el("i",{style:`width:${(ONB.i/total)*100}%`}));
   const card=el("div",{class:"onb-card"}, prog, el("div",{class:"eyebrow"},`${q.sec} · ${ONB.i+1} de ${total}`), el("h2",{},q.t), q.sub? el("p",{class:"note"},q.sub):null);
   const otroIn=el("input",{type:"text",id:"q-"+q.id+"-otro",placeholder:"Escribilo",value:R[q.id+"_otro"]||""}); otroIn.addEventListener("input",()=>{ R[q.id+"_otro"]=otroIn.value; ok(); });
+  otroIn.addEventListener("blur",()=>ok());
   const sig=el("button",{class:"btn primary",type:"button",onclick:next},"Siguiente");
+  let tocado=false;
   const ok=()=>{ let v=R[q.id];
+    if(q.type==="datos"){ const d=R.datos||{}; sig.disabled = !(d.nombre && d.apellido && EMAIL_RE.test(d.email||"")); return; }
     if(q.type==="numbers"){ const c=R.cuerpo||{}; sig.disabled = !q.fields.every(([k,,,mn,mx])=>+c[k]>=mn && +c[k]<=mx); return; }
     const conOtro = Array.isArray(v)? v.includes("otro") : v==="otro";
     otroWrap.hidden=!conOtro;
-    sig.disabled = q.type==="multi" ? !(v&&v.length) || (conOtro && !otroIn.value.trim()) : !v || (conOtro && !otroIn.value.trim()); };
+    sig.disabled = q.type==="multi" ? !(v&&v.length) || (conOtro && !otroIn.value.trim()) : !v || (conOtro && !otroIn.value.trim());
+    if(q.type==="multi"){ if(tocado && !sig.disabled && document.activeElement!==otroIn) cuentaIniciar(next); else cuentaParar(); } };
   const otroWrap=el("div",{class:"otro-wrap"}, otroIn);
+  const nav=(...extra)=>el("div",{class:"row onb-nav"}, ONB.i>0? el("button",{class:"btn ghost",type:"button",onclick:atras},"Atrás"):null, ...extra, sig);
+  if(q.type==="datos"){
+    R.datos=R.datos||{};
+    const campos=[["nombre","Nombre","text","given-name"],["apellido","Apellido","text","family-name"],["email","Mail","email","email"]];
+    card.append(el("div",{class:"campos"}, campos.map(([k,lab,tipo,ac])=>{
+      const inp=el("input",{type:tipo,id:"q-"+k,autocomplete:ac,value:R.datos[k]||"",autocapitalize:tipo==="email"?"off":"words",inputmode:tipo==="email"?"email":false,spellcheck:"false"});
+      inp.addEventListener("input",()=>{ R.datos[k]=inp.value.trim(); ok(); });
+      return el("label",{class:"campo",for:"q-"+k}, el("span",{},lab), inp); })));
+    card.append(nav()); box.append(card); ok(); return;
+  }
   if(q.type==="numbers"){
     R.cuerpo=R.cuerpo||{};
     card.append(el("div",{class:"nums"}, q.fields.map(([k,lab,un,mn,mx])=>{ const inp=el("input",{type:"number",id:"q-"+k,inputmode:"decimal",min:String(mn),max:String(mx),value:R.cuerpo[k]??""});
       inp.addEventListener("input",()=>{ R.cuerpo[k]=inp.value; ok(); });
       return el("label",{class:"num",for:"q-"+k}, el("span",{},lab), el("span",{class:"numrow"}, inp, el("small",{},un))); })));
-    card.append(el("div",{class:"row onb-nav"}, ONB.i>0? el("button",{class:"btn ghost",type:"button",onclick:()=>{ONB.i--; renderOnb();}},"Atrás"):null, sig));
-    box.append(card); ok(); return;
+    card.append(nav()); box.append(card); ok(); return;
   }
   const opts=el("div",{class:"choices"});
   const draw=()=>{ opts.replaceChildren(...q.opts.concat([["otro","Otro"]]).map(([v,t])=>{
     const sel = q.type==="multi" ? (R[q.id]||[]).includes(v) : R[q.id]===v;
     return el("button",{type:"button",class:"choice"+(sel?" on":""),"aria-pressed":String(sel),onclick:()=>{
-      if(q.type==="multi"){ let a=(R[q.id]||[]).slice(); if(a.includes(v)) a=a.filter(x=>x!==v); else { a.push(v); if(q.none){ if(v===q.none) a=[v]; else a=a.filter(x=>x!==q.none); } } R[q.id]=a; draw(); ok(); }
+      if(q.type==="multi"){ let a=(R[q.id]||[]).slice(); if(a.includes(v)) a=a.filter(x=>x!==v); else a.push(v); R[q.id]=a; tocado=true; draw(); ok(); }
       else { R[q.id]=v; draw(); ok(); if(v!=="otro") setTimeout(next,160); else otroIn.focus(); } }}, t); })); };
   draw();
-  card.append(opts, otroWrap, el("div",{class:"row onb-nav"}, ONB.i>0? el("button",{class:"btn ghost",type:"button",onclick:()=>{ONB.i--; renderOnb();}},"Atrás"):null,
-    q.type==="multi" ? el("button",{class:"btn ghost",type:"button",onclick:()=>{ R[q.id]=[]; next(); }},"Ninguna") : null, sig));
+  card.append(opts, otroWrap, nav(q.type==="multi" ? el("button",{class:"btn ghost",type:"button",onclick:()=>{ R[q.id]=[]; next(); }},"Ninguna") : null));
   box.append(card); ok();
 }
+// Términos y condiciones: obligatorios para entrar, al final del cuestionario.
 function renderConsent(box){
-  const fin=(share)=>{
-    DB.perfil={resp:ONB.draft, completo:true, actualizado:new Date().toISOString(), creado:DB.perfil?.creado||new Date().toISOString()};
-    DB.consent={share, fecha:new Date().toISOString(), version:CONFIG.APP_VERSION};
-    ONB.draft=null; ONB.i=-1; S.view="hoy"; S.slot=null; persist();
-    if(share) enviar("perfil", perfilCompartible());
-    if(DB.avisos?.on) sincronizarAvisos(); else if(!DB.avisoOfrecido && estadoAvisos()==="off") ONB.paso="avisos";
-    render(); window.scrollTo(0,0);
-  };
-  box.append(el("div",{class:"onb-card"}, el("div",{class:"eyebrow"},"Último paso"), el("h2",{},"Tu plan está listo"),
-    el("p",{},"Pulso mejora con cada persona que lo usa. Si compartís tus registros de forma anónima, nos ayudás a afinar las recetas, las porciones y las sugerencias para todos."),
-    el("ul",{class:"checks"},
-      el("li",{},"Anónimo: un código aleatorio, sin nombre ni mail."),
-      el("li",{},"Tu respuesta sobre tu relación con la comida nunca sale de tu dispositivo."),
-      el("li",{},"Podés dejar de compartir y borrar lo compartido cuando quieras, desde Perfil.")),
-    el("details",{class:"rec"}, el("summary",{},el("span",{},"Leer los términos y la política de privacidad")), terminos()),
-    el("button",{class:"btn primary big",type:"button",onclick:()=>fin(true)},"Aceptar y compartir datos anónimos"),
-    el("button",{class:"btn link",type:"button",onclick:()=>fin(false)},"Continuar sin compartir"),
-    el("button",{class:"btn ghost",type:"button",onclick:()=>{ONB.i--; renderOnb();}},"Atrás")));
+  const aviso=el("div",{class:"aviso-tyc",role:"alert",hidden:!ONB.rechazo},"Para usar Pulso tenés que aceptar los términos y condiciones. Mientras no los aceptes, no podés entrar.");
+  box.append(el("div",{class:"onb-card"}, el("div",{class:"onb-prog"}, el("i",{style:"width:100%"})),
+    el("div",{class:"eyebrow"},"Último paso"), el("h2",{},"Términos y condiciones"),
+    el("p",{},"¿Aceptás los términos y condiciones de Pulso?"),
+    el("details",{class:"rec"}, el("summary",{},el("span",{},"Leer los términos y condiciones")), terminos()),
+    aviso,
+    el("button",{class:"btn primary big",type:"button",onclick:()=>{ ONB.rechazo=false; finalizarCuestionario(); }},"Acepto"),
+    el("button",{class:"btn ghost",type:"button",onclick:()=>{ ONB.rechazo=true; aviso.hidden=false; aviso.scrollIntoView({block:"center",behavior:"smooth"}); }},"No acepto"),
+    DB.perfil?.completo? null : el("button",{class:"btn link",type:"button",onclick:()=>{ ONB.rechazo=false; ONB.i--; renderOnb(); }},"Atrás")));
+}
+function finalizarCuestionario(){
+  const ahora=new Date().toISOString();
+  const tiempos=Object.fromEntries(Object.entries(ONB.tiempos).map(([k,v])=>[k, Math.round(v/100)/10]));
+  DB.perfil={resp:ONB.draft||DB.perfil.resp, completo:true, actualizado:ahora, creado:DB.perfil?.creado||ahora, tiempos};
+  if(!DB.consent?.acepta) DB.consent={acepta:true, share:true, fecha:ahora, version:CONFIG.APP_VERSION};
+  ONB.draft=null; ONB.i=-1; ONB.tiempos={}; S.view="hoy"; S.slot=null; persist();
+  enviar("perfil", perfilCompartible());
+  guardarContacto();
+  if(DB.avisos?.on) sincronizarAvisos(); else if(!DB.avisoOfrecido && estadoAvisos()==="off") ONB.paso="avisos";
+  render(); window.scrollTo(0,0);
 }
 
 // ==== ARRANQUE ====
 { const m=new URLSearchParams(location.search).get("momento"); if(m && SLOTDEF[m]){ S.slot=m; S.view="hoy"; } if(location.search) history.replaceState(null,"",location.pathname); }
+sesionIniciar();
 render();
 flushSoon();
+guardarContacto();
 sincronizarAvisos();
 setInterval(()=>{ const k=dayKey(new Date()); if(k!==S.today){ S.today=k; S.slot=null; S.offsets={}; render(); } },60000);

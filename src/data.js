@@ -53,10 +53,11 @@ const ING = {
   mantMani:    {n:"Mantequilla de maní", k:590, p:25, f:6, nuez:true, g:["nuez"]},
   choco70:     {n:"Chocolate 70% cacao", k:600, p:7.8, f:11, choco:true},
 };
-// Tipos de pan según la respuesta del cuestionario (Bimbo Artesano integral: rótulo; el resto, valores genéricos).
+// Tipos de pan según la marca elegida en el cuestionario (valores genéricos de pan lactal blanco y de panadería).
 const PANES = {
-  bimbo:     {n:"Pan integral Bimbo Artesano", k:243, p:12.1, f:5.4, integral:true, u:38},
-  lactal:    {n:"Pan lactal blanco", k:265, p:8, f:2.5, integral:false, u:25},
+  bimbo:     {n:"Pan lactal Bimbo", k:265, p:8, f:2.5, integral:false, u:25},
+  fargo:     {n:"Pan lactal Fargo", k:265, p:8, f:2.5, integral:false, u:25},
+  lactal:    {n:"Pan Lactal", k:265, p:8, f:2.5, integral:false, u:25},
   panaderia: {n:"Pan de panadería", k:270, p:9, f:2.5, integral:false, u:60, uN:"pan"},
   generico:  {n:"Pan integral", k:250, p:10, f:6, integral:true, u:30},
 };
