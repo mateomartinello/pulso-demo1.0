@@ -7,7 +7,7 @@ create table if not exists public.eventos (
   id           bigint generated always as identity primary key,
   anon_id      text        not null,            -- código aleatorio del dispositivo (no identifica a la persona)
   secret_hash  text        not null,            -- huella del secreto local; permite que la persona borre sus datos
-  tipo         text        not null,            -- perfil · comida · comida_borrada · ejercicio · ejercicio_borrado · sueno
+  tipo         text        not null,            -- perfil · comida · comida_borrada · ejercicio · ejercicio_borrado · sueno · sesion
   fecha        date,                             -- día al que corresponde el registro
   datos        jsonb       not null default '{}'::jsonb,
   creado       timestamptz,                      -- hora del registro en el dispositivo
@@ -26,7 +26,7 @@ alter table public.eventos enable row level security;
 drop policy if exists "solo_insertar" on public.eventos;
 create policy "solo_insertar" on public.eventos for insert to anon with check (
   char_length(anon_id) between 8 and 64
-  and tipo in ('perfil','comida','comida_borrada','ejercicio','ejercicio_borrado','sueno')
+  and tipo in ('perfil','comida','comida_borrada','ejercicio','ejercicio_borrado','sueno','sesion')
   and pg_column_size(datos) < 20000
 );
 
@@ -212,3 +212,44 @@ select cron.schedule('pulso-avisos', '* * * * *', $cron$
     body := '{}'::jsonb,
     timeout_milliseconds := 30000);
 $cron$);
+
+
+-- ======================= MAIL DE CADA PERSONA =======================
+-- Tabla aparte, sin relación con los datos de salud: usa su propio código, distinto de anon_id.
+-- Usos (declarados en los términos): novedades de Pulso, encuestas o estudios y atención de consultas y pedidos.
+create table if not exists public.contactos (
+  id           text primary key,                    -- código aleatorio propio del dispositivo
+  secret_hash  text not null,                       -- huella del secreto local; permite cambiar o borrar el mail
+  email        text not null,
+  creado       timestamptz not null default now(),
+  actualizado  timestamptz not null default now()
+);
+alter table public.contactos enable row level security;
+revoke all on public.contactos from anon, authenticated;
+
+create or replace function public.guardar_contacto(p_id text, p_secret text, p_email text)
+returns boolean language plpgsql security definer set search_path = public, extensions as $$
+declare h text := encode(digest(p_secret, 'sha256'), 'hex'); actual text;
+begin
+  if char_length(p_id) not between 8 and 64 or char_length(p_secret) < 16
+     or char_length(p_email) > 254 or p_email !~ '^[^\s@]+@[^\s@]+\.[^\s@]{2,}$'
+  then return false; end if;
+  select c.secret_hash into actual from contactos c where c.id = p_id;
+  if found and actual <> h then return false; end if;
+  insert into contactos (id, secret_hash, email) values (p_id, h, lower(p_email))
+  on conflict (id) do update set email = excluded.email, actualizado = now();
+  return true;
+end; $$;
+
+create or replace function public.borrar_contacto(p_id text, p_secret text)
+returns integer language plpgsql security definer set search_path = public, extensions as $$
+declare n integer;
+begin
+  delete from contactos c where c.id = p_id and c.secret_hash = encode(digest(p_secret, 'sha256'), 'hex');
+  get diagnostics n = row_count; return n;
+end; $$;
+
+revoke all on function public.guardar_contacto(text, text, text) from public;
+revoke all on function public.borrar_contacto(text, text) from public;
+grant execute on function public.guardar_contacto(text, text, text) to anon;
+grant execute on function public.borrar_contacto(text, text) to anon;
