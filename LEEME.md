@@ -45,10 +45,14 @@ La app es instalable (PWA: `manifest.webmanifest`, `sw.js`, `iconos/`) y puede m
 - En Supabase: **Table Editor → eventos** muestra todo. Desde ahí podés exportar a CSV.
 - Para que Claude los analice: exportá el CSV y adjuntalo al chat. (No compartas la clave `service_role` en un chat.)
 
-Cada fila es un evento: `perfil`, `comida`, `comida_borrada`, `ejercicio`, `ejercicio_borrado` o `sueno`, con su `fecha`, el código anónimo de la persona (`anon_id`) y el detalle en `datos`.
+Cada fila es un evento: `perfil`, `comida`, `comida_borrada`, `ejercicio`, `ejercicio_borrado`, `sueno` o `sesion`, con su `fecha`, el código de la persona (`anon_id`) y el detalle en `datos`.
+
+- **`perfil`:** respuestas del cuestionario, sin nombre, apellido ni mail, y `tiempos_s` (segundos que la persona tardó en cada pregunta, sin contar el tiempo con la app en segundo plano).
+- **`sesion`:** `id`, `inicio`, `fin` y `duracion_s`. Se envía cada vez que la app pasa a segundo plano; si vuelve en menos de un minuto, sigue la misma sesión y se reenvía con el mismo `id`. **Para analizar, quedate con el último envío de cada `id`.**
+- **Mails:** tabla `contactos`, aparte y sin relación con `eventos` (usa otro código). Los términos declaran tres usos: novedades, encuestas o estudios, y atención de consultas.
 
 ## 4. Antes de abrirla al público
 
-- Los datos de salud son **datos sensibles** según la Ley 25.326. Los términos de la app son un **borrador**: conviene que los revise un abogado.
+- Los datos de salud son **datos sensibles** según la Ley 25.326. Desde la versión 0.3.0, aceptar los términos (y con eso compartir los datos) es **obligatorio** para usar la app, y se pide el mail: el art. 7 de la ley dice que nadie puede ser obligado a proporcionar datos sensibles, y una base con datos de personas identificables debe inscribirse en el Registro Nacional de Bases de Datos (AAIP). Los términos son un **borrador**: conviene que los revise un abogado antes de abrir la app.
 - Completá el mail de contacto (`CONTACTO`).
 - La app no reemplaza a profesionales de la salud y lo dice en sus términos.
