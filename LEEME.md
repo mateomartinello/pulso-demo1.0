@@ -30,6 +30,16 @@ La clave publicable puede estar en la página: con los permisos de `supabase.sql
 
 **Borrar los datos de prueba antes de abrir la app al público:** en **SQL Editor**, correr `truncate public.eventos restart identity;`.
 
+## 2b. Recordatorios de comidas (Web Push)
+
+La app es instalable (PWA: `manifest.webmanifest`, `sw.js`, `iconos/`) y puede mandar un aviso a la hora de cada comida. En iPhone hace falta agregarla a la pantalla de inicio (iOS 16.4 o posterior); en Android funciona también desde el navegador.
+
+- **Datos:** tablas `suscripciones` y `avisos_dia` (en `supabase.sql`). Son independientes de «compartir datos»: cada dispositivo usa un código propio. La clave pública no puede leerlas; solo usa funciones protegidas con el secreto del dispositivo.
+- **Envío:** la Edge Function `enviar-avisos` (`supabase/functions/enviar-avisos/index.ts`), llamada cada minuto por la tarea programada `pulso-avisos` (pg_cron). No usa claves privilegiadas de Supabase.
+- **Secretos de la función** (Edge Functions › Secrets): `VAPID_PRIVADA` (clave privada de las notificaciones) y `AVISOS_CLAVE`. Se cargan a mano y **nunca** van al repositorio. La clave pública VAPID está en `src/config.js` y en la función.
+- **Huella de `AVISOS_CLAVE`:** se carga en la base con `insert into public.avisos_config (clave_hash) values ('<sha256 de AVISOS_CLAVE>') on conflict (unica) do update set clave_hash = excluded.clave_hash;`
+- **Íconos:** `python3 iconos.py` los regenera.
+
 ## 3. Ver y analizar los datos
 
 - En Supabase: **Table Editor → eventos** muestra todo. Desde ahí podés exportar a CSV.

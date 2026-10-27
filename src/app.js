@@ -227,8 +227,9 @@ async function borrarRemoto(){
 window.addEventListener("online", flushSoon);
 
 // ==== REGISTRO ====
-function addComida(e){ const c={id:uid(), hora:new Date().toISOString(), ...e}; day().comidas.push(c); persist(); enviar("comida", c); render(); }
-function delComida(id, k){ const d=day(k); d.comidas=d.comidas.filter(c=>c.id!==id); persist(); enviar("comida_borrada",{id},k); render(); }
+function addComida(e){ const c={id:uid(), hora:new Date().toISOString(), ...e}; day().comidas.push(c); persist(); enviar("comida", c); marcarAviso(S.today, c.slot, true); render(); }
+function delComida(id, k){ const d=day(k); const slot=d.comidas.find(c=>c.id===id)?.slot; d.comidas=d.comidas.filter(c=>c.id!==id); persist(); enviar("comida_borrada",{id},k);
+  if(slot && !d.comidas.some(c=>c.slot===slot)) marcarAviso(k||S.today, slot, false); render(); }
 function addEjercicio(e){ const x={id:uid(), hora:new Date().toISOString(), ...e}; day().ejercicio.push(x); persist(); enviar("ejercicio", x); render(); }
 function delEjercicio(id){ const d=day(); d.ejercicio=d.ejercicio.filter(c=>c.id!==id); persist(); enviar("ejercicio_borrado",{id}); render(); }
 function setSueno(s){ day().sueno={...s, hora:new Date().toISOString()}; persist(); enviar("sueno", day().sueno); render(); }
@@ -258,7 +259,7 @@ function cerrarSheet(){ $("#sheet").hidden=true; $("#sheet").replaceChildren(); 
 
 // ==== RENDER: GENERAL ====
 function render(){
-  if(!DB.perfil?.completo){ $("#app").hidden=true; $("#onb").hidden=false; renderOnb(); return; }
+  if(!DB.perfil?.completo || ONB.paso==="avisos"){ $("#app").hidden=true; $("#onb").hidden=false; renderOnb(); return; }
   PLAN = calcPlan(DB.perfil);
   if(!S.slot || !slotsHoy().some(s=>s[0]===S.slot)) S.slot=slotNow();
   $("#onb").hidden=true; $("#app").hidden=false;
@@ -506,13 +507,13 @@ function renderPerfil(){
     el("section",{class:"card"}, el("h3",{},"Tus respuestas"), el("p",{class:"note",style:"margin:0 0 6px"},`${c.edad||"—"} años · ${c.altura||"—"} cm · ${c.peso||"—"} kg`),
       el("ul",{class:"log"}, resumen),
       el("div",{class:"row",style:"margin-top:12px"}, el("button",{class:"btn small",type:"button",onclick:()=>{ DB.perfil.completo=false; ONB.i=0; persist(); render(); }},"Editar respuestas"))),
-    seccionPrivacidad());
+    seccionAvisos(), seccionPrivacidad());
 }
 function seccionPrivacidad(){
   const msg=el("p",{class:"note",id:"privMsg",style:"margin:8px 0 0"});
   const conf = !!(CONFIG.SUPABASE_URL && CONFIG.SUPABASE_ANON_KEY);
   const file=el("input",{type:"file",id:"impFile",accept:"application/json",hidden:true});
-  file.addEventListener("change",async()=>{ try{ const t=await file.files[0].text(); const x=JSON.parse(t); if(!x||!x.dias||!x.perfil) throw 0; DB=x; persist(); msg.textContent="Copia restaurada."; render(); }catch(e){ msg.textContent="El archivo no es una copia válida de la app."; } });
+  file.addEventListener("change",async()=>{ try{ const t=await file.files[0].text(); const x=JSON.parse(t); if(!x||!x.dias||!x.perfil) throw 0; const av=DB.avisos; DB=x; DB.avisos=av; persist(); msg.textContent="Copia restaurada."; render(); }catch(e){ msg.textContent="El archivo no es una copia válida de la app."; } });
   return el("section",{class:"card"}, el("h3",{},"Privacidad y datos"),
     el("p",{style:"margin:0 0 8px"}, DB.consent?.share? "Compartís tus datos de forma anónima para mejorar la app." : "No compartís datos: todo queda solo en este dispositivo."),
     !conf && DB.consent?.share? el("p",{class:"note",style:"margin:0 0 8px"},"La base común todavía no está activa en esta versión; no se envió nada.") : null,
@@ -523,7 +524,7 @@ function seccionPrivacidad(){
     el("div",{class:"row",style:"margin-top:8px"},
       el("button",{class:"btn small",type:"button",onclick:()=>{ try{ const a=el("a",{href:URL.createObjectURL(new Blob([JSON.stringify(DB,null,1)],{type:"application/json"})),download:"copia-pulso-"+S.today+".json"}); document.body.append(a); a.click(); a.remove(); msg.textContent="Copia descargada."; }catch(e){ msg.textContent="No se pudo descargar la copia en este navegador."; } }},"Descargar copia"),
       el("button",{class:"btn small",type:"button",onclick:()=>file.click()},"Restaurar copia"), file,
-      el("button",{class:"btn small ghost",type:"button",onclick:()=>{ if(S.confirmBorrar){ try{ localStorage.removeItem(KEY); }catch(e){} DB=blank(); persist(); S.confirmBorrar=false; render(); } else { S.confirmBorrar=true; msg.textContent="Tocá «Borrar todo» otra vez para confirmar: se borra tu perfil y tu registro de este dispositivo."; } }},"Borrar todo")),
+      el("button",{class:"btn small ghost",type:"button",onclick:async()=>{ if(S.confirmBorrar){ if(DB.avisos?.on) await desactivarAvisos(); try{ localStorage.removeItem(KEY); }catch(e){} DB=blank(); persist(); S.confirmBorrar=false; render(); } else { S.confirmBorrar=true; msg.textContent="Tocá «Borrar todo» otra vez para confirmar: se borra tu perfil y tu registro de este dispositivo."; } }},"Borrar todo")),
     msg, el("details",{class:"rec",style:"margin-top:12px"}, el("summary",{},el("span",{},"Términos y política de privacidad")), terminos()));
 }
 function terminos(){
@@ -531,6 +532,7 @@ function terminos(){
     el("p",{},el("b",{},"Borrador para revisión legal.")," Pulso es una herramienta de bienestar general. No reemplaza la consulta con profesionales de la salud ni da diagnósticos."),
     el("p",{},"Tus datos se guardan en tu dispositivo. Si aceptás compartirlos, se envían de forma anónima a una base de datos del equipo de Pulso: identificados con un código aleatorio, sin nombre, mail ni ningún dato que te identifique. Se comparten tus respuestas al cuestionario (salvo la pregunta sobre tu relación con la comida), tus comidas, tu actividad y tu descanso."),
     el("p",{},"Para qué: entender cómo se usa la app y mejorar sus recomendaciones. No se venden ni se ceden a terceros."),
+    el("p",{},"Recordatorios (opcionales, independientes de compartir datos): si los activás, guardamos en nuestro servidor la dirección de notificaciones de tu dispositivo, los horarios de tus comidas, tu zona horaria y qué momentos del día ya registraste (no qué comiste), con un código distinto del de los datos anónimos. Se usan solo para enviarte los avisos; las marcas diarias se borran a los pocos días y todo se borra al desactivarlos. Para enviarlos se usan los servicios de notificaciones de Apple, Google, Mozilla o Microsoft, según tu dispositivo."),
     el("p",{},"Algunos de estos datos son de salud y la Ley 25.326 de Protección de Datos Personales los considera sensibles. Por eso compartirlos es opcional: podés usar la app sin hacerlo, dejar de compartir cuando quieras y borrar lo compartido desde esta sección. Para ejercer tus derechos de acceso, rectificación o supresión, escribí a "+CONFIG.CONTACTO+"."));
 }
 
@@ -540,11 +542,16 @@ function renderOnb(){
   const box=$("#onb"); box.replaceChildren();
   if(!ONB.draft) ONB.draft = JSON.parse(JSON.stringify(DB.perfil?.resp||{}));
   const R=ONB.draft; const total=PREGUNTAS.length;
+  if(ONB.paso==="avisos"){ renderOfertaAvisos(box); return; }
   if(ONB.i<0){
+    if(ONB.paso==="instalar"){ renderInstalar(box); return; }
+    const inst=necesitaInstalar();
     box.append(el("div",{class:"onb-card"}, el("div",{class:"eyebrow"},"Bienvenida"), el("h1",{},"Pulso"),
       el("p",{class:"lead"},"Comer, moverte y descansar mejor, con un plan hecho para vos."),
-      el("p",{},"Antes de empezar, "+total+" preguntas rápidas: casi todas se responden con un toque. Con eso armamos tus recetas, tus porciones, tu semana de movimiento y tus metas de descanso."),
-      el("button",{class:"btn primary big",type:"button",onclick:()=>{ ONB.i=0; renderOnb(); }},"Empezar")));
+      el("p",{},"Pulso te sugiere qué comer según tus horarios, tus gustos y tu cocina; arma tu semana de movimiento y te ayuda a registrar cómo dormís y cómo te sentís con la comida."),
+      el("p",{},"Es gratis y no necesita cuenta: tus registros quedan en tu dispositivo."),
+      el("p",{class:"note"}, inst? "Primero vas a agregarla a tu pantalla de inicio; después, "+total+" preguntas rápidas para armar tu plan." : "Para armar tu plan, "+total+" preguntas rápidas: casi todas se responden con un toque."),
+      el("button",{class:"btn primary big",type:"button",onclick:()=>{ if(inst) ONB.paso="instalar"; else ONB.i=0; renderOnb(); window.scrollTo(0,0); }},"Empezar")));
     return;
   }
   if(ONB.i>=total){ renderConsent(box); return; }
@@ -585,6 +592,7 @@ function renderConsent(box){
     DB.consent={share, fecha:new Date().toISOString(), version:CONFIG.APP_VERSION};
     ONB.draft=null; ONB.i=-1; S.view="hoy"; S.slot=null; persist();
     if(share) enviar("perfil", perfilCompartible());
+    if(DB.avisos?.on) sincronizarAvisos(); else if(!DB.avisoOfrecido && estadoAvisos()==="off") ONB.paso="avisos";
     render(); window.scrollTo(0,0);
   };
   box.append(el("div",{class:"onb-card"}, el("div",{class:"eyebrow"},"Último paso"), el("h2",{},"Tu plan está listo"),
@@ -600,6 +608,8 @@ function renderConsent(box){
 }
 
 // ==== ARRANQUE ====
+{ const m=new URLSearchParams(location.search).get("momento"); if(m && SLOTDEF[m]){ S.slot=m; S.view="hoy"; } if(location.search) history.replaceState(null,"",location.pathname); }
 render();
 flushSoon();
+sincronizarAvisos();
 setInterval(()=>{ const k=dayKey(new Date()); if(k!==S.today){ S.today=k; S.slot=null; S.offsets={}; render(); } },60000);
