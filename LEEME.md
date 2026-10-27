@@ -49,6 +49,10 @@ La app es instalable (PWA: `manifest.webmanifest`, `sw.js`, `iconos/`) y puede m
 - **Eliminar la cuenta:** Perfil › «Eliminar mi cuenta» (página `#eliminar-cuenta`), con 5 preguntas abiertas obligatorias. Borra nombre, apellido, mail, respaldo y la cuenta; los eventos quedan sin `user_id` y la encuesta se guarda como evento `baja`.
 - **Versión de prueba (opcional):** `python3 build.py prueba` la arma en `prueba/` y se publica en `/pulso/prueba/`, sin tocar la app principal. Al terminar, borrar `prueba/`.
 
+## 2d. Pruebas del estimador de comidas
+
+`sh pruebas/correr.sh` corre unas 50 frases de comidas comunes («dos porciones de pizza de muzzarella», «pollo con arroz», «un cortado»…) y avisa si alguna estimación sale del rango esperado. Correrlo después de cada cambio en la tabla de alimentos (`src/estimador.js`). Para ver el detalle de una frase: `sh pruebas/estimar.sh "frase"`.
+
 ## 3. Ver y analizar los datos
 
 - En Supabase: **Table Editor → eventos** muestra todo. Desde ahí podés exportar a CSV.

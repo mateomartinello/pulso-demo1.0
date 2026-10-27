@@ -18,7 +18,7 @@ Vacío|vacio|290|24|0|200||porción|r
 Matambre|matambre;matambre a la pizza;matambrito|260|25|0|180||porción|r
 Carne vacuna|carne;carne vacuna;carne de vaca;carne al horno;nalga;peceto;cuadril;colita de cuadril;roast beef;carne asada;carne guisada;cuadrada;bola de lomo;tapa de nalga;picana;entraña;carne de ternera;ternera;osobuco;roti|200|27|0|180||porción|r
 Carne picada|carne picada;picadillo|250|20|0|120||porción|r
-Hamburguesa con pan|hamburguesa;hamburguesas;hamburguesa completa;hamburguesa con pan;burger;hamburguesa doble;hamburguesa con queso;cheeseburger;hamburguesa casera con pan|255|14|1.5|220|220|hamburguesa|r P
+Hamburguesa con pan|hamburguesa;hamburguesas;hamburguesa completa;hamburguesa con pan;burger;hamburguesa doble;hamburguesa con queso;cheeseburger;hamburguesa casera con pan|255|14|1.5|220|220|hamburguesa|r P T
 Medallón de carne|medallon;medallon de carne;paty;patty;hamburguesa al plato;hamburguesa sin pan;hamburguesa casera;medallones|250|18|0|110|110|medallón|r
 Big Mac|big mac;bigmac|257|12|1.7|215|215|unidad|r P
 Cuarto de libra|cuarto de libra;cuarto libra;cuarto de libra con queso|260|15|1.5|200|200|unidad|r P
@@ -40,8 +40,8 @@ Paleta|paleta;paleta cocida;lomito ahumado;lomo ahumado;pastrami|140|16|0|30|15|
 Pavita|pavita;pechuga de pavo;fiambre de pavo;pavo|110|20|0|40|15|feta|
 Arrollado de pollo|arrollado;arrollado de pollo|150|16|0|40|20|feta|
 # ---- Pollo ----
-Pollo (pechuga)|pollo;pechuga;pechuga de pollo;pollo a la plancha;pollo grillado;pollo al disco;pollo hervido;pechuga a la plancha;suprema a la plancha;suprema grillada;suprema al horno;pollito;pollo en cubos;pollo desmenuzado;pollo salteado;pollo al verdeo;pollo a la mostaza|165|31|0|180||porción|
-Pollo al horno|pollo al horno;pata muslo;patamuslo;muslo;muslos;pata;cuarto de pollo;pollo asado;pollo con piel;pollo a la parrilla;pollo al spiedo;pollo rostizado;pollo entero|215|26|0|250||porción|
+Pollo (pechuga)|pechuga;pechuga de pollo;pollo a la plancha;pollo grillado;pollo al disco;pollo hervido;pechuga a la plancha;suprema a la plancha;suprema grillada;suprema al horno;pollito;pollo en cubos;pollo desmenuzado;pollo salteado;pollo al verdeo;pollo a la mostaza|165|31|0|150||porción|
+Pollo al horno|pollo;pollo al horno;pata muslo;patamuslo;muslo;muslos;pata;cuarto de pollo;pollo asado;pollo con piel;pollo a la parrilla;pollo al spiedo;pollo rostizado;pollo entero|215|26|0|180||porción|cnt=600
 Pollo frito|pollo frito;pollo rebozado;pollo apanado;pollo crispy;pollo kfc;kfc;tiras de pollo;strips|260|25|0.5|200||porción|F
 Alitas|alitas;alas;alitas de pollo;wings;alitas bbq|250|23|0|150|30|alita|
 Nuggets|nuggets;nugget;mcnuggets;patitas;patitas de pollo;bocaditos de pollo;formitas;medallones de pollo;medallon de pollo;hamburguesa de pollo|260|14|1|120|20|unidad|F
@@ -54,7 +54,7 @@ Atún en aceite|atun en aceite;lomitos de atun en aceite|190|26|0|120|120|lata|a
 Sardinas|sardina;sardinas;caballa;jurel;anchoas|210|25|0|90|90|lata|
 Kanikama|kanikama;surimi;palitos de cangrejo|95|7|0|60|15|palito|
 Camarones|camarones;langostinos;mariscos;gambas;calamar;calamares|100|21|0|120||porción|
-Rabas|rabas;rabas fritas;calamares fritos|300|12|1|150||porción|F
+Rabas|rabas;rabas fritas;calamares fritos|250|14|1|150||porción|F
 # ---- Huevos ----
 Huevo|huevo;huevo duro;huevo hervido;huevo pasado por agua;huevo cocido;huevo poche;huevos duros|143|12.6|0|50|50|huevo|
 Huevo frito|huevo frito;huevo a la plancha;huevo estrellado;huevos fritos|196|13.6|0|55|55|huevo|F
@@ -79,6 +79,8 @@ Yogur griego|yogur griego;yogurt griego;griego;yogur proteico;yogurt proteico;yo
 Yogur con cereales|yogur con cereales;yogurt con cereales;yogur con granola;yogurt con granola;yogur con copos;yogurisimo con cereales|120|4|0.8|200|200|pote|
 Postrecito|postrecito;postre de leche;serenito;danette;postre de chocolate;postre de vainilla;mousse;mousse de chocolate|130|3|0.5|100|100|pote|
 Flan|flan;flan casero;flan mixto|150|4|0|120|120|porción|
+Dulce de membrillo|dulce de membrillo;membrillo;dulce de batata;batata dulce|270|0.4|1.5|40||porción|
+Postre vigilante|queso y dulce;queso con dulce;vigilante;postre vigilante|285|11|0.7|100||porción|
 Dulce de leche|dulce de leche;ddl;dulce leche;dulce de leche repostero|315|7|0|30|20|cucharada|
 Manteca|manteca;mantequilla;margarina|717|1|0|10|10|cucharadita|
 Crema|crema;crema de leche;crema batida;chantilly;crema chantilly;crema doble|300|2.5|0|30|15|cucharada|
@@ -86,16 +88,16 @@ Helado|helado;helado de crema;helados;cucurucho;cono;vasito de helado;helado de 
 Helado ¼ kg|cuarto de helado;cuarto kilo de helado;1/4 de helado;helado de 1/4;helado de cuarto;cuartito de helado;1/4 kg de helado;pote de 1/4|220|4|0.5|250|250||
 Helado de agua|helado de agua;palito helado;palito de agua;paleta helada;helado frutal|100|0|0|70|70|palito|
 # ---- Panes y panificados ----
-Pan integral|pan;pan integral;pan bimbo;bimbo;pan de salvado;bimbo artesano;pan artesano;pan integral bimbo;tostada;tostadas;pan de molde integral;pan lactal integral;rebanada de pan;rodaja de pan;pan negro;pan de centeno;pan con semillas;pan multicereal|243|12.1|5.4|76|38|rebanada|i1 b
-Pan blanco|pan blanco;pan frances;pan flauta;flauta;felipe;felipes;minon;miñon;pan de campo;pancito;pancitos;mignon;pan casero;baguette;pan de mesa;bollito;bollitos;pan de agua;figacita;figazza;pan arabe;pan pita;pan de papa;pan de leche;pan brioche|270|9|2.5|60|60|pan|b
-Pan lactal|pan lactal;pan de molde;pan lactal blanco;pan blanco de molde;fargo;lactal|265|8|2.5|50|25|rebanada|b
+Pan integral|pan integral;pan de salvado;bimbo artesano;pan artesano;pan integral bimbo;tostadas integrales;tostada integral;pan de molde integral;pan lactal integral;pan negro;pan de centeno;pan con semillas;pan multicereal|243|12.1|5.4|76|38|rebanada|i1 b
+Pan blanco|pan;pan blanco;pan frances;pan flauta;flauta;felipe;felipes;minon;miñon;pan de campo;pancito;pancitos;mignon;pan casero;baguette;pan de mesa;bollito;bollitos;pan de agua;figacita;figazza;pan arabe;pan pita;pan de papa;pan de leche;pan brioche|270|9|2.5|60|60|pan|b
+Pan lactal|pan lactal;pan de molde;pan lactal blanco;pan blanco de molde;fargo;lactal;bimbo;pan bimbo;tostada;tostadas;rebanada de pan;rodaja de pan|265|8|2.5|50|25|rebanada|b
 Pan de hamburguesa|pan de hamburguesa;pan de hamburguesas;pan de pancho;pan de panchos|275|9|2|60|60|pan|b
 Sándwich|sandwich;sandwiches;sanguche;sanguches;sanguchito;sandwichito;emparedado;pebete;bocadillo;baguette rellena;sandwich de pan frances|270|9|2.5|100|100|sándwich|b B P
-Sándwich de miga|sandwich de miga;sandwiches de miga;sanguche de miga;sanguchitos de miga;miga;triples;triple de miga;triple|250|9|1.5|90|45|sándwich|b B P
+Sándwich de miga|sandwich de miga;sandwiches de miga;sanguche de miga;sanguchitos de miga;miga;triples;triple de miga;triple|260|10|1.5|90|45|sándwich|b P
 Tostado|tostado;tostados;carlitos;tostado de jamon y queso;tostado jyq;tostado de jyq;tostado de queso|240|8|2|90|90|tostado|b B P
 Wrap|wrap;wraps;rapidita;rapiditas;tortilla de trigo;tortillas de trigo;tortilla mexicana;fajita;fajitas|300|8|2.5|60|60|tortilla|b B P
 Burrito|burrito;burritos|170|6|3|250|250|burrito|B
-Taco|taco;tacos;tortilla de maiz;tortillas de maiz|220|6|5|90|30|taco|b B P
+Taco|taco;tacos|220|9|3|180|90|taco|
 Rapidita integral|rapidita integral;rapiditas integrales;wrap integral;tortilla integral|290|9|6|80|40|rapidita|i1 b B P
 Medialuna|medialuna;medialunas;medialuna de manteca;medialunas de manteca;croissant;medialuna rellena|410|7.5|1.6|80|40|medialuna|
 Medialuna de grasa|medialuna de grasa;medialunas de grasa|400|7|1.6|80|40|medialuna|
@@ -108,18 +110,18 @@ Grisines|grisines;grisin;grissini;palitos de pan|410|12|3|20|5|grisín|
 Galletas de arroz|galletas de arroz;galletas de arroz inflado;tostadas de arroz;galletitas de arroz;arroz inflado|380|8|3|20|10|galleta|i.8
 Pan rallado|pan rallado;rebozador|395|13|4.5|30||porción|
 Arepa|arepa;arepas|220|5|2|120|120|arepa|
-Pizza|pizza;pizza de muzzarella;pizza de muzza;pizza muzza;pizza de mozzarella;pizza comun;pizza al molde;pizza a la piedra;pizza casera;muzza al molde;pizza margarita;pizza margherita|260|11|2|240|120|porción|cnt=960
-Fugazzeta|fugazzeta;pizza fugazzeta;fugazza;fugazza con queso;fugazzetta|290|11|2|240|120|porción|cnt=960
-Pizza napolitana|pizza napolitana;napolitana;pizza de tomate;pizza con tomate|240|10|2|240|120|porción|cnt=960
-Pizza de jamón|pizza de jamon;pizza de jamon y morrones;pizza de jamon y morron;pizza especial;pizza de jamon y queso;pizza jyq;pizza con jamon;pizza de jamon y huevo|250|12|2|240|120|porción|cnt=960
-Pizza con fiambre|pizza de calabresa;calabresa;pizza de longaniza;pizza de pepperoni;pepperoni;pizza de salame|280|12|2|240|120|porción|r cnt=960
-Pizza de rúcula|pizza de rucula;pizza con rucula;pizza rucula y crudo;pizza de rucula y crudo|240|11|2|240|120|porción|cnt=960
-Pizza de verdura|pizza de verdura;pizza de verduras;pizza vegetariana;pizza de champiñones|220|9|2.5|240|120|porción|v.15 cnt=960
-Pizzeta|pizzeta;pizzetas;pizzita;pizzitas;pizzeta de rapidita;mini pizza|250|10|2|150|150|pizzeta|
-Prepizza|prepizza;pre pizza;masa de pizza|280|8|2|120|120|porción|
+Pizza|pizza;pizza de muzzarella;pizza de muzza;pizza muzza;pizza de mozzarella;pizza comun;pizza al molde;pizza a la piedra;pizza casera;muzza al molde;pizza margarita;pizza margherita|260|11|2|240|120|porción|T cnt=960
+Fugazzeta|fugazzeta;pizza fugazzeta;fugazza;fugazza con queso;fugazzetta|290|11|2|240|120|porción|T cnt=960
+Pizza napolitana|pizza napolitana;napolitana;pizza de tomate;pizza con tomate|240|10|2|240|120|porción|T cnt=960
+Pizza de jamón|pizza de jamon;pizza de jamon y morrones;pizza de jamon y morron;pizza especial;pizza de jamon y queso;pizza jyq;pizza con jamon;pizza de jamon y huevo|250|12|2|240|120|porción|T cnt=960
+Pizza con fiambre|pizza de calabresa;calabresa;pizza de longaniza;pizza de pepperoni;pepperoni;pizza de salame|280|12|2|240|120|porción|T r cnt=960
+Pizza de rúcula|pizza de rucula;pizza con rucula;pizza rucula y crudo;pizza de rucula y crudo|240|11|2|240|120|porción|T cnt=960
+Pizza de verdura|pizza de verdura;pizza de verduras;pizza vegetariana;pizza de champiñones|220|9|2.5|240|120|porción|T v.15 cnt=960
+Pizzeta|pizzeta;pizzetas;pizzita;pizzitas;pizzeta de rapidita;mini pizza|250|10|2|150|150|pizzeta|T
+Prepizza|prepizza;pre pizza;masa de pizza|280|8|2|120|120|porción|T
 Fainá|faina|230|8|4|80|80|porción|
 Calzone|calzone;calzones|250|12|2|300|300|calzone|
-Pizza integral|pizza integral;pizza de masa integral|240|11|4|240|120|porción|i.5 cnt=960
+Pizza integral|pizza integral;pizza de masa integral|240|11|4|240|120|porción|T i.5 cnt=960
 # ---- Empanadas y tartas ----
 Empanada|empanada;empanadas;empanadita;empanaditas;empanada al horno;empanadas al horno;empanada casera|280|11|2|180|90|empanada|
 Empanada de carne|empanada de carne;empanada de carne cortada a cuchillo;empanada salteña;empanada tucumana;empanada criolla;empanada de carne picante;empanada de carne suave;empanada mendocina;empanada santiagueña|290|11|2|180|90|empanada|r
@@ -163,7 +165,7 @@ Papas fritas de paquete|papas fritas de paquete;papas de paquete;papitas;lays;pa
 Papas al horno|papas al horno;papa al horno;papas rusticas;papa rustica;papas noisette;papas a la provenzal;papas españolas;papas en la freidora;papas al aire;papas en freidora de aire;papas a la crema;papas gratinadas|140|2.5|2.5|200||porción|
 Puré de papa|pure;pure de papa;pure de papas;pure mixto;pure de papa y zapallo;pure de papa y calabaza|100|2|1.5|200||porción|
 Puré de calabaza|pure de calabaza;pure de zapallo;pure de zapallo anco;pure de batata|60|1.2|1.5|200||porción|v1
-Batata|batata;batatas;batata al horno;boniato;camote|90|1.6|3|200|200|batata|v.5
+Batata|batata;batatas;batata al horno;boniato;camote|90|1.6|3|200|200|batata|v1
 Mandioca|mandioca;yuca|160|1.4|1.8|150||porción|
 Choclo|choclo;maiz;choclos;choclo desgranado;granos de choclo;humita|86|3.3|2.7|100|150|choclo|v.5
 # ---- Legumbres y vegetarianos ----
@@ -183,7 +185,7 @@ Guiso de lentejas|guiso de lentejas;lentejas guisadas;guiso de garbanzos;guiso d
 Parrillada|parrillada;parrilla;parrillada mixta;asado completo|300|23|0|350||porción|r
 Locro|locro|140|7|3|350||plato|r
 Pastel de papa|pastel de papa;pastel de papas;hachis parmentier|140|8|1.5|300||porción|r
-Wok de pollo|wok;wok de pollo;salteado de pollo;pollo con verduras;pollo al wok;chop suey;salteado|120|11|1.5|350||plato|v.4
+Wok de pollo|wok;wok de pollo;salteado de pollo;pollo con verduras;pollo al wok;chop suey|120|11|1.5|350||plato|v.4
 Quesadilla|quesadilla;quesadillas|300|13|2|150|75|quesadilla|
 Nachos con queso|nachos con queso;nachos con cheddar;nachos con guacamole|320|7|3|150||porción|F
 Guiso de pollo|estofado de pollo;guiso de pollo;pollo guisado;pollo al disco con verduras;cazuela de pollo|120|11|1.5|350||plato|v.2
@@ -241,7 +243,7 @@ Uvas|uva;uvas;racimo de uvas|69|0.7|0.9|150|5|uva|f1
 Durazno|durazno;duraznos;pelon;pelones;nectarina;durazno en almibar;duraznos en almibar|42|0.9|1.5|150|150|durazno|f1
 Ciruela|ciruela;ciruelas|46|0.7|1.4|140|70|ciruela|f1
 Damasco|damasco;damascos;albaricoque|48|1.4|2|120|40|damasco|f1
-Ananá|anana;ananá;piña;pina|50|0.5|1.4|150|150|rodaja|f1 c
+Ananá|anana;ananá;piña;pina|50|0.5|1.4|150|80|rodaja|f1 c
 Mango|mango;mangos|60|0.8|1.6|200|250|mango|f1 c
 Melón|melon;melones|34|0.8|0.9|200|200|tajada|f1 c
 Sandía|sandia;sandías|30|0.6|0.4|250|250|tajada|f1
@@ -267,12 +269,13 @@ Avellanas|avellana;avellanas|628|15|10|30||puñado|n
 Frutos secos|frutos secos;fruto seco;mix de frutos secos;mix;mix de nueces;mix de semillas;trail mix|600|18|7|30||puñado|n
 Mantequilla de maní|mantequilla de mani;pasta de mani;manteca de mani;peanut butter|590|25|6|20|15|cucharada|n
 Semillas|semillas;semillas de chia;chia;lino;semillas de lino;semillas de girasol;semillas de zapallo;semillas de sesamo;sesamo|500|18|20|10|10|cucharada|
-Pasas de uva|pasas;pasas de uva;pasa de uva;datiles;datil;orejones;ciruelas pasas;frutas secas;fruta seca deshidratada|290|2.5|5|30||puñado|f.3
+Pasas de uva|pasas;pasas de uva;pasa de uva;datiles;datil;orejones;ciruelas pasas;frutas secas;fruta seca deshidratada|290|2.5|5|30||puñado|f3
 # ---- Dulces, snacks y golosinas ----
 Alfajor|alfajor;alfajores;alfajor simple;alfajor de chocolate;alfajor de dulce de leche;alfajor guaymallen;guaymallen;jorgito;havanna;cachafaz;fantoche;capitan del espacio;alfajor de fruta;alfajor milka;bon o bon alfajor;tatin|440|5|1.5|50|50|alfajor|
 Alfajor triple|alfajor triple;alfajores triples;triple de chocolate;fantoche triple;jorgito triple;terrabusi triple;guaymallen triple|440|5|1.5|75|75|alfajor|
 Alfajor de maicena|alfajor de maicena;alfajores de maicena;alfajorcito;alfajorcitos|420|5|1|40|40|alfajor|
-Chocolate|chocolate;chocolate con leche;barra de chocolate;tableta de chocolate;chocolatin;chocolatines;aguila;cofler;milka;block;cadbury;kinder;kit kat;kitkat;twix;snickers;mantecol;rocklets;chocolate blanco;bon o bon;bonobon;bombon;bombones;rhodesia;tita;marroc;huevo de pascua;cabsha;chocolate con mani;bananita dolca;bananita|540|7|2|25|7|cuadradito|
+Chocolate|chocolate;chocolate con leche;barra de chocolate;tableta de chocolate;aguila;cofler;milka;block;cadbury;kit kat;kitkat;twix;snickers;mantecol;rocklets;chocolate blanco;rhodesia;huevo de pascua;chocolate con mani|540|7|2|25|7|cuadradito|cnt=45
+Bombón|bombon;bombones;bon o bon;bonobon;chocolatin;chocolatines;kinder;tita;marroc;cabsha;bananita dolca;bananita|500|6|2|15|15|bombón|
 Chocolate amargo|chocolate amargo;chocolate 70;chocolate negro;chocolate semiamargo;chocolate 70 por ciento;chocolate 85;chocolate oscuro;cacao amargo|600|7.8|11|20|7|cuadradito|
 Caramelos|caramelo;caramelos;chupetin;chupetines;gomitas;mogul;gomita;pastillas;sugus;flynn paff;menthoplus;chicle;chicles;turron;turrón;marshmallow;malvaviscos;chupetin|380|0|0|20|5|caramelo|
 Galletitas dulces|galletitas;galletas;galletitas dulces;galletitas rellenas;galletitas de chocolate;oreo;oreos;pepitos;chocolinas;rumba;rumbas;tentaciones;sonrisas;mana;manon;merengadas;opera;toddy galletitas;terrabusi;melba;diversion;lincoln;surtidas;galletitas surtidas;galletitas de vainilla;galletitas de limon;anillos;galletitas pepitos;cookies;cookie;galletitas con chips;criollitas dulces;formis;macucas|480|5|2|40|10|galletita|
@@ -321,7 +324,8 @@ Energizante|energizante;energizantes;red bull;speed;monster;energy drink;bebida 
 Energizante sin azúcar|red bull sin azucar;speed sin azucar;monster zero;monster ultra;speed zero;red bull zero;energizante sin azucar|2|0|0|250|250|lata|l
 Bebida deportiva|gatorade;powerade;isotonica;bebida isotonica;bebida deportiva;h2o|25|0|0|500|500|botella|l
 Café|cafe;cafe solo;espresso;expreso;cafe negro;cafecito;cafe americano;americano;cafe sin leche;cafe de filtro;cafe instantaneo;nescafe;cafe de maquina;ristretto;doppio;cafe chico;cafe doble;cafe con azucar;cafe con edulcorante|2|0.1|0|100|100|taza|l
-Café con leche|cafe con leche;cortado;lagrima;lágrima;capuchino;capuccino;cappuccino;latte;cafe latte;flat white;cafe cortado;mocaccino;moca;macchiato;latte macchiato;cafe con leche de almendras;te con leche;mate cocido con leche;caramel macchiato;frappuccino;cafe frio;ice latte;iced latte;cafe helado;lagrimita|45|2.2|0|200|200|taza|l M
+Cortado|cortado;cortadito;cafe cortado|20|1|0|120|120|taza|l M
+Café con leche|cafe con leche;lagrima;lágrima;capuchino;capuccino;cappuccino;latte;cafe latte;flat white;mocaccino;moca;macchiato;latte macchiato;cafe con leche de almendras;te con leche;mate cocido con leche;caramel macchiato;frappuccino;cafe frio;ice latte;iced latte;cafe helado;lagrimita|45|2.2|0|200|200|taza|l M
 Té|te;te verde;te negro;infusion;infusiones;te de hierbas;te de manzanilla;manzanilla;mate cocido;te de boldo;boldo;tecito;te helado;te frio|1|0|0|250|250|taza|l
 Mate|mate;mates;matecito;matecitos;terere;mate amargo;mate dulce;mate con azucar;ronda de mate;yerba;termo de mate|2|0|0|300||ronda|l
 `;
@@ -399,7 +403,7 @@ const ESTIMADOR = (function(){
         if(key==="v") x.v=val?+val:1; else if(key==="f") x.fr=val?+val:1; else if(key==="i") x.ig=val?+val:1;
         else if(key==="n") x.nz=true; else if(key==="c") x.c=true; else if(key==="r") x.r=true; else if(key==="a") x.a=true;
         else if(key==="l") x.l=true; else if(key==="F") x.F=true; else if(key==="P") x.P=true; else if(key==="b") x.b=true; else if(key==="B") x.B=true;
-        else if(key==="cnt") x.cnt=+val; else if(key==="M") x.M=true;
+        else if(key==="cnt") x.cnt=+val; else if(key==="M") x.M=true; else if(key==="T") x.T=true;
       }
       x.id=foods.length; foods.push(x);
       const seen=new Set();
@@ -539,10 +543,17 @@ const ESTIMADOR = (function(){
     for(const p of out.filter(i=>i.food.M)){ out = out.filter(i=> i===p || !(i.food.n==="Leche" && Math.abs(i.s-p.s)<=5)); }
     // relleno de sándwiches, tostados, wraps y tacos: porción de relleno, no de plato
     for(const c of out.filter(i=>i.food.B)){
-      const fx = Math.min(Math.max(c.g/100, 0.5), 1.2);
+      const fx = Math.min(Math.max(c.g/80, 0.75), 1.2);
       for(const i of out){ if(i===c || i.food.b || i.food.l || i.s<=c.s || i.s-c.e>6 || i.num!=null || i.gExp!=null) continue;
         if(i.food.u && i.food.u===i.food.por) continue;
         i.g = Math.max(5, Math.round(Math.min(i.g,80)*fx)); }
+    }
+    // coberturas de pizzas y hamburguesas ("pizza con tomate", "hamburguesa con lechuga y tomate"): unas rodajas, no la porción entera
+    const COBERTURA = new Set(["Aceitunas","Jamón cocido","Jamón crudo","Queso","Cheddar","Mozzarella","Panceta","Palta","Champiñones"]);
+    for(const c of out.filter(i=>i.food.T)){
+      const tope = Math.min(150, Math.round(25*Math.max(1, c.g/(c.food.u||c.g))));
+      for(const i of out){ if(i===c || i.s<=c.s || i.s-c.e>6 || i.num!=null || i.gExp!=null || i.food.l || i.food.T) continue;
+        if(i.food.v>=1 || i.food.fr>=1 || COBERTURA.has(i.food.n)) i.g = Math.min(i.g, tope); }
     }
     // panes que se rellenan (sándwich, tostado, wrap) sin relleno nombrado: relleno típico
     const extra=[];
