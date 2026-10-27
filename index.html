@@ -1021,7 +1021,7 @@ function renderInstalar(box){
 // ==== RECORDATORIOS DE COMIDAS (Web Push) ====
 // Independientes de «compartir datos»: usan un código propio (DB.avisos.id), distinto de DB.anonId.
 const TXT_DATOS_AVISOS = "Para enviarlos guardamos en nuestro servidor la dirección de notificaciones de este dispositivo, los horarios de tus comidas y qué comidas ya registraste (no qué comiste), con un código aparte de los datos anónimos. Podés desactivarlos cuando quieras desde Perfil.";
-const TXT_BLOQUEADO = "Las notificaciones de Pulso están bloqueadas en este dispositivo. Para activarlas: en iPhone, Configuración › Notificaciones › Pulso; en Android, mantené apretado el ícono de Pulso › Información de la app › Notificaciones.";
+const TXT_BLOQUEADO = "Las notificaciones de Pulso están bloqueadas en este dispositivo. Para activarlas: en iPhone, Configuración › Notificaciones › Pulso; en Android, si la instalaste, mantené apretado el ícono de Pulso › Información de la app › Notificaciones, y si la usás en Chrome, tocá el ícono junto a la dirección › Permisos › Notificaciones.";
 const AVISOS_OK = () => !!(CONFIG.SUPABASE_URL && CONFIG.SUPABASE_ANON_KEY && CONFIG.VAPID_PUBLICA) && "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
 function estadoAvisos(){
   if(DB.avisos?.on) return "on";
