@@ -133,6 +133,16 @@ details.rec summary span:last-child{font-weight:500;color:var(--muted);font-size
 .enlace-baja{margin:4px 0 0;text-align:center;font-size:12.5px} .enlace-baja a{color:var(--muted)}
 .btn.peligro{background:var(--bad);border-color:var(--bad);color:var(--bg)}
 #baja-resp{width:100%;font:inherit;font-size:16px;color:var(--body);background:var(--card);border:1px solid var(--gold);border-radius:6px;padding:10px 12px}
+#carga{position:fixed;inset:0;z-index:60;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+#carga svg{width:64px;height:64px}
+#carga .fondo{fill:var(--box)}
+#carga .torta{fill:none;stroke:var(--green);stroke-width:30;stroke-dasharray:94.25;stroke-dashoffset:94.25;transform:rotate(-90deg);transform-origin:32px 32px}
+#carga p{margin:0;color:var(--muted);font-size:14px}
+.confirmar{display:flex;flex-direction:column;gap:10px;align-items:stretch;border-top:1px solid var(--gold);padding-top:12px}
+.confirmar-preg{margin:0;font-weight:600;color:var(--ink)}
+.btn.mantener{position:relative;overflow:hidden;border-color:var(--bad);color:var(--bad);background:transparent;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.mantener-barra{position:absolute;left:0;top:0;bottom:0;width:100%;background:var(--bad-bg)}
+.mantener-txt{position:relative;font-weight:700}
 .aviso-tyc{background:var(--bad-bg);color:var(--bad);border-radius:8px;padding:12px 14px;font-weight:500}
 .btn-perfil{flex:0 0 auto;width:42px;height:42px;border-radius:50%;border:1px solid var(--gold);background:var(--card);color:var(--ink);display:grid;place-items:center;cursor:pointer;padding:0}
 .btn-perfil svg{width:22px;height:22px}
@@ -193,6 +203,7 @@ input[type=text]{font:inherit;color:var(--body);background:var(--card);border:1p
 </div>
 </div>
 <div id="cuenta" hidden aria-hidden="true"><i></i></div>
+<div id="carga" hidden role="status" aria-live="polite"><svg viewBox="0 0 64 64" aria-hidden="true"><circle class="fondo" cx="32" cy="32" r="30"/><circle class="torta" cx="32" cy="32" r="15"/></svg><p id="cargaTxt"></p></div>
 <div id="sheet" hidden role="dialog" aria-modal="true" aria-label="Hambre y emociones"></div>
 
 <script>
@@ -204,7 +215,7 @@ const CONFIG = {
   SUPABASE_ANON_KEY: "sb_publishable_4rprl49Z0iCw1uuv0Bk6Tw_7-bdMaTb",
   // Recordatorios (Web Push): clave pública VAPID. La privada vive solo en los secretos de la función de Supabase.
   VAPID_PUBLICA: "BPbi0hFzII-GcGYVX2Y_ulYxwdQc9rpX-vS5ejgFcRfzqGNYFvNvC_zX2cBmvJ9jSuYVHAFvCbnUs60_1TXyYZA",
-  APP_VERSION: "0.4.1",
+  APP_VERSION: "0.4.2",
   DEMO: "demo 1.0",   // versión de la demo: la pantalla de inicio dice «Bienvenido a la demo 1.0»
   CONTACTO: "[completar: mail de contacto]",
 };
@@ -1224,7 +1235,7 @@ async function ingresoPorEnlace(){
   try{ const at=p.get("access_token");
     const res=await fetch(AUTH_URL()+"/user",{headers:{"apikey":CONFIG.SUPABASE_ANON_KEY,"Authorization":"Bearer "+at}});
     if(!res.ok) throw 0;
-    await alIngresar({access_token:at, refresh_token:p.get("refresh_token"), expires_in:+p.get("expires_in")||3600, user:await res.json()});
+    await Promise.all([cargando(3000,"Entrando a tu cuenta…"), alIngresar({access_token:at, refresh_token:p.get("refresh_token"), expires_in:+p.get("expires_in")||3600, user:await res.json()})]); cerrarCarga();
   }catch(e){ INGRESO.paso="mail"; INGRESO.msg="No se pudo entrar con ese enlace. Pedí uno nuevo."; ONB.paso="ingreso"; render(); }
 }
 // Pantalla intermedia: después de confirmar el código, antes del cuestionario.
@@ -1271,12 +1282,12 @@ function renderIngreso(box){
     const btn=el("button",{class:"btn primary big",type:"button"},"Confirmar código");
     const entrar=async()=>{ const t=inp.value.replace(/\D/g,"");
       if(t.length<6){ msg.textContent="El código tiene 6 dígitos."; inp.focus(); return; }
-      btn.disabled=true; msg.textContent="Verificando…";
+      btn.disabled=true; msg.textContent=""; const espera=cargando(3000,"Entrando a tu cuenta…");
       try{ const r=await authPost("/verify",{type:"email", email:INGRESO.email, token:t});
-        if(r.ok && r.j?.access_token){ await alIngresar(r.j); return; }
+        if(r.ok && r.j?.access_token){ await Promise.all([espera, alIngresar(r.j)]); cerrarCarga(); return; }
         msg.textContent="El código no es correcto o venció. Revisá el último mail que te llegó o pedí uno nuevo.";
       }catch(e){ msg.textContent="Sin conexión. Revisá internet y probá de nuevo."; }
-      btn.disabled=false; };
+      cerrarCarga(); btn.disabled=false; };
     btn.addEventListener("click",entrar); inp.addEventListener("keydown",ev=>{ if(ev.key==="Enter") entrar(); });
     const reenviar=el("button",{class:"btn link",type:"button",onclick:async()=>{
       if(Date.now()-INGRESO.enviadoEn<60000){ msg.textContent="Esperá un minuto antes de pedir otro código."; return; }
@@ -1288,6 +1299,48 @@ function renderIngreso(box){
   }
   box.append(card);
   setTimeout(()=>box.querySelector("input")?.focus(), 50);
+}
+
+// ---- Pantalla de carga: un círculo que se llena en el sentido del reloj, desde arriba, en la duración exacta ----
+let cargaT=null;
+function cargando(ms, texto){
+  const c=$("#carga"), t=c.querySelector(".torta");
+  $("#cargaTxt").textContent=texto||""; c.hidden=false;
+  t.style.transition="none"; t.style.strokeDashoffset="94.25"; void c.offsetWidth;
+  t.style.transition=`stroke-dashoffset ${ms}ms linear`; t.style.strokeDashoffset="0";
+  clearTimeout(cargaT); return new Promise(r=>{ cargaT=setTimeout(r, ms); });
+}
+function cerrarCarga(){ clearTimeout(cargaT); $("#carga").hidden=true; }
+
+// ---- Botón que hay que mantener apretado: la barra se vacía de derecha a izquierda; si se suelta antes, se cancela ----
+function botonMantener(texto, ms, alConfirmar){
+  const barra=el("span",{class:"mantener-barra"});
+  const b=el("button",{class:"btn mantener",type:"button"}, barra, el("span",{class:"mantener-txt"},texto));
+  let t=null;
+  const empezar=ev=>{ if(t) return; ev.preventDefault(); barra.style.transition=`width ${ms}ms linear`; barra.style.width="0%"; t=setTimeout(()=>{ t=null; alConfirmar(); }, ms); };
+  const soltar=()=>{ if(!t) return; clearTimeout(t); t=null; barra.style.transition="width .2s ease-out"; barra.style.width="100%"; };
+  b.addEventListener("pointerdown",empezar);
+  for(const e of ["pointerup","pointerleave","pointercancel"]) b.addEventListener(e,soltar);
+  b.addEventListener("keydown",ev=>{ if((ev.key===" "||ev.key==="Enter") && !ev.repeat) empezar(ev); });
+  b.addEventListener("keyup",ev=>{ if(ev.key===" "||ev.key==="Enter") soltar(); });
+  b.addEventListener("contextmenu",ev=>ev.preventDefault());
+  return b;
+}
+
+// ---- Perfil › Tu cuenta: cerrar sesión en dos pasos (se expande ahí mismo y hay que mantener apretado 2 s) ----
+function tarjetaCuenta(){
+  const card=el("section",{class:"card"});
+  const draw=()=>{
+    card.replaceChildren(el("h3",{},"Tu cuenta"),
+      el("p",{style:"margin:0 0 10px"},`Entraste como ${DB.auth?.user?.email||"—"}. Si cerrás sesión, tus datos quedan guardados en tu cuenta y los recuperás al volver a entrar.`));
+    if(!S.confirmarCierre) card.append(el("button",{class:"btn small",type:"button",onclick:()=>{ S.confirmarCierre=true; draw(); }},"Cerrar sesión"));
+    else card.append(el("div",{class:"confirmar"},
+      el("p",{class:"confirmar-preg"},"¿Estás seguro de que querés cerrar sesión?"),
+      botonMantener("Cerrar sesión", 2000, async()=>{ S.confirmarCierre=false; await Promise.all([cerrarSesion(), cargando(2000,"Cerrando sesión…")]); cerrarCarga(); }),
+      el("p",{class:"note",style:"margin:0"},"Mantené apretado el botón durante 2 segundos."),
+      el("button",{class:"btn small ghost",type:"button",onclick:()=>{ S.confirmarCierre=false; draw(); }},"No, volver")));
+  };
+  draw(); return card;
 }
 
 // ---- Cerrar sesión: borra los datos del dispositivo; la cuenta los conserva ----
@@ -1306,12 +1359,6 @@ const BAJA={i:0, resp:["","","","",""], confirmar:false, hecha:false};
 const letras = t => (t.match(/\p{L}/gu)||[]).length;
 function salirBaja(){ history.replaceState(null,"",location.pathname); BAJA.i=0; BAJA.confirmar=false; render(); window.scrollTo(0,0); }
 function renderBaja(box){
-  if(BAJA.hecha){
-    box.append(el("div",{class:"onb-card"}, el("div",{class:"eyebrow"},"Cuenta eliminada"), el("h2",{},"Tu cuenta fue eliminada"),
-      el("p",{},"Borramos tu nombre, tu apellido, tu mail y la copia de tu cuenta. Gracias por contarnos tu experiencia."),
-      el("button",{class:"btn primary big",type:"button",onclick:()=>{ BAJA.hecha=false; BAJA.resp=["","","","",""]; salirBaja(); }},"Volver al inicio")));
-    return;
-  }
   const total=BAJA_PREG.length, msg=el("p",{class:"note",role:"status"});
   const prog=el("div",{class:"onb-prog"}, el("i",{style:`width:${(Math.min(BAJA.i,total)/total)*100}%`}));
   const cancelar=el("button",{class:"btn link",type:"button",onclick:salirBaja},"Cancelar y volver a Pulso");
@@ -1328,16 +1375,17 @@ function renderBaja(box){
   const btn=el("button",{class:"btn peligro big",type:"button"}, BAJA.confirmar? "Tocá de nuevo para confirmar" : "Eliminar mi cuenta");
   btn.addEventListener("click",async()=>{
     if(!BAJA.confirmar){ BAJA.confirmar=true; btn.textContent="Tocá de nuevo para confirmar"; return; }
-    btn.disabled=true; msg.textContent="Eliminando…";
+    btn.disabled=true; msg.textContent=""; const espera=cargando(3000,"Eliminando tu cuenta…");
     try{
       await flush();
       const ok=await rpcCuenta("eliminar_cuenta",{p_encuesta:BAJA_PREG.map((p,i)=>({pregunta:p, respuesta:BAJA.resp[i].trim()}))});
-      if(!ok){ msg.textContent="Revisá tus respuestas: cada una necesita al menos tres letras."; btn.disabled=false; return; }
-    }catch(e){ msg.textContent="No se pudo eliminar ahora. Revisá la conexión y probá de nuevo."; btn.disabled=false; return; }
+      if(!ok){ cerrarCarga(); msg.textContent="Revisá tus respuestas: cada una necesita al menos tres letras."; btn.disabled=false; return; }
+    }catch(e){ cerrarCarga(); msg.textContent="No se pudo eliminar ahora. Revisá la conexión y probá de nuevo."; btn.disabled=false; return; }
     if(DB.avisos?.on) await desactivarAvisos();
     try{ localStorage.removeItem(KEY); }catch(e){}
-    DB=blank(); secretHash=null; persist(); BAJA.hecha=true; BAJA.i=0; BAJA.confirmar=false; ONB.i=-1; ONB.paso=null; ONB.draft=null; S.view="hoy";
-    render(); window.scrollTo(0,0);
+    DB=blank(); secretHash=null; persist(); BAJA.i=0; BAJA.confirmar=false; BAJA.resp=["","","","",""]; ONB.i=-1; ONB.paso=null; ONB.draft=null; S.view="hoy";
+    history.replaceState(null,"",location.pathname); render();
+    await espera; cerrarCarga(); window.scrollTo(0,0);
   });
   box.append(el("div",{class:"onb-card"}, prog, el("div",{class:"eyebrow"},"Último paso"), el("h2",{},"Eliminar tu cuenta"),
     el("p",{},"Se borran tu nombre, tu apellido, tu mail y la copia de tu cuenta, y se desactivan los recordatorios de este dispositivo. Tus registros y tus respuestas se conservan como datos generales, sin nada que los vincule a vos, como explican los términos."),
@@ -1386,8 +1434,6 @@ const PREGUNTAS = [
    opts:[["ajustado","Ajustado"],["moderado","Moderado"],["holgado","Holgado"],["pnd","Prefiero no decirlo"]]},
   {id:"mov", sec:"Movimiento", t:"¿Qué tipo de actividad te gusta?", sub:"Podés marcar varias.", type:"multi",
    opts:[["caminar","Caminar"],["correr","Correr"],["fuerza","Gimnasio o fuerza"],["deporte","Deportes en equipo"]]},
-  {id:"dias", sec:"Movimiento", t:"¿Cuántos días por semana podrías moverte?", type:"single",
-   opts:[["2","1 o 2 días"],["3","3 días"],["4","4 o 5 días"],["6","6 o 7 días"]]},
   {id:"sueno", sec:"Descanso", t:"¿Cuánto dormís en una noche normal?", type:"single",
    opts:[["5","Menos de 6 horas"],["6.5","Entre 6 y 7 horas"],["7.5","Entre 7 y 8 horas"],["8.5","Más de 8 horas"]]},
   {id:"relacion", sec:"Bienestar", t:"¿Cómo describirías tu relación con la comida?", sub:"Nos ayuda a cuidarte. Esta respuesta queda solo en tu dispositivo.", type:"single",
@@ -1447,11 +1493,10 @@ function calcPlan(p){
   const est = ESTRUCTURAS[r.estructura] ? r.estructura : "damc";
   const hAlm = +r.hAlm || 13, hCen = +r.hCen || 21;
   const horas = {des:"8:30", col:"10:30", alm:hAlm+":00", mer:Math.round((hAlm+hCen)/2)+":00", cen:hCen+":00"};
-  const diasMov = +r.dias || 3;
   return { care, edad, peso, kcal, prot:Math.round(peso*protKg), excl, eq, tmax, est, horas,
     pan: PANES[r.pan] || PANES.generico, sinLactosa:(r.restric||[]).includes("lactosa"),
     metas:{frutas:2, verduras:3, integrales:excl.has("gluten")?2:3, nueces:excl.has("nuez")?0:1, rojaSem:2, movMin:150, fuerza:2, sueno:7},
-    flex: pat==="flex", diasMov, budget:r.presupuesto, platos:r.platos||[], prefMov:(r.mov||[]).filter(x=>x!=="otro") };
+    flex: pat==="flex", budget:r.presupuesto, platos:r.platos||[], prefMov:(r.mov||[]).filter(x=>x!=="otro") };
 }
 let PLAN = null;
 
@@ -1621,7 +1666,7 @@ function cerrarSheet(){ $("#sheet").hidden=true; $("#sheet").replaceChildren(); 
 
 // ==== RENDER: GENERAL ====
 function render(){
-  if(location.hash==="#eliminar-cuenta" && (BAJA.hecha || (DB.auth && DB.perfil?.completo))){ $("#app").hidden=true; $("#onb").hidden=false; cuentaParar(); const b=$("#onb"); b.replaceChildren(); renderBaja(b); return; }
+  if(location.hash==="#eliminar-cuenta" && DB.auth && DB.perfil?.completo){ $("#app").hidden=true; $("#onb").hidden=false; cuentaParar(); const b=$("#onb"); b.replaceChildren(); renderBaja(b); return; }
   if(!DB.auth || !DB.perfil?.completo || !DB.consent?.acepta || ONB.paso==="avisos"){ $("#app").hidden=true; $("#onb").hidden=false; renderOnb(); return; }
   PLAN = calcPlan(DB.perfil);
   if(!S.slot || !slotsHoy().some(s=>s[0]===S.slot)) S.slot=slotNow();
@@ -1762,33 +1807,19 @@ function cardMovRapido(){
   };
   draw(); return box;
 }
-function planMovimiento(){
-  const n=PLAN.diasMov>=6?5: PLAN.diasMov>=4?4: PLAN.diasMov;
-  const pref=PLAN.prefMov.length? PLAN.prefMov : ["caminar"];
-  const aer=pref.filter(p=>p!=="fuerza"); const aerTipo = aer.length? aer : ["caminar"];
-  const fuerzaN = n>=3 ? 2 : (pref.includes("fuerza")?1:0);
-  const aerN = Math.max(n - fuerzaN, 1);
-  const minAer = clamp(Math.ceil(150/aerN/5)*5, 20, 60);
-  const dias = {2:["Martes","Sábado"],3:["Lunes","Miércoles","Viernes"],4:["Lunes","Martes","Jueves","Sábado"],5:["Lunes","Martes","Miércoles","Viernes","Sábado"]}[n] || ["Lunes","Jueves"];
-  const ses=[]; let a=0,fz=0;
-  for(let i=0;i<dias.length;i++){
-    const toca = (fz<fuerzaN && (i%2===1 || aerN-a<=0)) ? "fuerza" : "aer";
-    if(toca==="fuerza"){ fz++; ses.push({dia:dias[i], tipo:"fuerza", t:"Fuerza", min:30, det: pref.includes("fuerza")? "Gimnasio: rutina de cuerpo completo (piernas, empuje, tracción y abdomen), 3 series de 8–12 repeticiones." : "En casa: sentadillas, flexiones (pueden ser con rodillas apoyadas), estocadas y plancha; 3 vueltas de 10–12 repeticiones (la plancha, 30 s)."}); }
-    else { const tp=aerTipo[a%aerTipo.length]; a++; ses.push({dia:dias[i], tipo:tp, t:ACT_TXT[tp]||"Actividad aeróbica", min:minAer, det: tp==="correr"? "A un ritmo en el que puedas hablar con frases cortas." : tp==="deporte"? "Partido o entrenamiento con tu equipo." : "A paso rápido, que sientas que respirás más fuerte."}); }
-  }
-  return {ses, minAer, fuerzaN};
-}
 function semanaMov(){ let min=0, fuerza=0; for(const k of last7()) for(const e of (DB.dias[k]?.ejercicio||[])){ if(e.tipo==="fuerza") fuerza++; else min+=e.min; } return {min, fuerza}; }
 function renderMov(){
   const box=$("#v-mov"); box.replaceChildren();
-  const p=planMovimiento(), s=semanaMov();
+  const s=semanaMov(), dias=last7().slice().reverse().filter(k=>(DB.dias[k]?.ejercicio||[]).length);
   box.append(
-    el("p",{class:"note",style:"margin:0"},"Basado en la recomendación de la Organización Mundial de la Salud para adultos: entre 150 y 300 minutos semanales de actividad moderada y al menos 2 días de fuerza."),
     el("div",{class:"prog"},
-      el("div",{class:"pi"+(s.min>=150?" done":"")}, el("div",{class:"k"},"Actividad aeróbica · 7 días"), el("div",{class:"v"},nf(s.min),el("small",{}," / 150 min")), el("div",{class:"bar"},el("i",{style:`width:${clamp(s.min/150,0,1)*100}%`}))),
-      el("div",{class:"pi"+(s.fuerza>=2?" done":"")}, el("div",{class:"k"},"Sesiones de fuerza · 7 días"), el("div",{class:"v"},s.fuerza,el("small",{}," / 2")), el("div",{class:"bar"},el("i",{style:`width:${clamp(s.fuerza/2,0,1)*100}%`})))),
-    el("section",{class:"card"}, el("h3",{},"Tu semana de movimiento"),
-      el("ul",{class:"log"}, p.ses.map(x=>el("li",{}, el("div",{}, el("div",{class:"s"},x.dia), el("div",{},`${x.t} · ${x.min} min`), el("div",{class:"det"},x.det)))))),
+      el("div",{class:"pi"}, el("div",{class:"k"},"Actividad aeróbica · 7 días"), el("div",{class:"v"},nf(s.min),el("small",{}," min"))),
+      el("div",{class:"pi"}, el("div",{class:"k"},"Sesiones de fuerza · 7 días"), el("div",{class:"v"},s.fuerza))),
+    el("section",{class:"card"}, el("h3",{},"Lo que registraste esta semana"),
+      dias.length? el("ul",{class:"log"}, dias.map(k=>el("li",{}, el("div",{},
+        el("div",{class:"s"}, cap(keyDate(k).toLocaleDateString("es-AR",{weekday:"long",day:"numeric"}))+(k===S.today?" · hoy":"")),
+        el("div",{}, DB.dias[k].ejercicio.map(e=>`${ACT_TXT[e.tipo]||e.otro||"Actividad"} · ${e.min} min`).join(" · "))))))
+        : el("p",{class:"note",style:"margin:0"},"Todavía no registraste actividad en los últimos 7 días.")),
     cardMovRapido());
 }
 
@@ -1811,7 +1842,6 @@ function renderSemana(){
   const ideas=[];
   if(n && avg("verduras")<M.verduras) ideas.push("Las verduras quedaron por debajo de la meta: sumá media porción de ensalada en el almuerzo y en la cena.");
   if(n && avg("frutas")<M.frutas) ideas.push("Pocas frutas: dejá una a la vista o llevala para la colación.");
-  if(sm.min<150) ideas.push(`Te faltan ${nf(150-sm.min)} minutos de actividad para la recomendación semanal: dos caminatas de media hora alcanzan para acercarte.`);
   if(sAvg!=null && sAvg<7) ideas.push("Dormiste menos de 7 horas en promedio. Dormir poco aumenta el hambre y las ganas de comer cosas dulces; probá adelantar media hora la hora de acostarte.");
   if(conMotivo>=4 && emo/conMotivo>=0.3) ideas.push(`En ${emo} de ${conMotivo} comidas el motivo fue la ansiedad, el estrés o el aburrimiento. Antes de comer en esos momentos, probá una pausa de dos minutos: un vaso de agua, respirar o salir a caminar un rato. Si pasa seguido y te pesa, conversarlo con un profesional ayuda.`);
   if(!ideas.length && n) ideas.push("Vas bien: mantené lo que está funcionando.");
@@ -1819,7 +1849,7 @@ function renderSemana(){
     el("div",{class:"prog"},
       el("div",{class:"pi"},el("div",{class:"k"},"Días registrados"),el("div",{class:"v"},n,el("small",{}," / 7"))),
       PLAN.care?null:el("div",{class:"pi"},el("div",{class:"k"},"Energía promedio"),el("div",{class:"v"},n?nf(avg("kcal")):"—",el("small",{}," kcal"))),
-      el("div",{class:"pi"},el("div",{class:"k"},"Actividad"),el("div",{class:"v"},nf(sm.min),el("small",{}," / 150 min"))),
+      el("div",{class:"pi"},el("div",{class:"k"},"Actividad"),el("div",{class:"v"},nf(sm.min),el("small",{}," min"))),
       el("div",{class:"pi"},el("div",{class:"k"},"Sueño promedio"),el("div",{class:"v"},sAvg!=null?nf(sAvg,1):"—",el("small",{}," h"))),
       el("div",{class:"pi"},el("div",{class:"k"},"Comidas por emoción"),el("div",{class:"v"},conMotivo?nf(emo/conMotivo*100)+"%":"—",el("small",{},conMotivo?` de ${conMotivo}`:"")))),
     el("section",{class:"card"}, el("h3",{},"Para esta semana"), ideas.length? el("ul",{class:"ideas"}, ideas.map(t=>el("li",{},t))) : el("p",{class:"note",style:"margin:0"},"Registrá algunos días para ver sugerencias.")),
@@ -1876,8 +1906,7 @@ function renderPerfil(){
       el("ul",{class:"log"}, resumen),
       el("div",{class:"row",style:"margin-top:12px"}, el("button",{class:"btn small",type:"button",onclick:()=>{ DB.perfil.completo=false; ONB.i=0; persist(); render(); }},"Editar respuestas"))),
     seccionAvisos(), seccionPrivacidad(),
-    el("section",{class:"card"}, el("h3",{},"Tu cuenta"), el("p",{style:"margin:0 0 10px"},`Entraste como ${DB.auth?.user?.email||"—"}. Si cerrás sesión, tus datos quedan guardados en tu cuenta y los recuperás al volver a entrar.`),
-      el("button",{class:"btn small",type:"button",onclick:async ev=>{ ev.currentTarget.disabled=true; await cerrarSesion(); }},"Cerrar sesión")),
+    tarjetaCuenta(),
     el("p",{class:"enlace-baja"}, el("a",{href:"#eliminar-cuenta"},"Eliminar mi cuenta")));
 }
 function seccionPrivacidad(){

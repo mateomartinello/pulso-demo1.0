@@ -39,8 +39,6 @@ const PREGUNTAS = [
    opts:[["ajustado","Ajustado"],["moderado","Moderado"],["holgado","Holgado"],["pnd","Prefiero no decirlo"]]},
   {id:"mov", sec:"Movimiento", t:"¿Qué tipo de actividad te gusta?", sub:"Podés marcar varias.", type:"multi",
    opts:[["caminar","Caminar"],["correr","Correr"],["fuerza","Gimnasio o fuerza"],["deporte","Deportes en equipo"]]},
-  {id:"dias", sec:"Movimiento", t:"¿Cuántos días por semana podrías moverte?", type:"single",
-   opts:[["2","1 o 2 días"],["3","3 días"],["4","4 o 5 días"],["6","6 o 7 días"]]},
   {id:"sueno", sec:"Descanso", t:"¿Cuánto dormís en una noche normal?", type:"single",
    opts:[["5","Menos de 6 horas"],["6.5","Entre 6 y 7 horas"],["7.5","Entre 7 y 8 horas"],["8.5","Más de 8 horas"]]},
   {id:"relacion", sec:"Bienestar", t:"¿Cómo describirías tu relación con la comida?", sub:"Nos ayuda a cuidarte. Esta respuesta queda solo en tu dispositivo.", type:"single",
@@ -100,11 +98,10 @@ function calcPlan(p){
   const est = ESTRUCTURAS[r.estructura] ? r.estructura : "damc";
   const hAlm = +r.hAlm || 13, hCen = +r.hCen || 21;
   const horas = {des:"8:30", col:"10:30", alm:hAlm+":00", mer:Math.round((hAlm+hCen)/2)+":00", cen:hCen+":00"};
-  const diasMov = +r.dias || 3;
   return { care, edad, peso, kcal, prot:Math.round(peso*protKg), excl, eq, tmax, est, horas,
     pan: PANES[r.pan] || PANES.generico, sinLactosa:(r.restric||[]).includes("lactosa"),
     metas:{frutas:2, verduras:3, integrales:excl.has("gluten")?2:3, nueces:excl.has("nuez")?0:1, rojaSem:2, movMin:150, fuerza:2, sueno:7},
-    flex: pat==="flex", diasMov, budget:r.presupuesto, platos:r.platos||[], prefMov:(r.mov||[]).filter(x=>x!=="otro") };
+    flex: pat==="flex", budget:r.presupuesto, platos:r.platos||[], prefMov:(r.mov||[]).filter(x=>x!=="otro") };
 }
 let PLAN = null;
 
@@ -274,7 +271,7 @@ function cerrarSheet(){ $("#sheet").hidden=true; $("#sheet").replaceChildren(); 
 
 // ==== RENDER: GENERAL ====
 function render(){
-  if(location.hash==="#eliminar-cuenta" && (BAJA.hecha || (DB.auth && DB.perfil?.completo))){ $("#app").hidden=true; $("#onb").hidden=false; cuentaParar(); const b=$("#onb"); b.replaceChildren(); renderBaja(b); return; }
+  if(location.hash==="#eliminar-cuenta" && DB.auth && DB.perfil?.completo){ $("#app").hidden=true; $("#onb").hidden=false; cuentaParar(); const b=$("#onb"); b.replaceChildren(); renderBaja(b); return; }
   if(!DB.auth || !DB.perfil?.completo || !DB.consent?.acepta || ONB.paso==="avisos"){ $("#app").hidden=true; $("#onb").hidden=false; renderOnb(); return; }
   PLAN = calcPlan(DB.perfil);
   if(!S.slot || !slotsHoy().some(s=>s[0]===S.slot)) S.slot=slotNow();
@@ -415,33 +412,19 @@ function cardMovRapido(){
   };
   draw(); return box;
 }
-function planMovimiento(){
-  const n=PLAN.diasMov>=6?5: PLAN.diasMov>=4?4: PLAN.diasMov;
-  const pref=PLAN.prefMov.length? PLAN.prefMov : ["caminar"];
-  const aer=pref.filter(p=>p!=="fuerza"); const aerTipo = aer.length? aer : ["caminar"];
-  const fuerzaN = n>=3 ? 2 : (pref.includes("fuerza")?1:0);
-  const aerN = Math.max(n - fuerzaN, 1);
-  const minAer = clamp(Math.ceil(150/aerN/5)*5, 20, 60);
-  const dias = {2:["Martes","Sábado"],3:["Lunes","Miércoles","Viernes"],4:["Lunes","Martes","Jueves","Sábado"],5:["Lunes","Martes","Miércoles","Viernes","Sábado"]}[n] || ["Lunes","Jueves"];
-  const ses=[]; let a=0,fz=0;
-  for(let i=0;i<dias.length;i++){
-    const toca = (fz<fuerzaN && (i%2===1 || aerN-a<=0)) ? "fuerza" : "aer";
-    if(toca==="fuerza"){ fz++; ses.push({dia:dias[i], tipo:"fuerza", t:"Fuerza", min:30, det: pref.includes("fuerza")? "Gimnasio: rutina de cuerpo completo (piernas, empuje, tracción y abdomen), 3 series de 8–12 repeticiones." : "En casa: sentadillas, flexiones (pueden ser con rodillas apoyadas), estocadas y plancha; 3 vueltas de 10–12 repeticiones (la plancha, 30 s)."}); }
-    else { const tp=aerTipo[a%aerTipo.length]; a++; ses.push({dia:dias[i], tipo:tp, t:ACT_TXT[tp]||"Actividad aeróbica", min:minAer, det: tp==="correr"? "A un ritmo en el que puedas hablar con frases cortas." : tp==="deporte"? "Partido o entrenamiento con tu equipo." : "A paso rápido, que sientas que respirás más fuerte."}); }
-  }
-  return {ses, minAer, fuerzaN};
-}
 function semanaMov(){ let min=0, fuerza=0; for(const k of last7()) for(const e of (DB.dias[k]?.ejercicio||[])){ if(e.tipo==="fuerza") fuerza++; else min+=e.min; } return {min, fuerza}; }
 function renderMov(){
   const box=$("#v-mov"); box.replaceChildren();
-  const p=planMovimiento(), s=semanaMov();
+  const s=semanaMov(), dias=last7().slice().reverse().filter(k=>(DB.dias[k]?.ejercicio||[]).length);
   box.append(
-    el("p",{class:"note",style:"margin:0"},"Basado en la recomendación de la Organización Mundial de la Salud para adultos: entre 150 y 300 minutos semanales de actividad moderada y al menos 2 días de fuerza."),
     el("div",{class:"prog"},
-      el("div",{class:"pi"+(s.min>=150?" done":"")}, el("div",{class:"k"},"Actividad aeróbica · 7 días"), el("div",{class:"v"},nf(s.min),el("small",{}," / 150 min")), el("div",{class:"bar"},el("i",{style:`width:${clamp(s.min/150,0,1)*100}%`}))),
-      el("div",{class:"pi"+(s.fuerza>=2?" done":"")}, el("div",{class:"k"},"Sesiones de fuerza · 7 días"), el("div",{class:"v"},s.fuerza,el("small",{}," / 2")), el("div",{class:"bar"},el("i",{style:`width:${clamp(s.fuerza/2,0,1)*100}%`})))),
-    el("section",{class:"card"}, el("h3",{},"Tu semana de movimiento"),
-      el("ul",{class:"log"}, p.ses.map(x=>el("li",{}, el("div",{}, el("div",{class:"s"},x.dia), el("div",{},`${x.t} · ${x.min} min`), el("div",{class:"det"},x.det)))))),
+      el("div",{class:"pi"}, el("div",{class:"k"},"Actividad aeróbica · 7 días"), el("div",{class:"v"},nf(s.min),el("small",{}," min"))),
+      el("div",{class:"pi"}, el("div",{class:"k"},"Sesiones de fuerza · 7 días"), el("div",{class:"v"},s.fuerza))),
+    el("section",{class:"card"}, el("h3",{},"Lo que registraste esta semana"),
+      dias.length? el("ul",{class:"log"}, dias.map(k=>el("li",{}, el("div",{},
+        el("div",{class:"s"}, cap(keyDate(k).toLocaleDateString("es-AR",{weekday:"long",day:"numeric"}))+(k===S.today?" · hoy":"")),
+        el("div",{}, DB.dias[k].ejercicio.map(e=>`${ACT_TXT[e.tipo]||e.otro||"Actividad"} · ${e.min} min`).join(" · "))))))
+        : el("p",{class:"note",style:"margin:0"},"Todavía no registraste actividad en los últimos 7 días.")),
     cardMovRapido());
 }
 
@@ -464,7 +447,6 @@ function renderSemana(){
   const ideas=[];
   if(n && avg("verduras")<M.verduras) ideas.push("Las verduras quedaron por debajo de la meta: sumá media porción de ensalada en el almuerzo y en la cena.");
   if(n && avg("frutas")<M.frutas) ideas.push("Pocas frutas: dejá una a la vista o llevala para la colación.");
-  if(sm.min<150) ideas.push(`Te faltan ${nf(150-sm.min)} minutos de actividad para la recomendación semanal: dos caminatas de media hora alcanzan para acercarte.`);
   if(sAvg!=null && sAvg<7) ideas.push("Dormiste menos de 7 horas en promedio. Dormir poco aumenta el hambre y las ganas de comer cosas dulces; probá adelantar media hora la hora de acostarte.");
   if(conMotivo>=4 && emo/conMotivo>=0.3) ideas.push(`En ${emo} de ${conMotivo} comidas el motivo fue la ansiedad, el estrés o el aburrimiento. Antes de comer en esos momentos, probá una pausa de dos minutos: un vaso de agua, respirar o salir a caminar un rato. Si pasa seguido y te pesa, conversarlo con un profesional ayuda.`);
   if(!ideas.length && n) ideas.push("Vas bien: mantené lo que está funcionando.");
@@ -472,7 +454,7 @@ function renderSemana(){
     el("div",{class:"prog"},
       el("div",{class:"pi"},el("div",{class:"k"},"Días registrados"),el("div",{class:"v"},n,el("small",{}," / 7"))),
       PLAN.care?null:el("div",{class:"pi"},el("div",{class:"k"},"Energía promedio"),el("div",{class:"v"},n?nf(avg("kcal")):"—",el("small",{}," kcal"))),
-      el("div",{class:"pi"},el("div",{class:"k"},"Actividad"),el("div",{class:"v"},nf(sm.min),el("small",{}," / 150 min"))),
+      el("div",{class:"pi"},el("div",{class:"k"},"Actividad"),el("div",{class:"v"},nf(sm.min),el("small",{}," min"))),
       el("div",{class:"pi"},el("div",{class:"k"},"Sueño promedio"),el("div",{class:"v"},sAvg!=null?nf(sAvg,1):"—",el("small",{}," h"))),
       el("div",{class:"pi"},el("div",{class:"k"},"Comidas por emoción"),el("div",{class:"v"},conMotivo?nf(emo/conMotivo*100)+"%":"—",el("small",{},conMotivo?` de ${conMotivo}`:"")))),
     el("section",{class:"card"}, el("h3",{},"Para esta semana"), ideas.length? el("ul",{class:"ideas"}, ideas.map(t=>el("li",{},t))) : el("p",{class:"note",style:"margin:0"},"Registrá algunos días para ver sugerencias.")),
@@ -529,8 +511,7 @@ function renderPerfil(){
       el("ul",{class:"log"}, resumen),
       el("div",{class:"row",style:"margin-top:12px"}, el("button",{class:"btn small",type:"button",onclick:()=>{ DB.perfil.completo=false; ONB.i=0; persist(); render(); }},"Editar respuestas"))),
     seccionAvisos(), seccionPrivacidad(),
-    el("section",{class:"card"}, el("h3",{},"Tu cuenta"), el("p",{style:"margin:0 0 10px"},`Entraste como ${DB.auth?.user?.email||"—"}. Si cerrás sesión, tus datos quedan guardados en tu cuenta y los recuperás al volver a entrar.`),
-      el("button",{class:"btn small",type:"button",onclick:async ev=>{ ev.currentTarget.disabled=true; await cerrarSesion(); }},"Cerrar sesión")),
+    tarjetaCuenta(),
     el("p",{class:"enlace-baja"}, el("a",{href:"#eliminar-cuenta"},"Eliminar mi cuenta")));
 }
 function seccionPrivacidad(){

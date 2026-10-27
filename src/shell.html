@@ -22,6 +22,16 @@
 .enlace-baja{margin:4px 0 0;text-align:center;font-size:12.5px} .enlace-baja a{color:var(--muted)}
 .btn.peligro{background:var(--bad);border-color:var(--bad);color:var(--bg)}
 #baja-resp{width:100%;font:inherit;font-size:16px;color:var(--body);background:var(--card);border:1px solid var(--gold);border-radius:6px;padding:10px 12px}
+#carga{position:fixed;inset:0;z-index:60;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+#carga svg{width:64px;height:64px}
+#carga .fondo{fill:var(--box)}
+#carga .torta{fill:none;stroke:var(--green);stroke-width:30;stroke-dasharray:94.25;stroke-dashoffset:94.25;transform:rotate(-90deg);transform-origin:32px 32px}
+#carga p{margin:0;color:var(--muted);font-size:14px}
+.confirmar{display:flex;flex-direction:column;gap:10px;align-items:stretch;border-top:1px solid var(--gold);padding-top:12px}
+.confirmar-preg{margin:0;font-weight:600;color:var(--ink)}
+.btn.mantener{position:relative;overflow:hidden;border-color:var(--bad);color:var(--bad);background:transparent;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.mantener-barra{position:absolute;left:0;top:0;bottom:0;width:100%;background:var(--bad-bg)}
+.mantener-txt{position:relative;font-weight:700}
 .aviso-tyc{background:var(--bad-bg);color:var(--bad);border-radius:8px;padding:12px 14px;font-weight:500}
 .btn-perfil{flex:0 0 auto;width:42px;height:42px;border-radius:50%;border:1px solid var(--gold);background:var(--card);color:var(--ink);display:grid;place-items:center;cursor:pointer;padding:0}
 .btn-perfil svg{width:22px;height:22px}
@@ -79,5 +89,6 @@ input[type=text]{font:inherit;color:var(--body);background:var(--card);border:1p
 </div>
 </div>
 <div id="cuenta" hidden aria-hidden="true"><i></i></div>
+<div id="carga" hidden role="status" aria-live="polite"><svg viewBox="0 0 64 64" aria-hidden="true"><circle class="fondo" cx="32" cy="32" r="30"/><circle class="torta" cx="32" cy="32" r="15"/></svg><p id="cargaTxt"></p></div>
 <div id="sheet" hidden role="dialog" aria-modal="true" aria-label="Hambre y emociones"></div>
 <!--/BODY-->

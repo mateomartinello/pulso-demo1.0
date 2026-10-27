@@ -81,7 +81,7 @@ async function ingresoPorEnlace(){
   try{ const at=p.get("access_token");
     const res=await fetch(AUTH_URL()+"/user",{headers:{"apikey":CONFIG.SUPABASE_ANON_KEY,"Authorization":"Bearer "+at}});
     if(!res.ok) throw 0;
-    await alIngresar({access_token:at, refresh_token:p.get("refresh_token"), expires_in:+p.get("expires_in")||3600, user:await res.json()});
+    await Promise.all([cargando(3000,"Entrando a tu cuenta…"), alIngresar({access_token:at, refresh_token:p.get("refresh_token"), expires_in:+p.get("expires_in")||3600, user:await res.json()})]); cerrarCarga();
   }catch(e){ INGRESO.paso="mail"; INGRESO.msg="No se pudo entrar con ese enlace. Pedí uno nuevo."; ONB.paso="ingreso"; render(); }
 }
 // Pantalla intermedia: después de confirmar el código, antes del cuestionario.
@@ -128,12 +128,12 @@ function renderIngreso(box){
     const btn=el("button",{class:"btn primary big",type:"button"},"Confirmar código");
     const entrar=async()=>{ const t=inp.value.replace(/\D/g,"");
       if(t.length<6){ msg.textContent="El código tiene 6 dígitos."; inp.focus(); return; }
-      btn.disabled=true; msg.textContent="Verificando…";
+      btn.disabled=true; msg.textContent=""; const espera=cargando(3000,"Entrando a tu cuenta…");
       try{ const r=await authPost("/verify",{type:"email", email:INGRESO.email, token:t});
-        if(r.ok && r.j?.access_token){ await alIngresar(r.j); return; }
+        if(r.ok && r.j?.access_token){ await Promise.all([espera, alIngresar(r.j)]); cerrarCarga(); return; }
         msg.textContent="El código no es correcto o venció. Revisá el último mail que te llegó o pedí uno nuevo.";
       }catch(e){ msg.textContent="Sin conexión. Revisá internet y probá de nuevo."; }
-      btn.disabled=false; };
+      cerrarCarga(); btn.disabled=false; };
     btn.addEventListener("click",entrar); inp.addEventListener("keydown",ev=>{ if(ev.key==="Enter") entrar(); });
     const reenviar=el("button",{class:"btn link",type:"button",onclick:async()=>{
       if(Date.now()-INGRESO.enviadoEn<60000){ msg.textContent="Esperá un minuto antes de pedir otro código."; return; }
@@ -145,6 +145,48 @@ function renderIngreso(box){
   }
   box.append(card);
   setTimeout(()=>box.querySelector("input")?.focus(), 50);
+}
+
+// ---- Pantalla de carga: un círculo que se llena en el sentido del reloj, desde arriba, en la duración exacta ----
+let cargaT=null;
+function cargando(ms, texto){
+  const c=$("#carga"), t=c.querySelector(".torta");
+  $("#cargaTxt").textContent=texto||""; c.hidden=false;
+  t.style.transition="none"; t.style.strokeDashoffset="94.25"; void c.offsetWidth;
+  t.style.transition=`stroke-dashoffset ${ms}ms linear`; t.style.strokeDashoffset="0";
+  clearTimeout(cargaT); return new Promise(r=>{ cargaT=setTimeout(r, ms); });
+}
+function cerrarCarga(){ clearTimeout(cargaT); $("#carga").hidden=true; }
+
+// ---- Botón que hay que mantener apretado: la barra se vacía de derecha a izquierda; si se suelta antes, se cancela ----
+function botonMantener(texto, ms, alConfirmar){
+  const barra=el("span",{class:"mantener-barra"});
+  const b=el("button",{class:"btn mantener",type:"button"}, barra, el("span",{class:"mantener-txt"},texto));
+  let t=null;
+  const empezar=ev=>{ if(t) return; ev.preventDefault(); barra.style.transition=`width ${ms}ms linear`; barra.style.width="0%"; t=setTimeout(()=>{ t=null; alConfirmar(); }, ms); };
+  const soltar=()=>{ if(!t) return; clearTimeout(t); t=null; barra.style.transition="width .2s ease-out"; barra.style.width="100%"; };
+  b.addEventListener("pointerdown",empezar);
+  for(const e of ["pointerup","pointerleave","pointercancel"]) b.addEventListener(e,soltar);
+  b.addEventListener("keydown",ev=>{ if((ev.key===" "||ev.key==="Enter") && !ev.repeat) empezar(ev); });
+  b.addEventListener("keyup",ev=>{ if(ev.key===" "||ev.key==="Enter") soltar(); });
+  b.addEventListener("contextmenu",ev=>ev.preventDefault());
+  return b;
+}
+
+// ---- Perfil › Tu cuenta: cerrar sesión en dos pasos (se expande ahí mismo y hay que mantener apretado 2 s) ----
+function tarjetaCuenta(){
+  const card=el("section",{class:"card"});
+  const draw=()=>{
+    card.replaceChildren(el("h3",{},"Tu cuenta"),
+      el("p",{style:"margin:0 0 10px"},`Entraste como ${DB.auth?.user?.email||"—"}. Si cerrás sesión, tus datos quedan guardados en tu cuenta y los recuperás al volver a entrar.`));
+    if(!S.confirmarCierre) card.append(el("button",{class:"btn small",type:"button",onclick:()=>{ S.confirmarCierre=true; draw(); }},"Cerrar sesión"));
+    else card.append(el("div",{class:"confirmar"},
+      el("p",{class:"confirmar-preg"},"¿Estás seguro de que querés cerrar sesión?"),
+      botonMantener("Cerrar sesión", 2000, async()=>{ S.confirmarCierre=false; await Promise.all([cerrarSesion(), cargando(2000,"Cerrando sesión…")]); cerrarCarga(); }),
+      el("p",{class:"note",style:"margin:0"},"Mantené apretado el botón durante 2 segundos."),
+      el("button",{class:"btn small ghost",type:"button",onclick:()=>{ S.confirmarCierre=false; draw(); }},"No, volver")));
+  };
+  draw(); return card;
 }
 
 // ---- Cerrar sesión: borra los datos del dispositivo; la cuenta los conserva ----
@@ -163,12 +205,6 @@ const BAJA={i:0, resp:["","","","",""], confirmar:false, hecha:false};
 const letras = t => (t.match(/\p{L}/gu)||[]).length;
 function salirBaja(){ history.replaceState(null,"",location.pathname); BAJA.i=0; BAJA.confirmar=false; render(); window.scrollTo(0,0); }
 function renderBaja(box){
-  if(BAJA.hecha){
-    box.append(el("div",{class:"onb-card"}, el("div",{class:"eyebrow"},"Cuenta eliminada"), el("h2",{},"Tu cuenta fue eliminada"),
-      el("p",{},"Borramos tu nombre, tu apellido, tu mail y la copia de tu cuenta. Gracias por contarnos tu experiencia."),
-      el("button",{class:"btn primary big",type:"button",onclick:()=>{ BAJA.hecha=false; BAJA.resp=["","","","",""]; salirBaja(); }},"Volver al inicio")));
-    return;
-  }
   const total=BAJA_PREG.length, msg=el("p",{class:"note",role:"status"});
   const prog=el("div",{class:"onb-prog"}, el("i",{style:`width:${(Math.min(BAJA.i,total)/total)*100}%`}));
   const cancelar=el("button",{class:"btn link",type:"button",onclick:salirBaja},"Cancelar y volver a Pulso");
@@ -185,16 +221,17 @@ function renderBaja(box){
   const btn=el("button",{class:"btn peligro big",type:"button"}, BAJA.confirmar? "Tocá de nuevo para confirmar" : "Eliminar mi cuenta");
   btn.addEventListener("click",async()=>{
     if(!BAJA.confirmar){ BAJA.confirmar=true; btn.textContent="Tocá de nuevo para confirmar"; return; }
-    btn.disabled=true; msg.textContent="Eliminando…";
+    btn.disabled=true; msg.textContent=""; const espera=cargando(3000,"Eliminando tu cuenta…");
     try{
       await flush();
       const ok=await rpcCuenta("eliminar_cuenta",{p_encuesta:BAJA_PREG.map((p,i)=>({pregunta:p, respuesta:BAJA.resp[i].trim()}))});
-      if(!ok){ msg.textContent="Revisá tus respuestas: cada una necesita al menos tres letras."; btn.disabled=false; return; }
-    }catch(e){ msg.textContent="No se pudo eliminar ahora. Revisá la conexión y probá de nuevo."; btn.disabled=false; return; }
+      if(!ok){ cerrarCarga(); msg.textContent="Revisá tus respuestas: cada una necesita al menos tres letras."; btn.disabled=false; return; }
+    }catch(e){ cerrarCarga(); msg.textContent="No se pudo eliminar ahora. Revisá la conexión y probá de nuevo."; btn.disabled=false; return; }
     if(DB.avisos?.on) await desactivarAvisos();
     try{ localStorage.removeItem(KEY); }catch(e){}
-    DB=blank(); secretHash=null; persist(); BAJA.hecha=true; BAJA.i=0; BAJA.confirmar=false; ONB.i=-1; ONB.paso=null; ONB.draft=null; S.view="hoy";
-    render(); window.scrollTo(0,0);
+    DB=blank(); secretHash=null; persist(); BAJA.i=0; BAJA.confirmar=false; BAJA.resp=["","","","",""]; ONB.i=-1; ONB.paso=null; ONB.draft=null; S.view="hoy";
+    history.replaceState(null,"",location.pathname); render();
+    await espera; cerrarCarga(); window.scrollTo(0,0);
   });
   box.append(el("div",{class:"onb-card"}, prog, el("div",{class:"eyebrow"},"Último paso"), el("h2",{},"Eliminar tu cuenta"),
     el("p",{},"Se borran tu nombre, tu apellido, tu mail y la copia de tu cuenta, y se desactivan los recordatorios de este dispositivo. Tus registros y tus respuestas se conservan como datos generales, sin nada que los vincule a vos, como explican los términos."),
