@@ -1238,14 +1238,14 @@ function renderIngreso(box){
   const card=el("div",{class:"onb-card"}, el("div",{class:"eyebrow"},"Tu cuenta"));
   if(INGRESO.paso==="mail"){
     const inp=el("input",{type:"email",id:"ing-mail",autocomplete:"email",inputmode:"email",autocapitalize:"off",spellcheck:"false",value:INGRESO.email,placeholder:"tu@mail.com"});
-    const btn=el("button",{class:"btn primary big",type:"button"},"Enviarme el código");
+    const btn=el("button",{class:"btn primary big",type:"button"},"Siguiente");
     const enviarCod=async()=>{ const e=inp.value.trim().toLowerCase();
       if(!EMAIL_RE.test(e)){ msg.textContent="Revisá el mail: parece incompleto."; inp.focus(); return; }
       btn.disabled=true; msg.textContent="Enviando…"; const r=await pedirCodigo(e); btn.disabled=false;
       if(r.ok){ INGRESO.email=e; INGRESO.paso="codigo"; INGRESO.msg=""; INGRESO.enviadoEn=Date.now(); renderOnb(); } else msg.textContent=r.msg; };
     btn.addEventListener("click",enviarCod); inp.addEventListener("keydown",ev=>{ if(ev.key==="Enter") enviarCod(); });
     agregar(card, el("h2",{},"Ingresá con tu mail"),
-      el("p",{},"Te mandamos un código para entrar. Si ya usaste Pulso, recuperás tus respuestas y tus registros."),
+      el("p",{},"Si ya usaste Pulso, recuperás tus respuestas y tus registros."),
       DB.perfil?.completo && !DB.cuentaId? el("p",{class:"note"},"Ahora Pulso guarda tus datos en tu cuenta. Lo que ya registraste en este dispositivo se suma a ella.") : null,
       el("label",{class:"campo",for:"ing-mail"}, el("span",{},"Mail"), inp), btn, msg);
   } else {
@@ -1263,8 +1263,8 @@ function renderIngreso(box){
     const reenviar=el("button",{class:"btn link",type:"button",onclick:async()=>{
       if(Date.now()-INGRESO.enviadoEn<60000){ msg.textContent="Esperá un minuto antes de pedir otro código."; return; }
       msg.textContent="Enviando…"; const r=await pedirCodigo(INGRESO.email); if(r.ok){ INGRESO.enviadoEn=Date.now(); msg.textContent="Te mandamos un código nuevo."; } else msg.textContent=r.msg; }},"Reenviar el código");
-    agregar(card, el("h2",{},"Escribí el código"),
-      el("p",{},`Te lo mandamos a ${INGRESO.email}. Si no lo ves, revisá la carpeta de spam. Si el mail trae un enlace en lugar de un código, abrí el enlace.`),
+    agregar(card, el("h2",{},"Revisá tu mail"),
+      el("p",{},`Te mandamos un código de 6 dígitos a ${INGRESO.email}. Escribilo acá. Si no lo ves, revisá la carpeta de spam.`),
       el("label",{class:"campo",for:"ing-cod"}, el("span",{},"Código"), inp), btn, msg,
       el("div",{class:"row"}, reenviar, el("button",{class:"btn link",type:"button",onclick:()=>{ INGRESO.paso="mail"; INGRESO.msg=""; renderOnb(); }},"Usar otro mail")));
   }
