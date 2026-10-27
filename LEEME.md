@@ -40,14 +40,14 @@ La app es instalable (PWA: `manifest.webmanifest`, `sw.js`, `iconos/`) y puede m
 - **Huella de `AVISOS_CLAVE`:** se carga en la base con `insert into public.avisos_config (clave_hash) values ('<sha256 de AVISOS_CLAVE>') on conflict (unica) do update set clave_hash = excluded.clave_hash;`
 - **Íconos:** `python3 iconos.py` los regenera.
 
-## 2c. Cuentas (versión 0.4.0, en prueba)
+## 2c. Cuentas (desde la versión 0.4.0)
 
 - **Ingreso:** mail + código de 6 dígitos que vence en una hora (Supabase Auth). Los mails salen de `verificacionpulso@gmail.com` por SMTP de Gmail (contraseña de aplicación cargada en Authentication › Emails › SMTP Settings; límite de 30 mails por hora). Las plantillas «Magic link or OTP» y «Confirm sign up» muestran `{{ .Token }}`. La app también acepta el enlace de ingreso, por si algún mail lo trae.
 - **URL Configuration:** Site URL `https://mateomartinello.github.io/pulso/` y redirección permitida `https://mateomartinello.github.io/pulso/**`.
 - **Tabla `usuarios`:** nombre, apellido, mail, `anon_id` y `respaldo` (copia del perfil y los registros). Solo la lee la propia persona, con las funciones `mi_usuario`, `guardar_usuario` y `eliminar_cuenta`.
 - **Eventos vinculados:** `eventos.user_id` se completa solo con la cuenta de la sesión. Para analizar con nombre y mail: vista `eventos_con_usuario` (solo la ve el dueño del proyecto).
 - **Eliminar la cuenta:** Perfil › «Eliminar mi cuenta» (página `#eliminar-cuenta`), con 5 preguntas abiertas obligatorias. Borra nombre, apellido, mail, respaldo y la cuenta; los eventos quedan sin `user_id` y la encuesta se guarda como evento `baja`.
-- **Versión de prueba:** `python3 build.py prueba` la arma en `prueba/` (se publica en `/pulso/prueba/`). La raíz sigue en la 0.3.0 hasta que las cuentas estén probadas; para publicarla: `python3 build.py` y borrar `prueba/`.
+- **Versión de prueba (opcional):** `python3 build.py prueba` la arma en `prueba/` y se publica en `/pulso/prueba/`, sin tocar la app principal. Al terminar, borrar `prueba/`.
 
 ## 3. Ver y analizar los datos
 

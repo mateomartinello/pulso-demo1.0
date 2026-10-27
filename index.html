@@ -130,6 +130,9 @@ details.rec summary span:last-child{font-weight:500;color:var(--muted);font-size
 .campo{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600;color:var(--muted)}
 .campo input{font:inherit;font-size:16px;font-weight:400;color:var(--body);background:var(--card);border:1px solid var(--gold);border-radius:6px;padding:11px 12px}
 .campo input:focus-visible{outline:2px solid var(--green);outline-offset:1px}
+.enlace-baja{margin:4px 0 0;text-align:center;font-size:12.5px} .enlace-baja a{color:var(--muted)}
+.btn.peligro{background:var(--bad);border-color:var(--bad);color:var(--bg)}
+#baja-resp{width:100%;font:inherit;font-size:16px;color:var(--body);background:var(--card);border:1px solid var(--gold);border-radius:6px;padding:10px 12px}
 .aviso-tyc{background:var(--bad-bg);color:var(--bad);border-radius:8px;padding:12px 14px;font-weight:500}
 .btn-perfil{flex:0 0 auto;width:42px;height:42px;border-radius:50%;border:1px solid var(--gold);background:var(--card);color:var(--ink);display:grid;place-items:center;cursor:pointer;padding:0}
 .btn-perfil svg{width:22px;height:22px}
@@ -201,7 +204,7 @@ const CONFIG = {
   SUPABASE_ANON_KEY: "sb_publishable_4rprl49Z0iCw1uuv0Bk6Tw_7-bdMaTb",
   // Recordatorios (Web Push): clave pública VAPID. La privada vive solo en los secretos de la función de Supabase.
   VAPID_PUBLICA: "BPbi0hFzII-GcGYVX2Y_ulYxwdQc9rpX-vS5ejgFcRfzqGNYFvNvC_zX2cBmvJ9jSuYVHAFvCbnUs60_1TXyYZA",
-  APP_VERSION: "0.3.0",
+  APP_VERSION: "0.4.0",
   CONTACTO: "[completar: mail de contacto]",
 };
 
@@ -985,6 +988,8 @@ const ESTIMADOR = (function(){
 ESTIMADOR.init(ALIMENTOS);
 
 // ==== APP INSTALABLE (agregar a inicio) ====
+// Como append(), pero sin agregar los hijos vacíos (null o false), que append() mostraría como texto.
+const agregar=(nodo,...hijos)=>nodo.append(...hijos.filter(h=>h!=null && h!==false));
 const UA = navigator.userAgent;
 const ES_IOS = /iPad|iPhone|iPod/.test(UA) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
 const ES_ANDROID = /Android/i.test(UA);
@@ -1001,18 +1006,18 @@ window.addEventListener("appinstalled", ()=>{ BIP=null; ONB.instalada=true; if(O
 if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
 
 function renderInstalar(box){
-  const seguir = txt => el("button",{class:"btn link",type:"button",onclick:()=>{ ONB.paso=null; ONB.i=0; renderOnb(); window.scrollTo(0,0); }}, txt);
+  const seguir = txt => el("button",{class:"btn link",type:"button",onclick:trasInstalar}, txt);
   const card = el("div",{class:"onb-card"}, el("div",{class:"eyebrow"},"Antes de empezar"), el("h2",{},"Agregá Pulso a tu pantalla de inicio"));
   const pasos = list => el("ol",{class:"pasos-inst"}, list.map(t=>el("li",{},t)));
   if(EN_OTRA_APP){
     const msg=el("p",{class:"note",role:"status"});
-    card.append(el("p",{},"Estás viendo Pulso dentro de otra app (por ejemplo, WhatsApp o Instagram). Desde ahí no se puede agregar a la pantalla de inicio."),
+    agregar(card, el("p",{},"Estás viendo Pulso dentro de otra app (por ejemplo, WhatsApp o Instagram). Desde ahí no se puede agregar a la pantalla de inicio."),
       pasos([ES_IOS? "Tocá el menú de la app (⋯) y elegí «Abrir en Safari» o «Abrir en el navegador»." : "Tocá el menú de la app (⋮) y elegí «Abrir en Chrome» o «Abrir en el navegador».",
         "Ahí vas a ver de nuevo esta pantalla, con los pasos para agregarla."]),
       el("button",{class:"btn",type:"button",onclick:async()=>{ try{ await navigator.clipboard.writeText(location.origin+location.pathname); msg.textContent="Enlace copiado: pegalo en "+(ES_IOS?"Safari.":"Chrome."); }catch(e){ msg.textContent="No se pudo copiar. La dirección es "+location.origin+location.pathname; } }},"Copiar el enlace"),
       msg, seguir("Seguir acá igual"));
   } else if(ES_IOS){
-    card.append(el("p",{},"Así se abre como una app, a pantalla completa, y puede avisarte a la hora de cada comida."),
+    agregar(card, el("p",{},"Así se abre como una app, a pantalla completa, y puede avisarte a la hora de cada comida."),
       el("p",{class:"aviso-inst"},"Hacelo ahora, antes de responder las preguntas: en iPhone, lo que completes en el navegador no pasa a la app de la pantalla de inicio."),
       pasos([ES_IOS_OTRO? "Tocá el botón Compartir (el cuadrado con una flecha hacia arriba), arriba a la derecha, junto a la barra de direcciones."
                         : "Tocá el botón Compartir (el cuadrado con una flecha hacia arriba). Si no lo ves, tocá primero «⋯», abajo a la derecha.",
@@ -1022,12 +1027,12 @@ function renderInstalar(box){
       IOS_VIEJO? el("p",{class:"note"},`Tu iPhone tiene iOS ${IOS_VER.join(".")}. Los recordatorios necesitan iOS 16.4 o posterior (Configuración › General › Actualización de software). Igual podés agregar Pulso a inicio.`) : null,
       seguir("Seguir en el navegador, sin recordatorios"));
   } else {
-    card.append(el("p",{},"Así se abre como una app, a pantalla completa, y la encontrás junto a tus otras apps."));
-    if(ONB.instalada) card.append(el("p",{class:"aviso-inst"},"Listo: Pulso quedó en tu pantalla de inicio. Podés abrirla desde ahí o seguir acá; es la misma app y tus datos son los mismos."),
-      el("button",{class:"btn primary big",type:"button",onclick:()=>{ ONB.paso=null; ONB.i=0; renderOnb(); window.scrollTo(0,0); }},"Seguir"));
-    else if(BIP) card.append(el("button",{class:"btn primary big",type:"button",onclick:async()=>{ const b=BIP; b.prompt(); const r=await b.userChoice; BIP=null; if(r.outcome==="accepted") ONB.instalada=true; renderOnb(); }},"Instalar Pulso"),
+    agregar(card, el("p",{},"Así se abre como una app, a pantalla completa, y la encontrás junto a tus otras apps."));
+    if(ONB.instalada) agregar(card, el("p",{class:"aviso-inst"},"Listo: Pulso quedó en tu pantalla de inicio. Podés abrirla desde ahí o seguir acá; es la misma app y tus datos son los mismos."),
+      el("button",{class:"btn primary big",type:"button",onclick:trasInstalar},"Seguir"));
+    else if(BIP) agregar(card, el("button",{class:"btn primary big",type:"button",onclick:async()=>{ const b=BIP; b.prompt(); const r=await b.userChoice; BIP=null; if(r.outcome==="accepted") ONB.instalada=true; renderOnb(); }},"Instalar Pulso"),
       seguir("Seguir en el navegador"));
-    else card.append(pasos(["Tocá el menú ⋮, arriba a la derecha.","Elegí «Instalar app» o «Agregar a la pantalla principal».","Confirmá con «Instalar» o «Agregar»."]),
+    else agregar(card, pasos(["Tocá el menú ⋮, arriba a la derecha.","Elegí «Instalar app» o «Agregar a la pantalla principal».","Confirmá con «Instalar» o «Agregar»."]),
       el("p",{class:"note"},"En Android, los recordatorios también funcionan desde el navegador."), seguir("Seguir en el navegador"));
   }
   box.append(card);
@@ -1121,24 +1126,227 @@ function renderOfertaAvisos(box){
 function seccionAvisos(){
   const st=estadoAvisos(), msg=el("p",{class:"note",style:"margin:8px 0 0",role:"status"});
   const card=el("section",{class:"card"}, el("h3",{},"Recordatorios de comidas"));
-  if(st==="on") card.append(el("p",{style:"margin:0 0 8px"},`Activos en este dispositivo: ${listaHorarios()}. Si ya registraste esa comida, no te llega el aviso.`),
+  if(st==="on") agregar(card, el("p",{style:"margin:0 0 8px"},`Activos en este dispositivo: ${listaHorarios()}. Si ya registraste esa comida, no te llega el aviso.`),
     el("div",{class:"row"},
       el("button",{class:"btn small",type:"button",onclick:async()=>{ msg.textContent="Pidiendo el aviso…"; try{ await rpc("pedir_aviso_prueba",{p_id:DB.avisos.id, p_secret:DB.avisos.secret}); msg.textContent="Te va a llegar un aviso de prueba en menos de un minuto."; }catch(e){ msg.textContent="No se pudo pedir el aviso. Revisá la conexión y probá de nuevo."; } }},"Enviar un aviso de prueba"),
       el("button",{class:"btn small ghost",type:"button",onclick:async()=>{ msg.textContent="Desactivando…"; await desactivarAvisos(); render(); }},"Desactivar")));
-  else if(st==="off") card.append(el("p",{style:"margin:0 0 8px"},`Te avisamos a la hora de tu ${listaHorarios()}. Si ya registraste esa comida, no te llega el aviso.`),
+  else if(st==="off") agregar(card, el("p",{style:"margin:0 0 8px"},`Te avisamos a la hora de tu ${listaHorarios()}. Si ya registraste esa comida, no te llega el aviso.`),
     el("p",{class:"note",style:"margin:0 0 8px"},TXT_DATOS_AVISOS),
     el("button",{class:"btn small primary",type:"button",onclick:async ev=>{ ev.currentTarget.disabled=true; msg.textContent="Activando…"; const err=await activarAvisos(); if(err) msg.textContent=err; else render(); }},"Activar recordatorios"));
-  else if(st==="instalar") card.append(el("p",{style:"margin:0"},"En iPhone, los recordatorios funcionan con Pulso agregada a la pantalla de inicio: tocá Compartir y después «Agregar a inicio». Antes, tocá «Descargar copia» (más abajo): la app de inicio guarda sus datos aparte del navegador y con «Restaurar copia» los pasás."));
-  else if(st==="viejo") card.append(el("p",{style:"margin:0"},`Los recordatorios necesitan iOS 16.4 o posterior, y este iPhone tiene iOS ${IOS_VER.join(".")}.`));
-  else if(st==="bloqueado") card.append(el("p",{style:"margin:0"},TXT_BLOQUEADO));
-  else card.append(el("p",{style:"margin:0"},"Este navegador no permite notificaciones."));
-  card.append(msg); return card;
+  else if(st==="instalar") agregar(card, el("p",{style:"margin:0"},"En iPhone, los recordatorios funcionan con Pulso agregada a la pantalla de inicio: tocá Compartir y después «Agregar a inicio». Antes, tocá «Descargar copia» (más abajo): la app de inicio guarda sus datos aparte del navegador y con «Restaurar copia» los pasás."));
+  else if(st==="viejo") agregar(card, el("p",{style:"margin:0"},`Los recordatorios necesitan iOS 16.4 o posterior, y este iPhone tiene iOS ${IOS_VER.join(".")}.`));
+  else if(st==="bloqueado") agregar(card, el("p",{style:"margin:0"},TXT_BLOQUEADO));
+  else agregar(card, el("p",{style:"margin:0"},"Este navegador no permite notificaciones."));
+  agregar(card, msg); return card;
 }
+
+// ==== CUENTA: ingreso con código por mail (Supabase Auth) y respaldo de los datos ====
+// La persona entra con su mail y un código de 6 dígitos (Supabase Auth › Email › Email OTP length) (no con un enlace: en iPhone, el enlace se abriría en Safari
+// y no en la app de la pantalla de inicio). La tabla «usuarios» guarda una copia de sus respuestas y registros.
+const AUTH_URL = () => CONFIG.SUPABASE_URL.replace(/\/$/,"")+"/auth/v1";
+async function authPost(ruta, body, token){
+  const res=await fetch(AUTH_URL()+ruta,{method:"POST",
+    headers:{"apikey":CONFIG.SUPABASE_ANON_KEY,"Content-Type":"application/json",...(token?{"Authorization":"Bearer "+token}:{})}, body:JSON.stringify(body||{})});
+  let j=null; try{ j=await res.json(); }catch(e){}
+  return {ok:res.ok, status:res.status, j};
+}
+function guardarSesion(j){
+  DB.auth={access_token:j.access_token, refresh_token:j.refresh_token, expira:Date.now()+(j.expires_in||3600)*1000,
+    user:{id:j.user?.id||DB.auth?.user?.id, email:(j.user?.email||DB.auth?.user?.email||"").toLowerCase()}};
+  persist();
+}
+let renovando=null;
+async function tokenVigente(){
+  if(!DB.auth) return null;
+  if(Date.now() < DB.auth.expira-60000) return DB.auth.access_token;
+  if(!renovando) renovando=(async()=>{
+    try{ const r=await authPost("/token?grant_type=refresh_token",{refresh_token:DB.auth.refresh_token});
+      if(r.ok){ guardarSesion(r.j); return DB.auth.access_token; }
+      if(r.status>=400 && r.status<500){ DB.auth=null; persist(); render(); }   // sesión vencida: vuelve a pedir el mail; los datos del dispositivo quedan
+      return null;
+    }catch(e){ return null; } finally{ renovando=null; } })();
+  return renovando;
+}
+async function rpcCuenta(fn, body, keepalive){
+  const tk=await tokenVigente(); if(!tk) throw new Error("sin sesión");
+  const res=await fetch(CONFIG.SUPABASE_URL.replace(/\/$/,"")+"/rest/v1/rpc/"+fn,{method:"POST", keepalive:!!keepalive,
+    headers:{"apikey":CONFIG.SUPABASE_ANON_KEY,"Authorization":"Bearer "+tk,"Content-Type":"application/json"}, body:JSON.stringify(body||{})});
+  if(!res.ok) throw new Error(fn+" "+res.status);
+  return res.json();
+}
+
+// ---- Respaldo: copia del perfil y los registros en la cuenta (se sube sola, unos segundos después de cada cambio) ----
+let respaldoT=null;
+function respaldoPronto(ya){ clearTimeout(respaldoT); respaldoT=setTimeout(()=>subirRespaldo(), ya?0:4000); }
+async function subirRespaldo(keepalive){
+  if(!DB.auth || !DB.perfil?.completo || !DB.consent?.acepta || !navigator.onLine) return;
+  const resp={perfil:DB.perfil, dias:DB.dias, consent:DB.consent, secret:DB.secret};
+  const firma=String(hash(JSON.stringify(resp))); if(firma===DB.respaldoFirma) return;
+  const d=DB.perfil.resp.datos||{};
+  try{ if(await rpcCuenta("guardar_usuario",{p_nombre:d.nombre||null, p_apellido:d.apellido||null, p_anon_id:DB.anonId, p_respaldo:resp}, keepalive)){ DB.respaldoFirma=firma; persist(); } }catch(e){}
+}
+document.addEventListener("visibilitychange",()=>{ if(document.hidden) subirRespaldo(true); });
+// Junta los registros de dos copias (por ejemplo, la de la cuenta y la de un dispositivo que ya tenía datos).
+function unirDias(a,b){
+  const out=JSON.parse(JSON.stringify(a||{}));
+  for(const [k,d] of Object.entries(b||{})){ const o=out[k]||(out[k]={comidas:[],ejercicio:[],sueno:null});
+    for(const f of ["comidas","ejercicio"]){ const ids=new Set((o[f]||[]).map(x=>x.id)); o[f]=(o[f]||[]).concat((d[f]||[]).filter(x=>!ids.has(x.id))); }
+    if(!o.sueno && d.sueno) o.sueno=d.sueno; }
+  return out;
+}
+async function alIngresar(j){
+  guardarSesion(j);
+  let u=null; try{ u=await rpcCuenta("mi_usuario"); }catch(e){}
+  const r=u?.respaldo||{};
+  if(r.perfil?.completo){
+    const mismaCuenta = DB.cuentaId===DB.auth.user.id && DB.perfil?.completo;
+    if(!mismaCuenta){ DB.perfil=r.perfil; if(r.consent) DB.consent=r.consent; }
+    DB.dias=unirDias(r.dias, DB.dias);
+    if(u.anon_id) DB.anonId=u.anon_id;
+    if(r.secret){ DB.secret=r.secret; secretHash=null; }
+  }
+  // Nombre y apellido: los de la cuenta si ya los tenía; si no, los que escribió al ingresar. El mail es siempre el de la cuenta.
+  const escritos={nombre:INGRESO.nombre, apellido:INGRESO.apellido};
+  const datosDe = d => ({nombre:d?.nombre||escritos.nombre, apellido:d?.apellido||escritos.apellido, email:DB.auth.user.email});
+  DB.cuentaId=DB.auth.user.id; DB.respaldoFirma=null;
+  ONB.draft=null; INGRESO.paso="mail"; INGRESO.msg="";
+  if(DB.perfil?.completo){ DB.perfil.resp.datos=datosDe(DB.perfil.resp.datos); ONB.paso=null; ONB.i=PREGUNTAS.length; }
+  else { ONB.draft={datos:datosDe(null)}; ONB.paso="bienvenida"; ONB.i=-1; }
+  persist(); render(); window.scrollTo(0,0); respaldoPronto(true);
+}
+// Ingreso por enlace: mientras el mail de Supabase traiga un enlace en lugar del código (hasta configurar un servidor
+// de envío propio), el enlace vuelve a la app con la sesión en la dirección (#access_token=…).
+async function ingresoPorEnlace(){
+  if(!/(access_token|error_code)=/.test(location.hash)) return;
+  const p=new URLSearchParams(location.hash.slice(1)); history.replaceState(null,"",location.pathname);
+  if(p.get("error_code")){ INGRESO.paso="mail"; INGRESO.msg="El enlace venció o ya se usó. Pedí uno nuevo."; ONB.paso="ingreso"; render(); return; }
+  try{ const at=p.get("access_token");
+    const res=await fetch(AUTH_URL()+"/user",{headers:{"apikey":CONFIG.SUPABASE_ANON_KEY,"Authorization":"Bearer "+at}});
+    if(!res.ok) throw 0;
+    await alIngresar({access_token:at, refresh_token:p.get("refresh_token"), expires_in:+p.get("expires_in")||3600, user:await res.json()});
+  }catch(e){ INGRESO.paso="mail"; INGRESO.msg="No se pudo entrar con ese enlace. Pedí uno nuevo."; ONB.paso="ingreso"; render(); }
+}
+// Pantalla intermedia: después de confirmar el código, antes del cuestionario.
+function renderBienvenida(box){
+  const nombre=ONB.draft?.datos?.nombre;
+  box.append(el("div",{class:"onb-card"}, el("div",{class:"eyebrow"},"Tu cuenta"),
+    el("h2",{},`¡Perfecto${nombre? ", "+nombre : ""}! Ya entraste a tu cuenta.`),
+    el("p",{},`Ahora, ${PREGUNTAS.length} preguntas rápidas para armar tu plan: casi todas se responden con un toque.`),
+    el("button",{class:"btn primary big",type:"button",onclick:()=>{ ONB.paso=null; ONB.i=0; renderOnb(); window.scrollTo(0,0); }},"Empezar el cuestionario")));
+}
+function trasInstalar(){ if(DB.auth){ ONB.paso=null; ONB.i=0; } else ONB.paso="ingreso"; renderOnb(); window.scrollTo(0,0); }
+
+// ---- Pantalla de ingreso ----
+const INGRESO={paso:"mail", email:"", msg:"", enviadoEn:0};
+async function pedirCodigo(email){
+  try{ const r=await authPost("/otp?redirect_to="+encodeURIComponent(location.origin+location.pathname),{email, create_user:true});
+    if(r.ok) return {ok:true};
+    if(r.status===429) return {ok:false, msg:"Se pidieron demasiados códigos. Esperá unos minutos y probá de nuevo."};
+    return {ok:false, msg:"No pudimos enviar el código. Revisá el mail y probá de nuevo."};
+  }catch(e){ return {ok:false, msg:"Sin conexión. Revisá internet y probá de nuevo."}; }
+}
+function renderIngreso(box){
+  const msg=el("p",{class:"note",role:"status"},INGRESO.msg||"");
+  const card=el("div",{class:"onb-card"}, el("div",{class:"eyebrow"},"Tu cuenta"));
+  if(INGRESO.paso==="mail"){
+    const campo=(id,lab,attrs)=>{ const i=el("input",{id,spellcheck:"false",...attrs}); return [i, el("label",{class:"campo",for:id}, el("span",{},lab), i)]; };
+    const [nom,lNom]=campo("ing-nombre","Nombre",{type:"text",autocomplete:"given-name",autocapitalize:"words",value:INGRESO.nombre||""});
+    const [ape,lApe]=campo("ing-apellido","Apellido",{type:"text",autocomplete:"family-name",autocapitalize:"words",value:INGRESO.apellido||""});
+    const [inp,lMail]=campo("ing-mail","Mail",{type:"email",autocomplete:"email",inputmode:"email",autocapitalize:"off",value:INGRESO.email,placeholder:"tu@mail.com"});
+    const btn=el("button",{class:"btn primary big",type:"button"},"Siguiente");
+    const enviarCod=async()=>{ const n=nom.value.trim(), a=ape.value.trim(), e=inp.value.trim().toLowerCase();
+      if(!n){ msg.textContent="Escribí tu nombre."; nom.focus(); return; }
+      if(!a){ msg.textContent="Escribí tu apellido."; ape.focus(); return; }
+      if(!EMAIL_RE.test(e)){ msg.textContent="Revisá el mail: parece incompleto."; inp.focus(); return; }
+      btn.disabled=true; msg.textContent="Enviando el código…"; const r=await pedirCodigo(e); btn.disabled=false;
+      if(r.ok){ Object.assign(INGRESO,{nombre:n, apellido:a, email:e, paso:"codigo", msg:"", enviadoEn:Date.now()}); renderOnb(); window.scrollTo(0,0); } else msg.textContent=r.msg; };
+    btn.addEventListener("click",enviarCod); for(const i of [nom,ape,inp]) i.addEventListener("keydown",ev=>{ if(ev.key==="Enter") enviarCod(); });
+    agregar(card, el("h2",{},"Tus datos"),
+      el("p",{},"Te vamos a mandar un código a tu mail para confirmar que es tuyo. Si ya usaste Pulso, recuperás tus respuestas y tus registros."),
+      DB.perfil?.completo && !DB.cuentaId? el("p",{class:"note"},"Ahora Pulso guarda tus datos en tu cuenta. Lo que ya registraste en este dispositivo se suma a ella.") : null,
+      el("div",{class:"campos"}, lNom, lApe, lMail), btn, msg);
+  } else {
+    const inp=el("input",{type:"text",id:"ing-cod",autocomplete:"one-time-code",inputmode:"numeric",maxlength:"6",placeholder:"123456"});
+    const btn=el("button",{class:"btn primary big",type:"button"},"Confirmar código");
+    const entrar=async()=>{ const t=inp.value.replace(/\D/g,"");
+      if(t.length<6){ msg.textContent="El código tiene 6 dígitos."; inp.focus(); return; }
+      btn.disabled=true; msg.textContent="Verificando…";
+      try{ const r=await authPost("/verify",{type:"email", email:INGRESO.email, token:t});
+        if(r.ok && r.j?.access_token){ await alIngresar(r.j); return; }
+        msg.textContent="El código no es correcto o venció. Revisá el último mail que te llegó o pedí uno nuevo.";
+      }catch(e){ msg.textContent="Sin conexión. Revisá internet y probá de nuevo."; }
+      btn.disabled=false; };
+    btn.addEventListener("click",entrar); inp.addEventListener("keydown",ev=>{ if(ev.key==="Enter") entrar(); });
+    const reenviar=el("button",{class:"btn link",type:"button",onclick:async()=>{
+      if(Date.now()-INGRESO.enviadoEn<60000){ msg.textContent="Esperá un minuto antes de pedir otro código."; return; }
+      msg.textContent="Enviando…"; const r=await pedirCodigo(INGRESO.email); if(r.ok){ INGRESO.enviadoEn=Date.now(); msg.textContent="Te mandamos un código nuevo."; } else msg.textContent=r.msg; }},"Reenviar el código");
+    agregar(card, el("h2",{},"Revisá tu mail"),
+      el("p",{},`Te mandamos un mail a ${INGRESO.email} con un código de 6 dígitos. Buscalo (si no está, revisá la carpeta de spam) y escribí el código acá.`),
+      el("label",{class:"campo",for:"ing-cod"}, el("span",{},"Código"), inp), btn, msg,
+      el("div",{class:"row"}, reenviar, el("button",{class:"btn link",type:"button",onclick:()=>{ INGRESO.paso="mail"; INGRESO.msg=""; renderOnb(); }},"Usar otro mail")));
+  }
+  box.append(card);
+  setTimeout(()=>box.querySelector("input")?.focus(), 50);
+}
+
+// ---- Cerrar sesión: borra los datos del dispositivo; la cuenta los conserva ----
+async function cerrarSesion(){
+  await subirRespaldo(); sesionPausar(); await flush();
+  const tk=DB.auth?.access_token; if(tk) authPost("/logout",{},tk).catch(()=>{});
+  if(DB.avisos?.on) await desactivarAvisos();
+  try{ localStorage.removeItem(KEY); }catch(e){}
+  DB=blank(); secretHash=null; persist();
+  ONB.i=-1; ONB.paso=null; ONB.draft=null; S.view="hoy"; S.slot=null; render(); window.scrollTo(0,0);
+}
+
+// ---- Eliminar la cuenta: página aparte (#eliminar-cuenta), 5 preguntas abiertas obligatorias ----
+const BAJA_PREG=["¿Por qué te vas?","¿Qué fue lo que menos te gustó de Pulso?","¿Qué podríamos mejorar?","¿Qué te habría hecho quedarte?","¿Volverías a usar Pulso? ¿Por qué?"];
+const BAJA={i:0, resp:["","","","",""], confirmar:false, hecha:false};
+const letras = t => (t.match(/\p{L}/gu)||[]).length;
+function salirBaja(){ history.replaceState(null,"",location.pathname); BAJA.i=0; BAJA.confirmar=false; render(); window.scrollTo(0,0); }
+function renderBaja(box){
+  if(BAJA.hecha){
+    box.append(el("div",{class:"onb-card"}, el("div",{class:"eyebrow"},"Cuenta eliminada"), el("h2",{},"Tu cuenta fue eliminada"),
+      el("p",{},"Borramos tu nombre, tu apellido, tu mail y la copia de tu cuenta. Gracias por contarnos tu experiencia."),
+      el("button",{class:"btn primary big",type:"button",onclick:()=>{ BAJA.hecha=false; BAJA.resp=["","","","",""]; salirBaja(); }},"Volver al inicio")));
+    return;
+  }
+  const total=BAJA_PREG.length, msg=el("p",{class:"note",role:"status"});
+  const prog=el("div",{class:"onb-prog"}, el("i",{style:`width:${(Math.min(BAJA.i,total)/total)*100}%`}));
+  const cancelar=el("button",{class:"btn link",type:"button",onclick:salirBaja},"Cancelar y volver a Pulso");
+  if(BAJA.i<total){
+    const ta=el("textarea",{id:"baja-resp",rows:"4",placeholder:"Escribí tu respuesta"}); ta.value=BAJA.resp[BAJA.i];
+    const sig=el("button",{class:"btn primary",type:"button",onclick:()=>{ BAJA.i++; render(); window.scrollTo(0,0); }},"Siguiente");
+    const ok=()=>{ BAJA.resp[BAJA.i]=ta.value; sig.disabled=letras(ta.value)<3; };
+    ta.addEventListener("input",ok);
+    box.append(el("div",{class:"onb-card"}, prog, el("div",{class:"eyebrow"},`Antes de eliminar tu cuenta · ${BAJA.i+1} de ${total}`),
+      el("h2",{},BAJA_PREG[BAJA.i]), el("p",{class:"note"},"Para continuar, respondé esta pregunta."), ta,
+      el("div",{class:"row onb-nav"}, BAJA.i>0? el("button",{class:"btn ghost",type:"button",onclick:()=>{ BAJA.i--; render(); }},"Atrás"):null, sig), cancelar));
+    ok(); setTimeout(()=>ta.focus(),50); return;
+  }
+  const btn=el("button",{class:"btn peligro big",type:"button"}, BAJA.confirmar? "Tocá de nuevo para confirmar" : "Eliminar mi cuenta");
+  btn.addEventListener("click",async()=>{
+    if(!BAJA.confirmar){ BAJA.confirmar=true; btn.textContent="Tocá de nuevo para confirmar"; return; }
+    btn.disabled=true; msg.textContent="Eliminando…";
+    try{
+      await flush();
+      const ok=await rpcCuenta("eliminar_cuenta",{p_encuesta:BAJA_PREG.map((p,i)=>({pregunta:p, respuesta:BAJA.resp[i].trim()}))});
+      if(!ok){ msg.textContent="Revisá tus respuestas: cada una necesita al menos tres letras."; btn.disabled=false; return; }
+    }catch(e){ msg.textContent="No se pudo eliminar ahora. Revisá la conexión y probá de nuevo."; btn.disabled=false; return; }
+    if(DB.avisos?.on) await desactivarAvisos();
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    DB=blank(); secretHash=null; persist(); BAJA.hecha=true; BAJA.i=0; BAJA.confirmar=false; ONB.i=-1; ONB.paso=null; ONB.draft=null; S.view="hoy";
+    render(); window.scrollTo(0,0);
+  });
+  box.append(el("div",{class:"onb-card"}, prog, el("div",{class:"eyebrow"},"Último paso"), el("h2",{},"Eliminar tu cuenta"),
+    el("p",{},"Se borran tu nombre, tu apellido, tu mail y la copia de tu cuenta, y se desactivan los recordatorios de este dispositivo. Tus registros y tus respuestas se conservan como datos generales, sin nada que los vincule a vos, como explican los términos."),
+    el("p",{},"Esta acción no se puede deshacer."), btn, msg, cancelar));
+}
+window.addEventListener("hashchange",()=>render());
 
 // ==== CUESTIONARIO INICIAL ====
 // Cada pregunta: 4 opciones + «Otro» (con texto). type: single | multi | numbers
 const PREGUNTAS = [
-  {id:"datos", sec:"Vos", t:"¿Cómo te llamás?", sub:"Tu nombre lo usamos para hablarte por tu nombre. Tu mail, para novedades y encuestas de Pulso.", type:"datos"},
   {id:"sexo", sec:"Vos", t:"¿Con qué sexo te identificás?", sub:"Se usa solo para estimar tu gasto de energía.", type:"single",
    opts:[["h","Hombre"],["m","Mujer"],["nb","No binario"],["pnd","Prefiero no decirlo"]]},
   {id:"cuerpo", sec:"Vos", t:"Tus datos físicos", sub:"Con esto se calcula tu energía diaria. Quedan guardados en tu dispositivo.", type:"numbers",
@@ -1208,7 +1416,7 @@ let DB;
 try{ DB = JSON.parse(localStorage.getItem(KEY)||"null") || blank(); }catch(e){ DB = blank(); }
 if(!DB.dias) DB.dias={}; if(!DB.cola) DB.cola=[];
 let persistOk=true;
-function persist(){ try{ localStorage.setItem(KEY, JSON.stringify(DB)); persistOk=true; }catch(e){ persistOk=false; } }
+function persist(){ try{ localStorage.setItem(KEY, JSON.stringify(DB)); persistOk=true; }catch(e){ persistOk=false; } respaldoPronto(); }
 persist();
 
 // ==== PLAN PERSONALIZADO ====
@@ -1346,37 +1554,19 @@ async function flush(urgente){
   if(flushing || !SYNC_ON() || !DB.cola.length || !navigator.onLine) return;
   flushing=true;
   try{
+    const tk = DB.auth? await tokenVigente() : CONFIG.SUPABASE_ANON_KEY; if(!tk){ flushing=false; return; }
     const h=await getHash(); const lote=DB.cola.slice(0, urgente? 20 : 200);
     const rows=lote.map(e=>({anon_id:DB.anonId, secret_hash:h, tipo:e.tipo, fecha:e.fecha, datos:e.datos, creado:e.creado, app_version:CONFIG.APP_VERSION}));
     const res=await fetch(CONFIG.SUPABASE_URL.replace(/\/$/,"")+"/rest/v1/eventos",{method:"POST", keepalive:!!urgente,
-      headers:{"apikey":CONFIG.SUPABASE_ANON_KEY,"Authorization":"Bearer "+CONFIG.SUPABASE_ANON_KEY,"Content-Type":"application/json","Prefer":"return=minimal"},
+      headers:{"apikey":CONFIG.SUPABASE_ANON_KEY,"Authorization":"Bearer "+tk,"Content-Type":"application/json","Prefer":"return=minimal"},
       body:JSON.stringify(rows)});
     if(res.ok){ DB.cola.splice(0,lote.length); persist(); if(DB.cola.length) flushSoon(); }
   }catch(e){}
   flushing=false;
 }
-async function borrarRemoto(){
-  if(!(CONFIG.SUPABASE_URL && CONFIG.SUPABASE_ANON_KEY)) return {ok:true, msg:"No hay base común configurada: no se había enviado nada."};
-  try{
-    const res=await fetch(CONFIG.SUPABASE_URL.replace(/\/$/,"")+"/rest/v1/rpc/borrar_mis_datos",{method:"POST",
-      headers:{"apikey":CONFIG.SUPABASE_ANON_KEY,"Authorization":"Bearer "+CONFIG.SUPABASE_ANON_KEY,"Content-Type":"application/json"},
-      body:JSON.stringify({p_anon_id:DB.anonId, p_secret:DB.secret})});
-    if(!res.ok) return {ok:false, msg:"No se pudo borrar ahora. Revisá la conexión y probá de nuevo."};
-    if(DB.contacto?.id) await rpc("borrar_contacto",{p_id:DB.contacto.id, p_secret:DB.contacto.secret});
-    return {ok:true, msg:"Se borraron tus datos y tu mail de la base común. Mientras uses la app, los registros nuevos se siguen compartiendo, como explican los términos."};
-  }catch(e){ return {ok:false, msg:"No se pudo borrar ahora. Revisá la conexión y probá de nuevo."}; }
-}
 window.addEventListener("online", flushSoon);
 
-// ==== MAIL (tabla aparte, sin relación con los datos de salud) ====
 const EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-async function guardarContacto(){
-  const email=DB.perfil?.resp?.datos?.email;
-  if(!email || !DB.consent?.acepta || !CONFIG.SUPABASE_URL) return;
-  DB.contacto=DB.contacto||{id:uid(), secret:uid()+uid()};
-  if(DB.contacto.enviado===email) return;
-  try{ if(await rpc("guardar_contacto",{p_id:DB.contacto.id, p_secret:DB.contacto.secret, p_email:email})){ DB.contacto.enviado=email; persist(); } }catch(e){}
-}
 
 // ==== SESIONES DE USO ====
 // Una sesión va desde que la app se abre (o vuelve al frente) hasta que pasa a segundo plano o se cierra.
@@ -1430,7 +1620,8 @@ function cerrarSheet(){ $("#sheet").hidden=true; $("#sheet").replaceChildren(); 
 
 // ==== RENDER: GENERAL ====
 function render(){
-  if(!DB.perfil?.completo || !DB.consent?.acepta || ONB.paso==="avisos"){ $("#app").hidden=true; $("#onb").hidden=false; renderOnb(); return; }
+  if(location.hash==="#eliminar-cuenta" && (BAJA.hecha || (DB.auth && DB.perfil?.completo))){ $("#app").hidden=true; $("#onb").hidden=false; cuentaParar(); const b=$("#onb"); b.replaceChildren(); renderBaja(b); return; }
+  if(!DB.auth || !DB.perfil?.completo || !DB.consent?.acepta || ONB.paso==="avisos"){ $("#app").hidden=true; $("#onb").hidden=false; renderOnb(); return; }
   PLAN = calcPlan(DB.perfil);
   if(!S.slot || !slotsHoy().some(s=>s[0]===S.slot)) S.slot=slotNow();
   $("#onb").hidden=true; $("#app").hidden=false;
@@ -1683,31 +1874,32 @@ function renderPerfil(){
       el("p",{class:"note",style:"margin:0 0 6px"},`${c.edad||"—"} años · ${c.altura||"—"} cm · ${c.peso||"—"} kg`),
       el("ul",{class:"log"}, resumen),
       el("div",{class:"row",style:"margin-top:12px"}, el("button",{class:"btn small",type:"button",onclick:()=>{ DB.perfil.completo=false; ONB.i=0; persist(); render(); }},"Editar respuestas"))),
-    seccionAvisos(), seccionPrivacidad());
+    seccionAvisos(), seccionPrivacidad(),
+    el("section",{class:"card"}, el("h3",{},"Tu cuenta"), el("p",{style:"margin:0 0 10px"},`Entraste como ${DB.auth?.user?.email||"—"}. Si cerrás sesión, tus datos quedan guardados en tu cuenta y los recuperás al volver a entrar.`),
+      el("button",{class:"btn small",type:"button",onclick:async ev=>{ ev.currentTarget.disabled=true; await cerrarSesion(); }},"Cerrar sesión")),
+    el("p",{class:"enlace-baja"}, el("a",{href:"#eliminar-cuenta"},"Eliminar mi cuenta")));
 }
 function seccionPrivacidad(){
   const msg=el("p",{class:"note",id:"privMsg",style:"margin:8px 0 0"});
   const file=el("input",{type:"file",id:"impFile",accept:"application/json",hidden:true});
-  file.addEventListener("change",async()=>{ try{ const t=await file.files[0].text(); const x=JSON.parse(t); if(!x||!x.dias||!x.perfil) throw 0; const av=DB.avisos; DB=x; DB.avisos=av; persist(); msg.textContent="Copia restaurada."; render(); }catch(e){ msg.textContent="El archivo no es una copia válida de la app."; } });
+  file.addEventListener("change",async()=>{ try{ const t=await file.files[0].text(); const x=JSON.parse(t); if(!x||!x.dias||!x.perfil) throw 0; const {avisos, auth, cuentaId, consent}=DB; DB=x; Object.assign(DB,{avisos, auth, cuentaId, consent}); persist(); msg.textContent="Copia restaurada."; render(); }catch(e){ msg.textContent="El archivo no es una copia válida de la app."; } });
   return el("section",{class:"card"}, el("h3",{},"Privacidad y datos"),
-    el("p",{style:"margin:0 0 8px"}, `Aceptaste los términos y condiciones el ${new Date(DB.consent.fecha).toLocaleDateString("es-AR",{day:"numeric",month:"long",year:"numeric"})}. Tus registros se comparten con la base de datos de Pulso como explican los términos.`),
+    el("p",{style:"margin:0 0 8px"}, `Aceptaste los términos y condiciones el ${new Date(DB.consent.fecha).toLocaleDateString("es-AR",{day:"numeric",month:"long",year:"numeric"})}. Tus registros se guardan en tu cuenta y en la base de datos de Pulso, como explican los términos.`),
     el("div",{class:"row"},
-      el("button",{class:"btn small",type:"button",onclick:async()=>{ msg.textContent="Borrando…"; const r=await borrarRemoto(); msg.textContent=r.msg; }},"Borrar mis datos compartidos")),
-    el("div",{class:"row",style:"margin-top:8px"},
       el("button",{class:"btn small",type:"button",onclick:()=>{ try{ const a=el("a",{href:URL.createObjectURL(new Blob([JSON.stringify(DB,null,1)],{type:"application/json"})),download:"copia-pulso-"+S.today+".json"}); document.body.append(a); a.click(); a.remove(); msg.textContent="Copia descargada."; }catch(e){ msg.textContent="No se pudo descargar la copia en este navegador."; } }},"Descargar copia"),
-      el("button",{class:"btn small",type:"button",onclick:()=>file.click()},"Restaurar copia"), file,
-      el("button",{class:"btn small ghost",type:"button",onclick:async()=>{ if(S.confirmBorrar){ if(DB.avisos?.on) await desactivarAvisos(); try{ localStorage.removeItem(KEY); }catch(e){} DB=blank(); persist(); S.confirmBorrar=false; render(); } else { S.confirmBorrar=true; msg.textContent="Tocá «Borrar todo» otra vez para confirmar: se borra tu perfil y tu registro de este dispositivo."; } }},"Borrar todo")),
+      el("button",{class:"btn small",type:"button",onclick:()=>file.click()},"Restaurar copia"), file),
     msg, el("details",{class:"rec",style:"margin-top:12px"}, el("summary",{},el("span",{},"Términos y política de privacidad")), terminos()));
 }
 function terminos(){
   return el("div",{class:"legal"},
     el("p",{},el("b",{},"Borrador para revisión legal.")," Pulso es una herramienta de bienestar general. No reemplaza la consulta con profesionales de la salud ni da diagnósticos."),
-    el("p",{},"Para usar Pulso tenés que aceptar estos términos. Al aceptarlos, se envían a una base de datos del equipo de Pulso tus respuestas al cuestionario (salvo tu nombre, tu apellido, tu mail y la pregunta sobre tu relación con la comida), el tiempo que tardaste en cada pregunta, tus comidas, tu actividad, tu descanso y cuándo y por cuánto tiempo usás la app. Se identifican con un código aleatorio, sin tu nombre ni tu mail."),
+    el("p",{},"Para usar Pulso tenés que crear una cuenta con tu mail y aceptar estos términos. Al aceptarlos, se envían a una base de datos del equipo de Pulso tus respuestas al cuestionario (salvo la pregunta sobre tu relación con la comida), el tiempo que tardaste en cada pregunta, tus comidas, tu actividad, tu descanso y cuándo y por cuánto tiempo usás la app. Estos datos quedan vinculados a tu cuenta: el equipo de Pulso puede saber de quién es cada registro."),
     el("p",{},"Textos libres: lo que escribas en campos de texto —por ejemplo, la descripción de una comida en «Comí otra cosa» o las respuestas «Otro»— se envía tal cual lo escribiste. No incluyas nombres ni datos que te identifiquen. La única excepción es la respuesta «Otro» sobre tu relación con la comida, que nunca sale de tu dispositivo."),
-    el("p",{},"Tu mail se guarda aparte, sin relación con los datos anteriores, para enviarte novedades de Pulso, invitarte a encuestas o estudios y responder tus consultas o pedidos de acceso y borrado. Tu nombre y tu apellido quedan solo en tu dispositivo: los usamos para hablarte por tu nombre."),
+    el("p",{},"Tu cuenta guarda tu nombre, tu apellido, tu mail y una copia de tus respuestas y tus registros, para que los recuperes al volver a entrar o desde otro dispositivo. Tu mail también se usa para enviarte el código de ingreso y novedades de Pulso, invitarte a encuestas o estudios y responder tus consultas o pedidos de acceso y borrado."),
+    el("p",{},"Si eliminás tu cuenta (Perfil › Eliminar mi cuenta), antes te pedimos que respondas cinco preguntas sobre tu experiencia, que se conservan. Después borramos tu nombre, tu apellido, tu mail y la copia de tu cuenta. Tus registros y tus respuestas se conservan como datos generales, sin nada que los vincule a vos, para mejorar la app. Si querés que también se borren tus registros, pedilo escribiendo a "+CONFIG.CONTACTO+"."),
     el("p",{},"Para qué: entender cómo se usa la app y mejorar sus recomendaciones. No se venden ni se ceden a terceros."),
     el("p",{},"Recordatorios (opcionales, independientes de compartir datos): si los activás, guardamos en nuestro servidor la dirección de notificaciones de tu dispositivo, los horarios de tus comidas, tu zona horaria y qué momentos del día ya registraste (no qué comiste), con un código distinto del de los datos anónimos. Se usan solo para enviarte los avisos; las marcas diarias se borran a los pocos días y todo se borra al desactivarlos. Para enviarlos se usan los servicios de notificaciones de Apple, Google, Mozilla o Microsoft, según tu dispositivo."),
-    el("p",{},"Algunos de estos datos son de salud y la Ley 25.326 de Protección de Datos Personales los considera sensibles. Podés borrar lo compartido y tu mail desde Perfil › Privacidad y datos. Para ejercer tus derechos de acceso, rectificación o supresión, escribí a "+CONFIG.CONTACTO+"."));
+    el("p",{},"Algunos de estos datos son de salud y la Ley 25.326 de Protección de Datos Personales los considera sensibles. Para ejercer tus derechos de acceso, rectificación o supresión, escribí a "+CONFIG.CONTACTO+"."));
 }
 
 // ==== CUESTIONARIO (UI) ====
@@ -1739,6 +1931,9 @@ function renderOnb(){
   if(!ONB.draft) ONB.draft = JSON.parse(JSON.stringify(DB.perfil?.resp||{}));
   const R=ONB.draft; const total=PREGUNTAS.length;
   if(ONB.paso==="avisos"){ cronoMarcar(null); renderOfertaAvisos(box); return; }
+  if(!DB.auth && ONB.paso!=="instalar" && (DB.perfil?.completo || ONB.i>=0)) ONB.paso="ingreso";
+  if(ONB.paso==="ingreso"){ cronoMarcar(null); renderIngreso(box); return; }
+  if(ONB.paso==="bienvenida" && DB.auth){ cronoMarcar(null); renderBienvenida(box); return; }
   if(DB.perfil?.completo && !DB.consent?.acepta) ONB.i=total;   // perfil de una versión anterior: falta aceptar los términos
   if(ONB.i<0){
     cronoMarcar(null);
@@ -1747,9 +1942,9 @@ function renderOnb(){
     box.append(el("div",{class:"onb-card"}, el("div",{class:"eyebrow"},"Bienvenida"), el("h1",{},"Pulso"),
       el("p",{class:"lead"},"Comer, moverte y descansar mejor, con un plan hecho para vos."),
       el("p",{},"Pulso te sugiere qué comer según tus horarios, tus gustos y tu cocina; arma tu semana de movimiento y te ayuda a registrar cómo dormís y cómo te sentís con la comida."),
-      el("p",{},"Es gratis y no necesita cuenta."),
-      el("p",{class:"note"}, inst? "Primero vas a agregarla a tu pantalla de inicio; después, "+total+" preguntas rápidas para armar tu plan." : "Para armar tu plan, "+total+" preguntas rápidas: casi todas se responden con un toque."),
-      el("button",{class:"btn primary big",type:"button",onclick:()=>{ if(inst) ONB.paso="instalar"; else ONB.i=0; renderOnb(); window.scrollTo(0,0); }},"Empezar")));
+      el("p",{},"Es gratis."),
+      el("p",{class:"note"}, inst? "Primero vas a agregarla a tu pantalla de inicio. Después creás tu cuenta con tu mail y respondés "+total+" preguntas rápidas para armar tu plan." : "Creás tu cuenta con tu mail y respondés "+total+" preguntas rápidas para armar tu plan."),
+      el("button",{class:"btn primary big",type:"button",onclick:()=>{ if(inst) ONB.paso="instalar"; else if(!DB.auth) ONB.paso="ingreso"; else ONB.i=0; renderOnb(); window.scrollTo(0,0); }},"Empezar")));
     return;
   }
   if(ONB.i>=total){ cronoMarcar(null); if(DB.consent?.acepta){ finalizarCuestionario(); return; } renderConsent(box); return; }
@@ -1772,10 +1967,10 @@ function renderOnb(){
   const otroWrap=el("div",{class:"otro-wrap"}, otroIn);
   const nav=(...extra)=>el("div",{class:"row onb-nav"}, ONB.i>0? el("button",{class:"btn ghost",type:"button",onclick:atras},"Atrás"):null, ...extra, sig);
   if(q.type==="datos"){
-    R.datos=R.datos||{};
+    R.datos=R.datos||{}; if(DB.auth?.user?.email) R.datos.email=DB.auth.user.email;
     const campos=[["nombre","Nombre","text","given-name"],["apellido","Apellido","text","family-name"],["email","Mail","email","email"]];
     card.append(el("div",{class:"campos"}, campos.map(([k,lab,tipo,ac])=>{
-      const inp=el("input",{type:tipo,id:"q-"+k,autocomplete:ac,value:R.datos[k]||"",autocapitalize:tipo==="email"?"off":"words",inputmode:tipo==="email"?"email":false,spellcheck:"false"});
+      const inp=el("input",{type:tipo,id:"q-"+k,autocomplete:ac,value:R.datos[k]||"",autocapitalize:tipo==="email"?"off":"words",inputmode:tipo==="email"?"email":false,spellcheck:"false",readonly:tipo==="email" && !!DB.auth});
       inp.addEventListener("input",()=>{ R.datos[k]=inp.value.trim(); ok(); });
       return el("label",{class:"campo",for:"q-"+k}, el("span",{},lab), inp); })));
     card.append(nav()); box.append(card); ok(); return;
@@ -1816,17 +2011,17 @@ function finalizarCuestionario(){
   if(!DB.consent?.acepta) DB.consent={acepta:true, share:true, fecha:ahora, version:CONFIG.APP_VERSION};
   ONB.draft=null; ONB.i=-1; ONB.tiempos={}; S.view="hoy"; S.slot=null; persist();
   enviar("perfil", perfilCompartible());
-  guardarContacto();
+  respaldoPronto(true);
   if(DB.avisos?.on) sincronizarAvisos(); else if(!DB.avisoOfrecido && estadoAvisos()==="off") ONB.paso="avisos";
   render(); window.scrollTo(0,0);
 }
 
 // ==== ARRANQUE ====
-{ const m=new URLSearchParams(location.search).get("momento"); if(m && SLOTDEF[m]){ S.slot=m; S.view="hoy"; } if(location.search) history.replaceState(null,"",location.pathname); }
+{ const m=new URLSearchParams(location.search).get("momento"); if(m && SLOTDEF[m]){ S.slot=m; S.view="hoy"; } if(location.search) history.replaceState(null,"",location.pathname+location.hash); }
 sesionIniciar();
 render();
+ingresoPorEnlace();
 flushSoon();
-guardarContacto();
 sincronizarAvisos();
 setInterval(()=>{ const k=dayKey(new Date()); if(k!==S.today){ S.today=k; S.slot=null; S.offsets={}; render(); } },60000);
 
