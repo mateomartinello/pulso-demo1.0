@@ -102,7 +102,7 @@ function renderIngreso(box){
       btn.disabled=true; msg.textContent="Enviando…"; const r=await pedirCodigo(e); btn.disabled=false;
       if(r.ok){ INGRESO.email=e; INGRESO.paso="codigo"; INGRESO.msg=""; INGRESO.enviadoEn=Date.now(); renderOnb(); } else msg.textContent=r.msg; };
     btn.addEventListener("click",enviarCod); inp.addEventListener("keydown",ev=>{ if(ev.key==="Enter") enviarCod(); });
-    card.append(el("h2",{},"Ingresá con tu mail"),
+    agregar(card, el("h2",{},"Ingresá con tu mail"),
       el("p",{},"Te mandamos un código para entrar. Si ya usaste Pulso, recuperás tus respuestas y tus registros."),
       DB.perfil?.completo && !DB.cuentaId? el("p",{class:"note"},"Ahora Pulso guarda tus datos en tu cuenta. Lo que ya registraste en este dispositivo se suma a ella.") : null,
       el("label",{class:"campo",for:"ing-mail"}, el("span",{},"Mail"), inp), btn, msg);
@@ -121,7 +121,7 @@ function renderIngreso(box){
     const reenviar=el("button",{class:"btn link",type:"button",onclick:async()=>{
       if(Date.now()-INGRESO.enviadoEn<60000){ msg.textContent="Esperá un minuto antes de pedir otro código."; return; }
       msg.textContent="Enviando…"; const r=await pedirCodigo(INGRESO.email); if(r.ok){ INGRESO.enviadoEn=Date.now(); msg.textContent="Te mandamos un código nuevo."; } else msg.textContent=r.msg; }},"Reenviar el código");
-    card.append(el("h2",{},"Escribí el código"),
+    agregar(card, el("h2",{},"Escribí el código"),
       el("p",{},`Te lo mandamos a ${INGRESO.email}. Si no lo ves, revisá la carpeta de spam. Si el mail trae un enlace en lugar de un código, abrí el enlace.`),
       el("label",{class:"campo",for:"ing-cod"}, el("span",{},"Código"), inp), btn, msg,
       el("div",{class:"row"}, reenviar, el("button",{class:"btn link",type:"button",onclick:()=>{ INGRESO.paso="mail"; INGRESO.msg=""; renderOnb(); }},"Usar otro mail")));

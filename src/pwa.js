@@ -1,4 +1,6 @@
 // ==== APP INSTALABLE (agregar a inicio) ====
+// Como append(), pero sin agregar los hijos vacíos (null o false), que append() mostraría como texto.
+const agregar=(nodo,...hijos)=>nodo.append(...hijos.filter(h=>h!=null && h!==false));
 const UA = navigator.userAgent;
 const ES_IOS = /iPad|iPhone|iPod/.test(UA) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
 const ES_ANDROID = /Android/i.test(UA);
@@ -20,13 +22,13 @@ function renderInstalar(box){
   const pasos = list => el("ol",{class:"pasos-inst"}, list.map(t=>el("li",{},t)));
   if(EN_OTRA_APP){
     const msg=el("p",{class:"note",role:"status"});
-    card.append(el("p",{},"Estás viendo Pulso dentro de otra app (por ejemplo, WhatsApp o Instagram). Desde ahí no se puede agregar a la pantalla de inicio."),
+    agregar(card, el("p",{},"Estás viendo Pulso dentro de otra app (por ejemplo, WhatsApp o Instagram). Desde ahí no se puede agregar a la pantalla de inicio."),
       pasos([ES_IOS? "Tocá el menú de la app (⋯) y elegí «Abrir en Safari» o «Abrir en el navegador»." : "Tocá el menú de la app (⋮) y elegí «Abrir en Chrome» o «Abrir en el navegador».",
         "Ahí vas a ver de nuevo esta pantalla, con los pasos para agregarla."]),
       el("button",{class:"btn",type:"button",onclick:async()=>{ try{ await navigator.clipboard.writeText(location.origin+location.pathname); msg.textContent="Enlace copiado: pegalo en "+(ES_IOS?"Safari.":"Chrome."); }catch(e){ msg.textContent="No se pudo copiar. La dirección es "+location.origin+location.pathname; } }},"Copiar el enlace"),
       msg, seguir("Seguir acá igual"));
   } else if(ES_IOS){
-    card.append(el("p",{},"Así se abre como una app, a pantalla completa, y puede avisarte a la hora de cada comida."),
+    agregar(card, el("p",{},"Así se abre como una app, a pantalla completa, y puede avisarte a la hora de cada comida."),
       el("p",{class:"aviso-inst"},"Hacelo ahora, antes de responder las preguntas: en iPhone, lo que completes en el navegador no pasa a la app de la pantalla de inicio."),
       pasos([ES_IOS_OTRO? "Tocá el botón Compartir (el cuadrado con una flecha hacia arriba), arriba a la derecha, junto a la barra de direcciones."
                         : "Tocá el botón Compartir (el cuadrado con una flecha hacia arriba). Si no lo ves, tocá primero «⋯», abajo a la derecha.",
@@ -36,12 +38,12 @@ function renderInstalar(box){
       IOS_VIEJO? el("p",{class:"note"},`Tu iPhone tiene iOS ${IOS_VER.join(".")}. Los recordatorios necesitan iOS 16.4 o posterior (Configuración › General › Actualización de software). Igual podés agregar Pulso a inicio.`) : null,
       seguir("Seguir en el navegador, sin recordatorios"));
   } else {
-    card.append(el("p",{},"Así se abre como una app, a pantalla completa, y la encontrás junto a tus otras apps."));
-    if(ONB.instalada) card.append(el("p",{class:"aviso-inst"},"Listo: Pulso quedó en tu pantalla de inicio. Podés abrirla desde ahí o seguir acá; es la misma app y tus datos son los mismos."),
+    agregar(card, el("p",{},"Así se abre como una app, a pantalla completa, y la encontrás junto a tus otras apps."));
+    if(ONB.instalada) agregar(card, el("p",{class:"aviso-inst"},"Listo: Pulso quedó en tu pantalla de inicio. Podés abrirla desde ahí o seguir acá; es la misma app y tus datos son los mismos."),
       el("button",{class:"btn primary big",type:"button",onclick:trasInstalar},"Seguir"));
-    else if(BIP) card.append(el("button",{class:"btn primary big",type:"button",onclick:async()=>{ const b=BIP; b.prompt(); const r=await b.userChoice; BIP=null; if(r.outcome==="accepted") ONB.instalada=true; renderOnb(); }},"Instalar Pulso"),
+    else if(BIP) agregar(card, el("button",{class:"btn primary big",type:"button",onclick:async()=>{ const b=BIP; b.prompt(); const r=await b.userChoice; BIP=null; if(r.outcome==="accepted") ONB.instalada=true; renderOnb(); }},"Instalar Pulso"),
       seguir("Seguir en el navegador"));
-    else card.append(pasos(["Tocá el menú ⋮, arriba a la derecha.","Elegí «Instalar app» o «Agregar a la pantalla principal».","Confirmá con «Instalar» o «Agregar»."]),
+    else agregar(card, pasos(["Tocá el menú ⋮, arriba a la derecha.","Elegí «Instalar app» o «Agregar a la pantalla principal».","Confirmá con «Instalar» o «Agregar»."]),
       el("p",{class:"note"},"En Android, los recordatorios también funcionan desde el navegador."), seguir("Seguir en el navegador"));
   }
   box.append(card);
@@ -135,16 +137,16 @@ function renderOfertaAvisos(box){
 function seccionAvisos(){
   const st=estadoAvisos(), msg=el("p",{class:"note",style:"margin:8px 0 0",role:"status"});
   const card=el("section",{class:"card"}, el("h3",{},"Recordatorios de comidas"));
-  if(st==="on") card.append(el("p",{style:"margin:0 0 8px"},`Activos en este dispositivo: ${listaHorarios()}. Si ya registraste esa comida, no te llega el aviso.`),
+  if(st==="on") agregar(card, el("p",{style:"margin:0 0 8px"},`Activos en este dispositivo: ${listaHorarios()}. Si ya registraste esa comida, no te llega el aviso.`),
     el("div",{class:"row"},
       el("button",{class:"btn small",type:"button",onclick:async()=>{ msg.textContent="Pidiendo el aviso…"; try{ await rpc("pedir_aviso_prueba",{p_id:DB.avisos.id, p_secret:DB.avisos.secret}); msg.textContent="Te va a llegar un aviso de prueba en menos de un minuto."; }catch(e){ msg.textContent="No se pudo pedir el aviso. Revisá la conexión y probá de nuevo."; } }},"Enviar un aviso de prueba"),
       el("button",{class:"btn small ghost",type:"button",onclick:async()=>{ msg.textContent="Desactivando…"; await desactivarAvisos(); render(); }},"Desactivar")));
-  else if(st==="off") card.append(el("p",{style:"margin:0 0 8px"},`Te avisamos a la hora de tu ${listaHorarios()}. Si ya registraste esa comida, no te llega el aviso.`),
+  else if(st==="off") agregar(card, el("p",{style:"margin:0 0 8px"},`Te avisamos a la hora de tu ${listaHorarios()}. Si ya registraste esa comida, no te llega el aviso.`),
     el("p",{class:"note",style:"margin:0 0 8px"},TXT_DATOS_AVISOS),
     el("button",{class:"btn small primary",type:"button",onclick:async ev=>{ ev.currentTarget.disabled=true; msg.textContent="Activando…"; const err=await activarAvisos(); if(err) msg.textContent=err; else render(); }},"Activar recordatorios"));
-  else if(st==="instalar") card.append(el("p",{style:"margin:0"},"En iPhone, los recordatorios funcionan con Pulso agregada a la pantalla de inicio: tocá Compartir y después «Agregar a inicio». Antes, tocá «Descargar copia» (más abajo): la app de inicio guarda sus datos aparte del navegador y con «Restaurar copia» los pasás."));
-  else if(st==="viejo") card.append(el("p",{style:"margin:0"},`Los recordatorios necesitan iOS 16.4 o posterior, y este iPhone tiene iOS ${IOS_VER.join(".")}.`));
-  else if(st==="bloqueado") card.append(el("p",{style:"margin:0"},TXT_BLOQUEADO));
-  else card.append(el("p",{style:"margin:0"},"Este navegador no permite notificaciones."));
-  card.append(msg); return card;
+  else if(st==="instalar") agregar(card, el("p",{style:"margin:0"},"En iPhone, los recordatorios funcionan con Pulso agregada a la pantalla de inicio: tocá Compartir y después «Agregar a inicio». Antes, tocá «Descargar copia» (más abajo): la app de inicio guarda sus datos aparte del navegador y con «Restaurar copia» los pasás."));
+  else if(st==="viejo") agregar(card, el("p",{style:"margin:0"},`Los recordatorios necesitan iOS 16.4 o posterior, y este iPhone tiene iOS ${IOS_VER.join(".")}.`));
+  else if(st==="bloqueado") agregar(card, el("p",{style:"margin:0"},TXT_BLOQUEADO));
+  else agregar(card, el("p",{style:"margin:0"},"Este navegador no permite notificaciones."));
+  agregar(card, msg); return card;
 }
