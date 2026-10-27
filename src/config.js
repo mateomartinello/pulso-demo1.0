@@ -6,6 +6,7 @@ const CONFIG = {
   SUPABASE_ANON_KEY: "sb_publishable_4rprl49Z0iCw1uuv0Bk6Tw_7-bdMaTb",
   // Recordatorios (Web Push): clave pública VAPID. La privada vive solo en los secretos de la función de Supabase.
   VAPID_PUBLICA: "BPbi0hFzII-GcGYVX2Y_ulYxwdQc9rpX-vS5ejgFcRfzqGNYFvNvC_zX2cBmvJ9jSuYVHAFvCbnUs60_1TXyYZA",
-  APP_VERSION: "0.4.0",
+  APP_VERSION: "0.4.1",
+  DEMO: "DEMO 1.0",   // etiqueta de la versión, debajo del título en la pantalla de inicio
   CONTACTO: "[completar: mail de contacto]",
 };

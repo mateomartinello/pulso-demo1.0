@@ -594,10 +594,10 @@ function renderOnb(){
     if(ONB.paso==="instalar"){ renderInstalar(box); return; }
     const inst=necesitaInstalar();
     box.append(el("div",{class:"onb-card"}, el("div",{class:"eyebrow"},"Bienvenida"), el("h1",{},"Pulso"),
+      CONFIG.DEMO? el("div",{class:"demo"},CONFIG.DEMO) : null,
       el("p",{class:"lead"},"Comer, moverte y descansar mejor, con un plan hecho para vos."),
       el("p",{},"Pulso te sugiere qué comer según tus horarios, tus gustos y tu cocina; arma tu semana de movimiento y te ayuda a registrar cómo dormís y cómo te sentís con la comida."),
       el("p",{},"Es gratis."),
-      el("p",{class:"note"}, inst? "Primero vas a agregarla a tu pantalla de inicio. Después creás tu cuenta con tu mail y respondés "+total+" preguntas rápidas para armar tu plan." : "Creás tu cuenta con tu mail y respondés "+total+" preguntas rápidas para armar tu plan."),
       el("button",{class:"btn primary big",type:"button",onclick:()=>{ if(inst) ONB.paso="instalar"; else if(!DB.auth) ONB.paso="ingreso"; else ONB.i=0; renderOnb(); window.scrollTo(0,0); }},"Empezar")));
     return;
   }

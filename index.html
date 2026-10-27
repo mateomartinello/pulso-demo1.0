@@ -121,6 +121,7 @@ details.rec summary span:last-child{font-weight:500;color:var(--muted);font-size
 .onb-card{display:flex;flex-direction:column;gap:14px}
 .onb-card h1{font-size:clamp(34px,9vw,46px)}
 .onb-card h2{font-size:26px;margin:0}
+.onb-card .demo{font-family:var(--serif);font-weight:700;font-size:clamp(24px,6vw,28px);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:-8px}
 .lead{font-family:var(--serif);font-size:20px;color:var(--ink);margin:0;text-wrap:balance}
 .onb-prog{height:2px;background:var(--gold);overflow:hidden}
 .onb-prog i{display:block;height:100%;background:#fff;transition:width .25s}
@@ -204,7 +205,8 @@ const CONFIG = {
   SUPABASE_ANON_KEY: "sb_publishable_4rprl49Z0iCw1uuv0Bk6Tw_7-bdMaTb",
   // Recordatorios (Web Push): clave pública VAPID. La privada vive solo en los secretos de la función de Supabase.
   VAPID_PUBLICA: "BPbi0hFzII-GcGYVX2Y_ulYxwdQc9rpX-vS5ejgFcRfzqGNYFvNvC_zX2cBmvJ9jSuYVHAFvCbnUs60_1TXyYZA",
-  APP_VERSION: "0.4.0",
+  APP_VERSION: "0.4.1",
+  DEMO: "DEMO 1.0",   // etiqueta de la versión, debajo del título en la pantalla de inicio
   CONTACTO: "[completar: mail de contacto]",
 };
 
@@ -1940,10 +1942,10 @@ function renderOnb(){
     if(ONB.paso==="instalar"){ renderInstalar(box); return; }
     const inst=necesitaInstalar();
     box.append(el("div",{class:"onb-card"}, el("div",{class:"eyebrow"},"Bienvenida"), el("h1",{},"Pulso"),
+      CONFIG.DEMO? el("div",{class:"demo"},CONFIG.DEMO) : null,
       el("p",{class:"lead"},"Comer, moverte y descansar mejor, con un plan hecho para vos."),
       el("p",{},"Pulso te sugiere qué comer según tus horarios, tus gustos y tu cocina; arma tu semana de movimiento y te ayuda a registrar cómo dormís y cómo te sentís con la comida."),
       el("p",{},"Es gratis."),
-      el("p",{class:"note"}, inst? "Primero vas a agregarla a tu pantalla de inicio. Después creás tu cuenta con tu mail y respondés "+total+" preguntas rápidas para armar tu plan." : "Creás tu cuenta con tu mail y respondés "+total+" preguntas rápidas para armar tu plan."),
       el("button",{class:"btn primary big",type:"button",onclick:()=>{ if(inst) ONB.paso="instalar"; else if(!DB.auth) ONB.paso="ingreso"; else ONB.i=0; renderOnb(); window.scrollTo(0,0); }},"Empezar")));
     return;
   }
