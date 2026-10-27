@@ -15,7 +15,7 @@ window.addEventListener("appinstalled", ()=>{ BIP=null; ONB.instalada=true; if(O
 if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
 
 function renderInstalar(box){
-  const seguir = txt => el("button",{class:"btn link",type:"button",onclick:()=>{ ONB.paso=null; ONB.i=0; renderOnb(); window.scrollTo(0,0); }}, txt);
+  const seguir = txt => el("button",{class:"btn link",type:"button",onclick:trasInstalar}, txt);
   const card = el("div",{class:"onb-card"}, el("div",{class:"eyebrow"},"Antes de empezar"), el("h2",{},"Agregá Pulso a tu pantalla de inicio"));
   const pasos = list => el("ol",{class:"pasos-inst"}, list.map(t=>el("li",{},t)));
   if(EN_OTRA_APP){
@@ -38,7 +38,7 @@ function renderInstalar(box){
   } else {
     card.append(el("p",{},"Así se abre como una app, a pantalla completa, y la encontrás junto a tus otras apps."));
     if(ONB.instalada) card.append(el("p",{class:"aviso-inst"},"Listo: Pulso quedó en tu pantalla de inicio. Podés abrirla desde ahí o seguir acá; es la misma app y tus datos son los mismos."),
-      el("button",{class:"btn primary big",type:"button",onclick:()=>{ ONB.paso=null; ONB.i=0; renderOnb(); window.scrollTo(0,0); }},"Seguir"));
+      el("button",{class:"btn primary big",type:"button",onclick:trasInstalar},"Seguir"));
     else if(BIP) card.append(el("button",{class:"btn primary big",type:"button",onclick:async()=>{ const b=BIP; b.prompt(); const r=await b.userChoice; BIP=null; if(r.outcome==="accepted") ONB.instalada=true; renderOnb(); }},"Instalar Pulso"),
       seguir("Seguir en el navegador"));
     else card.append(pasos(["Tocá el menú ⋮, arriba a la derecha.","Elegí «Instalar app» o «Agregar a la pantalla principal».","Confirmá con «Instalar» o «Agregar»."]),

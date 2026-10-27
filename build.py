@@ -6,7 +6,7 @@ shell=r("shell.html")
 css_extra=re.search(r"<!--CSS_EXTRA-->(.*)<!--/CSS_EXTRA-->",shell,re.S).group(1)
 body=re.search(r"<!--BODY-->(.*)<!--/BODY-->",shell,re.S).group(1)
 css=r("css_base.css")
-js="\n".join([r("config.js"),r("data.js"),r("estimador.js"),r("pwa.js"),r("app.js")])
+js="\n".join([r("config.js"),r("data.js"),r("estimador.js"),r("pwa.js"),r("cuenta.js"),r("app.js")])
 fonts='<link rel="preconnect" href="https://fonts.googleapis.com">\n<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap">'
 # standalone (GitHub Pages): full document
 full=f'''<!doctype html>
