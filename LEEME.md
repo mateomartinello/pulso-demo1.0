@@ -42,7 +42,7 @@ La app es instalable (PWA: `manifest.webmanifest`, `sw.js`, `iconos/`) y puede m
 
 ## 2c. Cuentas (versión 0.4.0, en prueba)
 
-- **Ingreso:** mail + código de 8 dígitos que vence en una hora (Supabase Auth). Los mails salen de `verificacionpulso@gmail.com` por SMTP de Gmail (contraseña de aplicación cargada en Authentication › Emails › SMTP Settings; límite de 30 mails por hora). Las plantillas «Magic link or OTP» y «Confirm sign up» muestran `{{ .Token }}`. La app también acepta el enlace de ingreso, por si algún mail lo trae.
+- **Ingreso:** mail + código de 6 dígitos que vence en una hora (Supabase Auth). Los mails salen de `verificacionpulso@gmail.com` por SMTP de Gmail (contraseña de aplicación cargada en Authentication › Emails › SMTP Settings; límite de 30 mails por hora). Las plantillas «Magic link or OTP» y «Confirm sign up» muestran `{{ .Token }}`. La app también acepta el enlace de ingreso, por si algún mail lo trae.
 - **URL Configuration:** Site URL `https://mateomartinello.github.io/pulso/` y redirección permitida `https://mateomartinello.github.io/pulso/**`.
 - **Tabla `usuarios`:** nombre, apellido, mail, `anon_id` y `respaldo` (copia del perfil y los registros). Solo la lee la propia persona, con las funciones `mi_usuario`, `guardar_usuario` y `eliminar_cuenta`.
 - **Eventos vinculados:** `eventos.user_id` se completa solo con la cuenta de la sesión. Para analizar con nombre y mail: vista `eventos_con_usuario` (solo la ve el dueño del proyecto).

@@ -1141,7 +1141,7 @@ function seccionAvisos(){
 }
 
 // ==== CUENTA: ingreso con código por mail (Supabase Auth) y respaldo de los datos ====
-// La persona entra con su mail y un código numérico (8 dígitos, según la configuración de Supabase Auth) (no con un enlace: en iPhone, el enlace se abriría en Safari
+// La persona entra con su mail y un código de 6 dígitos (Supabase Auth › Email › Email OTP length) (no con un enlace: en iPhone, el enlace se abriría en Safari
 // y no en la app de la pantalla de inicio). La tabla «usuarios» guarda una copia de sus respuestas y registros.
 const AUTH_URL = () => CONFIG.SUPABASE_URL.replace(/\/$/,"")+"/auth/v1";
 async function authPost(ruta, body, token){
@@ -1249,10 +1249,10 @@ function renderIngreso(box){
       DB.perfil?.completo && !DB.cuentaId? el("p",{class:"note"},"Ahora Pulso guarda tus datos en tu cuenta. Lo que ya registraste en este dispositivo se suma a ella.") : null,
       el("label",{class:"campo",for:"ing-mail"}, el("span",{},"Mail"), inp), btn, msg);
   } else {
-    const inp=el("input",{type:"text",id:"ing-cod",autocomplete:"one-time-code",inputmode:"numeric",maxlength:"10",placeholder:"12345678"});
+    const inp=el("input",{type:"text",id:"ing-cod",autocomplete:"one-time-code",inputmode:"numeric",maxlength:"6",placeholder:"123456"});
     const btn=el("button",{class:"btn primary big",type:"button"},"Entrar");
     const entrar=async()=>{ const t=inp.value.replace(/\D/g,"");
-      if(t.length<6){ msg.textContent="Revisá el código: está incompleto."; inp.focus(); return; }
+      if(t.length<6){ msg.textContent="El código tiene 6 dígitos."; inp.focus(); return; }
       btn.disabled=true; msg.textContent="Verificando…";
       try{ const r=await authPost("/verify",{type:"email", email:INGRESO.email, token:t});
         if(r.ok && r.j?.access_token){ await alIngresar(r.j); return; }
