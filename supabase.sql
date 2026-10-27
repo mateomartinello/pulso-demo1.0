@@ -7,25 +7,29 @@ create table if not exists public.eventos (
   id           bigint generated always as identity primary key,
   anon_id      text        not null,            -- código aleatorio del dispositivo (no identifica a la persona)
   secret_hash  text        not null,            -- huella del secreto local; permite que la persona borre sus datos
-  tipo         text        not null,            -- perfil · comida · comida_borrada · ejercicio · ejercicio_borrado · sueno · sesion
+  tipo         text        not null,            -- perfil · comida · comida_borrada · ejercicio · ejercicio_borrado · sueno · sesion · baja
   fecha        date,                             -- día al que corresponde el registro
   datos        jsonb       not null default '{}'::jsonb,
   creado       timestamptz,                      -- hora del registro en el dispositivo
   recibido     timestamptz not null default now(),
   app_version  text
 );
+-- Cuenta de la persona (si inició sesión). Al eliminar la cuenta queda vacía y los datos quedan como datos generales.
+alter table public.eventos add column if not exists user_id uuid default auth.uid() references auth.users(id) on delete set null;
 create index if not exists eventos_anon_idx  on public.eventos (anon_id);
+create index if not exists eventos_user_idx  on public.eventos (user_id);
 create index if not exists eventos_tipo_idx  on public.eventos (tipo, fecha);
 
 -- Seguridad: la app (clave pública) solo puede AGREGAR filas. No puede leer, modificar ni borrar.
--- Permisos explícitos (el proyecto se crea sin «Automatically expose new tables»): solo INSERT para la clave pública.
+-- Permisos explícitos (el proyecto se crea sin «Automatically expose new tables»): solo INSERT, con o sin sesión iniciada.
 revoke all on public.eventos from anon, authenticated;
-grant usage on schema public to anon;
-grant insert on public.eventos to anon;
+grant usage on schema public to anon, authenticated;
+grant insert on public.eventos to anon, authenticated;
 alter table public.eventos enable row level security;
 drop policy if exists "solo_insertar" on public.eventos;
-create policy "solo_insertar" on public.eventos for insert to anon with check (
+create policy "solo_insertar" on public.eventos for insert to anon, authenticated with check (
   char_length(anon_id) between 8 and 64
+  and (user_id is null or user_id = auth.uid())
   and tipo in ('perfil','comida','comida_borrada','ejercicio','ejercicio_borrado','sueno','sesion')
   and pg_column_size(datos) < 20000
 );
@@ -214,42 +218,76 @@ select cron.schedule('pulso-avisos', '* * * * *', $cron$
 $cron$);
 
 
--- ======================= MAIL DE CADA PERSONA =======================
--- Tabla aparte, sin relación con los datos de salud: usa su propio código, distinto de anon_id.
--- Usos (declarados en los términos): novedades de Pulso, encuestas o estudios y atención de consultas y pedidos.
-create table if not exists public.contactos (
-  id           text primary key,                    -- código aleatorio propio del dispositivo
-  secret_hash  text not null,                       -- huella del secreto local; permite cambiar o borrar el mail
+-- ======================= CUENTAS (ingreso con código por mail) =======================
+-- Supabase Auth: la persona entra con su mail y un código. La tabla «usuarios» guarda su nombre, su apellido,
+-- su mail y una copia de respaldo de sus respuestas y registros, para recuperarlos al volver a entrar.
+-- Solo la propia persona puede leer o cambiar su fila, mediante las funciones de abajo.
+drop function if exists public.guardar_contacto(text, text, text);
+drop function if exists public.borrar_contacto(text, text);
+drop table if exists public.contactos;   -- reemplazada por «usuarios»
+
+create table if not exists public.usuarios (
+  user_id      uuid primary key references auth.users(id) on delete cascade,
   email        text not null,
+  nombre       text,
+  apellido     text,
+  anon_id      text,                                -- código de análisis del dispositivo (continuidad entre dispositivos)
+  respaldo     jsonb not null default '{}'::jsonb,  -- copia del estado de la app: perfil, registros y aceptación de términos
   creado       timestamptz not null default now(),
   actualizado  timestamptz not null default now()
 );
-alter table public.contactos enable row level security;
-revoke all on public.contactos from anon, authenticated;
+alter table public.usuarios enable row level security;
+revoke all on public.usuarios from anon, authenticated;
 
-create or replace function public.guardar_contacto(p_id text, p_secret text, p_email text)
+create or replace function public.guardar_usuario(p_nombre text, p_apellido text, p_anon_id text, p_respaldo jsonb)
 returns boolean language plpgsql security definer set search_path = public, extensions as $$
-declare h text := encode(digest(p_secret, 'sha256'), 'hex'); actual text;
+declare uid uuid := auth.uid(); mail text;
 begin
-  if char_length(p_id) not between 8 and 64 or char_length(p_secret) < 16
-     or char_length(p_email) > 254 or p_email !~ '^[^\s@]+@[^\s@]+\.[^\s@]{2,}$'
+  if uid is null or jsonb_typeof(p_respaldo) <> 'object' or pg_column_size(p_respaldo) > 5000000
+     or char_length(coalesce(p_nombre,'')) > 80 or char_length(coalesce(p_apellido,'')) > 80 or char_length(coalesce(p_anon_id,'')) > 64
   then return false; end if;
-  select c.secret_hash into actual from contactos c where c.id = p_id;
-  if found and actual <> h then return false; end if;
-  insert into contactos (id, secret_hash, email) values (p_id, h, lower(p_email))
-  on conflict (id) do update set email = excluded.email, actualizado = now();
+  select u.email into mail from auth.users u where u.id = uid;
+  insert into usuarios (user_id, email, nombre, apellido, anon_id, respaldo)
+  values (uid, mail, p_nombre, p_apellido, p_anon_id, p_respaldo)
+  on conflict (user_id) do update set email = excluded.email, nombre = excluded.nombre, apellido = excluded.apellido,
+    anon_id = excluded.anon_id, respaldo = excluded.respaldo, actualizado = now();
   return true;
 end; $$;
 
-create or replace function public.borrar_contacto(p_id text, p_secret text)
-returns integer language plpgsql security definer set search_path = public, extensions as $$
-declare n integer;
+create or replace function public.mi_usuario()
+returns jsonb language sql stable security definer set search_path = public, extensions as $$
+  select jsonb_build_object('email', u.email, 'nombre', u.nombre, 'apellido', u.apellido, 'anon_id', u.anon_id, 'respaldo', u.respaldo)
+    from usuarios u where u.user_id = auth.uid();
+$$;
+
+-- Eliminar la cuenta: exige las 5 respuestas de la encuesta de salida. Borra nombre, apellido, mail, respaldo y la cuenta;
+-- los eventos quedan como datos generales (sin user_id) y la encuesta se guarda como evento «baja».
+create or replace function public.eliminar_cuenta(p_encuesta jsonb)
+returns boolean language plpgsql security definer set search_path = public, extensions as $$
+declare uid uuid := auth.uid(); aid text;
 begin
-  delete from contactos c where c.id = p_id and c.secret_hash = encode(digest(p_secret, 'sha256'), 'hex');
-  get diagnostics n = row_count; return n;
+  if uid is null or jsonb_typeof(p_encuesta) <> 'array' or jsonb_array_length(p_encuesta) <> 5
+     or exists (select 1 from jsonb_array_elements(p_encuesta) r
+                where jsonb_typeof(r->'respuesta') <> 'string' or char_length(regexp_replace(r->>'respuesta', '[^[:alpha:]]', '', 'g')) < 3)
+  then return false; end if;
+  select u.anon_id into aid from usuarios u where u.user_id = uid;
+  insert into eventos (anon_id, secret_hash, tipo, fecha, datos, creado, user_id)
+  values (coalesce(aid, 'cuenta-eliminada'), '-', 'baja', current_date, jsonb_build_object('encuesta', p_encuesta), now(), null);
+  update eventos e set user_id = null where e.user_id = uid;
+  delete from usuarios u where u.user_id = uid;
+  delete from auth.users a where a.id = uid;
+  return true;
 end; $$;
 
-revoke all on function public.guardar_contacto(text, text, text) from public;
-revoke all on function public.borrar_contacto(text, text) from public;
-grant execute on function public.guardar_contacto(text, text, text) to anon;
-grant execute on function public.borrar_contacto(text, text) to anon;
+revoke all on function public.guardar_usuario(text, text, text, jsonb) from public;
+revoke all on function public.mi_usuario() from public;
+revoke all on function public.eliminar_cuenta(jsonb) from public;
+grant execute on function public.guardar_usuario(text, text, text, jsonb) to authenticated;
+grant execute on function public.mi_usuario() to authenticated;
+grant execute on function public.eliminar_cuenta(jsonb) to authenticated;
+
+-- Para analizar (solo la ve el dueño del proyecto): cada evento con el nombre y el mail de su cuenta, si la tiene.
+create or replace view public.eventos_con_usuario with (security_invoker = on) as
+  select e.*, u.email, u.nombre, u.apellido
+    from public.eventos e left join public.usuarios u on u.user_id = e.user_id;
+revoke all on public.eventos_con_usuario from anon, authenticated;
