@@ -3,6 +3,9 @@
 const agregar=(nodo,...hijos)=>nodo.append(...hijos.filter(h=>h!=null && h!==false));
 // «‹ Atrás» arriba a la izquierda, en las pantallas previas al cuestionario.
 const volver=alTocar=>el("button",{class:"volver",type:"button",onclick:alTocar},"‹ Atrás");
+// Barra superior de las pantallas de ingreso: «‹ Atrás» a la izquierda e «Ingreso de administrador» a la derecha, antes de los datos personales.
+const barraSup=(alVolver, desde)=>el("div",{class:"barra-sup"}, alVolver? volver(alVolver) : el("span"),
+  el("button",{class:"btn link admin-link",type:"button",onclick:()=>irAdmin(desde)},"Soy administrador"));
 const UA = navigator.userAgent;
 const ES_IOS = /iPad|iPhone|iPod/.test(UA) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
 const ES_ANDROID = /Android/i.test(UA);
@@ -24,7 +27,7 @@ window.addEventListener("appinstalled", ()=>{ BIP=null; ONB.instalada=true; if(O
 if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
 
 function renderInstalar(box){
-  const card = el("div",{class:"onb-card"}, volver(()=>{ ONB.paso=null; renderOnb(); window.scrollTo(0,0); }),
+  const card = el("div",{class:"onb-card"}, barraSup(()=>{ ONB.paso=null; renderOnb(); window.scrollTo(0,0); }, "instalar"),
     el("div",{class:"eyebrow"},"Antes de empezar"), el("h2",{},"Agregá Pulso a tu pantalla de inicio"));
   const pasos = list => el("ol",{class:"pasos-inst"}, list.map(t=>el("li",{},t)));
   const abrir = el("p",{class:"aviso-inst"},"Pulso se usa desde el ícono, como una app más. Desde el navegador no se puede usar.");
@@ -62,7 +65,6 @@ function renderInstalar(box){
     agregar(card, el("p",{},"En la computadora, Pulso también se usa como app."), abrir,
       pasos(["En la barra de direcciones, tocá el ícono de instalar (una pantalla con una flecha), a la derecha.","Si no lo ves: menú ⋮ › «Transmitir, guardar y compartir» › «Instalar página como app».","Abrí Pulso desde el ícono nuevo."]));
   }
-  agregar(card, el("p",{class:"enlace-baja"}, el("button",{class:"btn link",type:"button",onclick:()=>irAdmin("instalar")},"Iniciar como administrador")));
   box.append(card);
 }
 

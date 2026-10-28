@@ -91,7 +91,7 @@ function renderBienvenida(box){
   const nombre=ONB.draft?.datos?.nombre;
   box.append(el("div",{class:"onb-card"}, el("div",{class:"eyebrow"},"Tu cuenta"),
     el("h2",{},`¡Perfecto${nombre? ", "+nombre : ""}! Ya entraste a tu cuenta.`),
-    el("p",{},`Ahora, unas ${PREGUNTAS.filter(q=>!q.si).length} preguntas rápidas para armar tu plan: casi todas se responden con un toque.`),
+    el("p",{},"Ahora, unas preguntas rápidas para armar tu plan: casi todas se responden con un toque."),
     el("button",{class:"btn primary big",type:"button",onclick:()=>{ ONB.paso=null; ONB.i=0; renderOnb(); window.scrollTo(0,0); }},"Empezar el cuestionario")));
 }
 
@@ -148,12 +148,11 @@ function renderIngreso(box){
       if(!EMAIL_RE.test(e)){ msg.textContent="Revisá el mail: parece incompleto."; inp.focus(); return; }
       btn.disabled=true; msg.textContent="Enviando el código…"; const r=await pedirCodigo(e); btn.disabled=false;
       if(r.ok){ Object.assign(INGRESO,{nombre:n, apellido:a, email:e, paso:"codigo", msg:"", enviadoEn:Date.now()}); renderOnb(); window.scrollTo(0,0); } else msg.textContent=r.msg; };
-    agregar(card, DB.perfil?.completo? null : volver(()=>{ INGRESO.msg=""; ONB.paso=null; ONB.i=-1; renderOnb(); window.scrollTo(0,0); }),
+    agregar(card, barraSup(DB.perfil?.completo? null : ()=>{ INGRESO.msg=""; ONB.paso=null; ONB.i=-1; renderOnb(); window.scrollTo(0,0); }, "ingreso"),
       el("div",{class:"eyebrow"},"Tu cuenta"), el("h2",{},"Tus datos"),
       el("p",{},"Te vamos a mandar un código a tu mail para confirmar que es tuyo. Si ya usaste Pulso, recuperás tus respuestas y tus registros."),
       DB.perfil?.completo && !DB.cuentaId? el("p",{class:"note"},"Ahora Pulso guarda tus datos en tu cuenta. Lo que ya registraste en este dispositivo se suma a ella.") : null,
-      el("form",{class:"campos",novalidate:true,onsubmit:ev=>{ ev.preventDefault(); enviarCod(); }}, lNom, lApe, lMail, btn), msg,
-      el("p",{class:"enlace-baja"}, el("button",{class:"btn link",type:"button",onclick:()=>irAdmin("ingreso")},"Iniciar como administrador")));
+      el("form",{class:"campos",novalidate:true,onsubmit:ev=>{ ev.preventDefault(); enviarCod(); }}, lNom, lApe, lMail, btn), msg);
   } else {
     const inp=el("input",{type:"text",id:"ing-cod",name:"one-time-code",autocomplete:"one-time-code",inputmode:"numeric",maxlength:"6",placeholder:"123456"});
     const btn=el("button",{class:"btn primary big",type:"submit"},"Confirmar código");

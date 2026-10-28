@@ -115,6 +115,9 @@ details.rec summary span:last-child{font-weight:500;color:var(--muted);font-size
 .btn.big{font-size:16px;padding:13px 18px;width:100%}
 .volver{align-self:flex-start;font:inherit;font-size:15px;font-weight:600;color:var(--muted);background:none;border:0;padding:4px 0;margin:-6px 0 -4px;cursor:pointer}
 .volver:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.barra-sup{display:flex;justify-content:space-between;align-items:center;margin:-6px 0 -4px}
+.barra-sup .volver{margin:0}
+.btn.link.admin-link{font-size:13px;padding:4px 0}
 .opts{display:flex;flex-wrap:wrap;gap:6px}
 .opt{font:inherit;font-size:13.5px;background:var(--card);color:var(--body);border:1px solid var(--gold);border-radius:999px;padding:7px 12px;cursor:pointer}
 .opt.on{background:var(--green);border-color:var(--green);color:var(--bg)}
@@ -1118,6 +1121,9 @@ ESTIMADOR.init(ALIMENTOS);
 const agregar=(nodo,...hijos)=>nodo.append(...hijos.filter(h=>h!=null && h!==false));
 // «‹ Atrás» arriba a la izquierda, en las pantallas previas al cuestionario.
 const volver=alTocar=>el("button",{class:"volver",type:"button",onclick:alTocar},"‹ Atrás");
+// Barra superior de las pantallas de ingreso: «‹ Atrás» a la izquierda e «Ingreso de administrador» a la derecha, antes de los datos personales.
+const barraSup=(alVolver, desde)=>el("div",{class:"barra-sup"}, alVolver? volver(alVolver) : el("span"),
+  el("button",{class:"btn link admin-link",type:"button",onclick:()=>irAdmin(desde)},"Soy administrador"));
 const UA = navigator.userAgent;
 const ES_IOS = /iPad|iPhone|iPod/.test(UA) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
 const ES_ANDROID = /Android/i.test(UA);
@@ -1139,7 +1145,7 @@ window.addEventListener("appinstalled", ()=>{ BIP=null; ONB.instalada=true; if(O
 if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
 
 function renderInstalar(box){
-  const card = el("div",{class:"onb-card"}, volver(()=>{ ONB.paso=null; renderOnb(); window.scrollTo(0,0); }),
+  const card = el("div",{class:"onb-card"}, barraSup(()=>{ ONB.paso=null; renderOnb(); window.scrollTo(0,0); }, "instalar"),
     el("div",{class:"eyebrow"},"Antes de empezar"), el("h2",{},"Agregá Pulso a tu pantalla de inicio"));
   const pasos = list => el("ol",{class:"pasos-inst"}, list.map(t=>el("li",{},t)));
   const abrir = el("p",{class:"aviso-inst"},"Pulso se usa desde el ícono, como una app más. Desde el navegador no se puede usar.");
@@ -1177,7 +1183,6 @@ function renderInstalar(box){
     agregar(card, el("p",{},"En la computadora, Pulso también se usa como app."), abrir,
       pasos(["En la barra de direcciones, tocá el ícono de instalar (una pantalla con una flecha), a la derecha.","Si no lo ves: menú ⋮ › «Transmitir, guardar y compartir» › «Instalar página como app».","Abrí Pulso desde el ícono nuevo."]));
   }
-  agregar(card, el("p",{class:"enlace-baja"}, el("button",{class:"btn link",type:"button",onclick:()=>irAdmin("instalar")},"Iniciar como administrador")));
   box.append(card);
 }
 
@@ -1376,7 +1381,7 @@ function renderBienvenida(box){
   const nombre=ONB.draft?.datos?.nombre;
   box.append(el("div",{class:"onb-card"}, el("div",{class:"eyebrow"},"Tu cuenta"),
     el("h2",{},`¡Perfecto${nombre? ", "+nombre : ""}! Ya entraste a tu cuenta.`),
-    el("p",{},`Ahora, unas ${PREGUNTAS.filter(q=>!q.si).length} preguntas rápidas para armar tu plan: casi todas se responden con un toque.`),
+    el("p",{},"Ahora, unas preguntas rápidas para armar tu plan: casi todas se responden con un toque."),
     el("button",{class:"btn primary big",type:"button",onclick:()=>{ ONB.paso=null; ONB.i=0; renderOnb(); window.scrollTo(0,0); }},"Empezar el cuestionario")));
 }
 
@@ -1433,12 +1438,11 @@ function renderIngreso(box){
       if(!EMAIL_RE.test(e)){ msg.textContent="Revisá el mail: parece incompleto."; inp.focus(); return; }
       btn.disabled=true; msg.textContent="Enviando el código…"; const r=await pedirCodigo(e); btn.disabled=false;
       if(r.ok){ Object.assign(INGRESO,{nombre:n, apellido:a, email:e, paso:"codigo", msg:"", enviadoEn:Date.now()}); renderOnb(); window.scrollTo(0,0); } else msg.textContent=r.msg; };
-    agregar(card, DB.perfil?.completo? null : volver(()=>{ INGRESO.msg=""; ONB.paso=null; ONB.i=-1; renderOnb(); window.scrollTo(0,0); }),
+    agregar(card, barraSup(DB.perfil?.completo? null : ()=>{ INGRESO.msg=""; ONB.paso=null; ONB.i=-1; renderOnb(); window.scrollTo(0,0); }, "ingreso"),
       el("div",{class:"eyebrow"},"Tu cuenta"), el("h2",{},"Tus datos"),
       el("p",{},"Te vamos a mandar un código a tu mail para confirmar que es tuyo. Si ya usaste Pulso, recuperás tus respuestas y tus registros."),
       DB.perfil?.completo && !DB.cuentaId? el("p",{class:"note"},"Ahora Pulso guarda tus datos en tu cuenta. Lo que ya registraste en este dispositivo se suma a ella.") : null,
-      el("form",{class:"campos",novalidate:true,onsubmit:ev=>{ ev.preventDefault(); enviarCod(); }}, lNom, lApe, lMail, btn), msg,
-      el("p",{class:"enlace-baja"}, el("button",{class:"btn link",type:"button",onclick:()=>irAdmin("ingreso")},"Iniciar como administrador")));
+      el("form",{class:"campos",novalidate:true,onsubmit:ev=>{ ev.preventDefault(); enviarCod(); }}, lNom, lApe, lMail, btn), msg);
   } else {
     const inp=el("input",{type:"text",id:"ing-cod",name:"one-time-code",autocomplete:"one-time-code",inputmode:"numeric",maxlength:"6",placeholder:"123456"});
     const btn=el("button",{class:"btn primary big",type:"submit"},"Confirmar código");
@@ -2350,7 +2354,7 @@ function renderOnb(){
   const atras=()=>{ ONB.dir=-1; ONB.i--; renderOnb(); };
   const vis=PREGUNTAS.filter(x=>visible(x,R)), pos=vis.indexOf(q);
   const prog=el("div",{class:"onb-prog"}, el("i",{style:`width:${(pos/vis.length)*100}%`}));
-  const card=el("div",{class:"onb-card"}, prog, el("div",{class:"eyebrow"},`${q.sec} · ${pos+1} de ${vis.length}`), el("h2",{},q.t), q.sub? el("p",{class:"note"},q.sub):null);
+  const card=el("div",{class:"onb-card"}, prog, el("div",{class:"eyebrow"},q.sec), el("h2",{},q.t), q.sub? el("p",{class:"note"},q.sub):null);
   const otroIn=el("input",{type:"text",id:"q-"+q.id+"-otro",placeholder:"Escribilo",value:R[q.id+"_otro"]||""}); otroIn.addEventListener("input",()=>{ R[q.id+"_otro"]=otroIn.value; ok(); });
   otroIn.addEventListener("blur",()=>ok());
   const sig=el("button",{class:"btn primary",type:"button",onclick:next},"Siguiente");

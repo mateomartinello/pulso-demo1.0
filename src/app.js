@@ -742,7 +742,7 @@ function renderOnb(){
   const atras=()=>{ ONB.dir=-1; ONB.i--; renderOnb(); };
   const vis=PREGUNTAS.filter(x=>visible(x,R)), pos=vis.indexOf(q);
   const prog=el("div",{class:"onb-prog"}, el("i",{style:`width:${(pos/vis.length)*100}%`}));
-  const card=el("div",{class:"onb-card"}, prog, el("div",{class:"eyebrow"},`${q.sec} · ${pos+1} de ${vis.length}`), el("h2",{},q.t), q.sub? el("p",{class:"note"},q.sub):null);
+  const card=el("div",{class:"onb-card"}, prog, el("div",{class:"eyebrow"},q.sec), el("h2",{},q.t), q.sub? el("p",{class:"note"},q.sub):null);
   const otroIn=el("input",{type:"text",id:"q-"+q.id+"-otro",placeholder:"Escribilo",value:R[q.id+"_otro"]||""}); otroIn.addEventListener("input",()=>{ R[q.id+"_otro"]=otroIn.value; ok(); });
   otroIn.addEventListener("blur",()=>ok());
   const sig=el("button",{class:"btn primary",type:"button",onclick:next},"Siguiente");
