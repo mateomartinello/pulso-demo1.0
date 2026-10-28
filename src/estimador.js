@@ -66,34 +66,34 @@ Clara de huevo|clara;claras;clara de huevo|52|11|0|33|33|clara|gr=0.2 hc=1.6
 Queso|queso;queso cremoso;queso fresco;cremoso;port salut;por salut;queso port salut;queso por salut;queso de barra;queso pategras;pategras;queso gouda;gouda;queso holanda;queso dambo;queso danbo;danbo;dambo;queso tybo;tybo;queso de maquina;queso en fetas;queso fundido;queso derretido;queso light|310|22|0|30|20|feta|gr=24 hc=1.5
 Mozzarella|mozzarella;muzzarella;muzarella;mozarella;muzza;mozza;bocconcino;bocconcinos|280|20|0|50||porción|gr=21.5 hc=1.6
 Queso rallado|queso rallado;rallado;parmesano;reggianito;sardo;queso sardo;queso parmesano;grana padano;provolone rallado|390|33|0|15||porción|gr=27.5 hc=2.6
-Queso untable|queso untable;queso crema;casancrem;finlandia;queso blanco;queso untable descremado;queso untable light;mendicrim;queso philadelphia;philadelphia|200|8|0|30|15|cucharada|gr=17 hc=3.8
+Queso untable|queso untable;queso crema;casancrem;finlandia;queso blanco;queso untable descremado;queso untable light;mendicrim;queso philadelphia;philadelphia;queso finlandia|200|8|0|30|15|cucharada|gr=17 hc=3.8
 Ricota|ricota;ricotta|140|11|0|60||porción|gr=9 hc=3.8
 Provoleta|provoleta;provolone|350|25|0|120|120|provoleta|gr=27 hc=1.8
 Queso azul|roquefort;queso azul;gorgonzola|360|21|0|30||porción|gr=30 hc=1.5
 Cheddar|cheddar;queso cheddar;fetas de cheddar|400|25|0|20|20|feta|gr=33 hc=0.8
 Leche|leche;leche entera;leche descremada;leche parcialmente descremada;vaso de leche;leche fria;leche caliente;leche de almendras;leche de avena;leche de soja;bebida de soja|50|3.3|0|250||vaso|l gr=2 hc=4.7
 Chocolatada|chocolatada;leche chocolatada;cindor;chocolate caliente;submarino;leche con chocolate;leche con cacao;nesquik;toddy;cola cao;colacao|80|3.2|1|250||vaso|l M gr=2 hc=12
-Yogur bebible|yogur;yogurt;yogur bebible;yogurt bebible;yogur entero;yogur de vainilla;yogur de frutilla;yogur descremado;yogurt descremado;yogur light;yogurisimo|80|3|0|200|200|pote|gr=2 hc=12.5
+Yogur bebible|yogur;yogurt;yogur bebible;yogurt bebible;yogur entero;yogur de vainilla;yogur de frutilla;yogur descremado;yogurt descremado;yogur light;yogurisimo|80|3|0|200|200|pote|gr=2 hc=12.5 S
 Yogur natural|yogur natural;yogurt natural;yogur sin azucar;yogurt sin azucar;yogur natural sin azucar|65|4|0|190|190|pote|gr=3 hc=5.5
 Yogur griego|yogur griego;yogurt griego;griego;yogur proteico;yogurt proteico;yogur alto en proteina|110|8|0|170|170|pote|gr=7 hc=3.8
 Yogur con cereales|yogur con cereales;yogurt con cereales;yogur con granola;yogurt con granola;yogur con copos;yogurisimo con cereales|120|4|0.8|200|200|pote|gr=3 hc=19
-Postrecito|postrecito;postre de leche;serenito;danette;postre de chocolate;postre de vainilla;mousse;mousse de chocolate|130|3|0.5|100|100|pote|gr=3.5 hc=21.5
+Postrecito|postrecito;postre de leche;serenito;danette;postre de chocolate;postre de vainilla;mousse;mousse de chocolate|130|3|0.5|100|100|pote|gr=3.5 hc=21.5 S
 Flan|flan;flan casero;flan mixto|150|4|0|120|120|porción|gr=4.5 hc=23.5
 Dulce de membrillo|dulce de membrillo;membrillo;dulce de batata;batata dulce|270|0.4|1.5|40||porción|gr=0.1 hc=66
 Postre vigilante|queso y dulce;queso con dulce;vigilante;postre vigilante|285|11|0.7|100||porción|gr=12 hc=33
 Dulce de leche|dulce de leche;ddl;dulce leche;dulce de leche repostero|315|7|0|30|20|cucharada|gr=7.5 hc=55
 Manteca|manteca;mantequilla;margarina|717|1|0|10|10|cucharadita|gr=81 hc=0
 Crema|crema;crema de leche;crema batida;chantilly;crema chantilly;crema doble|300|2.5|0|30|15|cucharada|gr=31 hc=2.8
-Helado|helado;helado de crema;helados;cucurucho;cono;vasito de helado;helado de dulce de leche;helado de chocolate;helado de frutilla;helado de vainilla;pote de helado;freddo;grido|220|4|0.5|160|80|bocha|gr=11 hc=26
-Helado ¼ kg|cuarto de helado;cuarto kilo de helado;1/4 de helado;helado de 1/4;helado de cuarto;cuartito de helado;1/4 kg de helado;pote de 1/4|220|4|0.5|250|250||gr=11 hc=26
+Helado|helado;helado de crema;helados;cucurucho;cono;vasito de helado;helado de dulce de leche;helado de chocolate;helado de frutilla;helado de vainilla;pote de helado;freddo;grido|220|4|0.5|160|80|bocha|gr=11 hc=26 S
+Helado ¼ kg|cuarto de helado;cuarto kilo de helado;1/4 de helado;helado de 1/4;helado de cuarto;cuartito de helado;1/4 kg de helado;pote de 1/4|220|4|0.5|250|250||gr=11 hc=26 S
 Helado de agua|helado de agua;palito helado;palito de agua;paleta helada;helado frutal|100|0|0|70|70|palito|gr=0 hc=25
 # ---- Panes y panificados ----
-Pan integral|pan integral;pan de salvado;bimbo artesano;pan artesano;pan integral bimbo;tostadas integrales;tostada integral;pan de molde integral;pan lactal integral;pan negro;pan de centeno;pan con semillas;pan multicereal|243|12.1|5.4|76|38|rebanada|i1 b gr=3.4 hc=38.5
+Pan integral|pan integral;pan de salvado;bimbo artesano;pan artesano;pan integral bimbo;tostadas integrales;tostada integral;pan de molde integral;pan lactal integral;pan negro;pan de centeno;pan con semillas;pan multicereal;pan lactal negro;pan lactal fargo negro;fargo negro;pan fargo negro|243|12.1|5.4|76|38|rebanada|i1 b gr=3.4 hc=38.5
 Pan blanco|pan;pan blanco;pan frances;pan flauta;flauta;felipe;felipes;minon;miñon;pan de campo;pancito;pancitos;mignon;pan casero;baguette;pan de mesa;bollito;bollitos;pan de agua;figacita;figazza;pan arabe;pan pita;pan de papa;pan de leche;pan brioche|270|9|2.5|60|60|pan|b gr=3 hc=50.5
 Pan lactal|pan lactal;pan de molde;pan lactal blanco;pan blanco de molde;fargo;lactal;bimbo;pan bimbo;tostada;tostadas;rebanada de pan;rodaja de pan|265|8|2.5|50|25|rebanada|b gr=4 hc=48
 Pan de hamburguesa|pan de hamburguesa;pan de hamburguesas;pan de pancho;pan de panchos|275|9|2|60|60|pan|b gr=4.5 hc=48.5
 Sándwich|sandwich;sandwiches;sanguche;sanguches;sanguchito;sandwichito;emparedado;pebete;bocadillo;baguette rellena;sandwich de pan frances|270|9|2.5|100|100|sándwich|b B P gr=10 hc=35
-Sándwich de miga|sandwich de miga;sandwiches de miga;sanguche de miga;sanguchitos de miga;miga;triples;triple de miga;triple|260|10|1.5|90|45|sándwich|b P gr=13 hc=25
+Sándwich de miga|sandwich de miga;sandwiches de miga;sanguche de miga;sanguchitos de miga;miga;triples;triple de miga;triple;sandwichito de miga;sandwichitos de miga;sandwich de miga;sanguchito de miga|260|10|1.5|90|45|sándwich|b P gr=13 hc=25
 Tostado|tostado;tostados;carlitos;tostado de jamon y queso;tostado jyq;tostado de jyq;tostado de queso|240|8|2|90|90|tostado|b B P gr=10 hc=28.5
 Wrap|wrap;wraps;rapidita;rapiditas;tortilla de trigo;tortillas de trigo;tortilla mexicana;fajita;fajitas|300|8|2.5|60|60|tortilla|b B P gr=7.5 hc=49
 Burrito|burrito;burritos|170|6|3|250|250|burrito|B gr=6 hc=21.5
@@ -200,7 +200,7 @@ Sopa|sopa;sopa de verduras;sopa crema;crema de calabaza;crema de zapallo;sopa de
 Caldo|caldo;consome;sopa de caldo;caldito|8|0.6|0|250||taza|l gr=0.4 hc=0.5
 Revuelto de verduras|revuelto de zapallitos;revuelto gramajo;revuelto de verduras;revuelto de acelga|160|7|1.5|250||plato|v.3 gr=12 hc=5.2
 Bastones de muzzarella|bastones de muzzarella;bastones de queso;palitos de queso;dedos de queso|300|14|1|120|20|bastón|F gr=18 hc=20
-Croquetas|croquetas;croqueta;bombas de papa;bocaditos de espinaca;bocaditos de acelga;buñuelos;bunuelos|260|7|1.5|150|30|unidad|F gr=14 hc=26
+Croquetas|croquetas;croqueta;bombas de papa;bocaditos de espinaca;bocaditos de acelga;buñuelos;bunuelos;croquetas de espinaca;croqueta de espinaca;croquetas de verdura;croquetas de pollo;croquetas de papa|260|7|1.5|150|30|unidad|F gr=14 hc=26
 Picada|tabla;picada de fiambres;tabla de fiambres;tabla de quesos;picadita|350|20|0.5|150||porción|r gr=28 hc=4.2
 # ---- Verduras (crudas o cocidas) ----
 Tomate|tomate;tomates;tomate redondo;tomate perita;tomate en rodajas;rodajas de tomate|18|0.9|1.2|120|120|tomate|v1 gr=0.2 hc=2.5
@@ -248,8 +248,8 @@ Mango|mango;mangos|60|0.8|1.6|200|250|mango|f1 c gr=0.4 hc=12.5
 Melón|melon;melones|34|0.8|0.9|200|200|tajada|f1 c gr=0.2 hc=6.8
 Sandía|sandia;sandías|30|0.6|0.4|250|250|tajada|f1 gr=0.2 hc=6.2
 Cerezas|cereza;cerezas;guindas|63|1|2|100|8|cereza|f1 gr=0.2 hc=13.5
-Arándanos|arandano;arandanos;blueberries|57|0.7|2.4|100||puñado|f1 gr=0.3 hc=11.5
-Frambuesas|frambuesa;frambuesas;moras;mora;frutos rojos;frutos del bosque|52|1.2|6.5|100||porción|f1 c gr=0.7 hc=7
+Arándanos|arandano;arandanos;blueberries|57|0.7|2.4|100||puñado|f1 gr=0.3 hc=11.5 cnt=1.5
+Frambuesas|frambuesa;frambuesas;moras;mora;frutos rojos;frutos del bosque|52|1.2|6.5|100||porción|f1 c gr=0.7 hc=7 cnt=4
 Higo|higo;higos|74|0.8|3|100|50|higo|f1 gr=0.3 hc=15.5
 Papaya|papaya;mamon|43|0.5|1.7|150||porción|f1 c gr=0.3 hc=8.7
 Maracuyá|maracuya;mburucuya|97|2.2|10|50|50|unidad|f1 c gr=0.7 hc=15.5
@@ -269,20 +269,22 @@ Avellanas|avellana;avellanas|628|15|10|30||puñado|n gr=61 hc=7
 Frutos secos|frutos secos;fruto seco;mix de frutos secos;mix;mix de nueces;mix de semillas;trail mix|600|18|7|30||puñado|n gr=53 hc=12
 Mantequilla de maní|mantequilla de mani;pasta de mani;manteca de mani;peanut butter|590|25|6|20|15|cucharada|n gr=50 hc=14
 Semillas|semillas;semillas de chia;chia;lino;semillas de lino;semillas de girasol;semillas de zapallo;semillas de sesamo;sesamo|500|18|20|10|10|cucharada|gr=40 hc=8
+Coco rallado|coco;coco rallado|660|6.9|16|10||cucharada|gr=65 hc=7
 Pasas de uva|pasas;pasas de uva;pasa de uva;datiles;datil;orejones;ciruelas pasas;frutas secas;fruta seca deshidratada|290|2.5|5|30||puñado|f3 gr=0.5 hc=66.5
 # ---- Dulces, snacks y golosinas ----
-Alfajor|alfajor;alfajores;alfajor simple;alfajor de chocolate;alfajor de dulce de leche;alfajor guaymallen;guaymallen;jorgito;havanna;cachafaz;fantoche;capitan del espacio;alfajor de fruta;alfajor milka;bon o bon alfajor;tatin|440|5|1.5|50|50|alfajor|gr=18 hc=64
-Alfajor triple|alfajor triple;alfajores triples;triple de chocolate;fantoche triple;jorgito triple;terrabusi triple;guaymallen triple|440|5|1.5|75|75|alfajor|gr=18 hc=64
-Alfajor de maicena|alfajor de maicena;alfajores de maicena;alfajorcito;alfajorcitos|420|5|1|40|40|alfajor|gr=17 hc=61
+Alfajor|alfajor;alfajores;alfajor simple;alfajor de chocolate;alfajor de dulce de leche;alfajor guaymallen;guaymallen;jorgito;havanna;cachafaz;fantoche;capitan del espacio;alfajor de fruta;alfajor milka;bon o bon alfajor;tatin|440|5|1.5|50|50|alfajor|gr=18 hc=64 S
+Alfajor triple|alfajor triple;alfajores triples;triple de chocolate;fantoche triple;jorgito triple;terrabusi triple;guaymallen triple|440|5|1.5|75|75|alfajor|gr=18 hc=64 S
+Alfajor de maicena|alfajor de maicena;alfajores de maicena;alfajorcito;alfajorcitos|420|5|1|40|40|alfajor|gr=17 hc=61 S
 Chocolate|chocolate;chocolate con leche;barra de chocolate;tableta de chocolate;aguila;cofler;milka;block;cadbury;kit kat;kitkat;twix;snickers;mantecol;rocklets;chocolate blanco;rhodesia;huevo de pascua;chocolate con mani|540|7|2|25|7|cuadradito|cnt=45 gr=31 hc=57
-Bombón|bombon;bombones;bon o bon;bonobon;chocolatin;chocolatines;kinder;tita;marroc;cabsha;bananita dolca;bananita|500|6|2|15|15|bombón|gr=27 hc=57
+Bombón|bombon;bombones;bon o bon;bonobon;chocolatin;chocolatines;kinder;tita;marroc;cabsha;bananita dolca;bananita|500|6|2|15|15|bombón|gr=27 hc=57 S
 Chocolate amargo|chocolate amargo;chocolate 70;chocolate negro;chocolate semiamargo;chocolate 70 por ciento;chocolate 85;chocolate oscuro;cacao amargo|600|7.8|11|20|7|cuadradito|gr=43 hc=40
 Caramelos|caramelo;caramelos;chupetin;chupetines;gomitas;mogul;gomita;pastillas;sugus;flynn paff;menthoplus;chicle;chicles;turron;turrón;marshmallow;malvaviscos;chupetin|380|0|0|20|5|caramelo|gr=0.5 hc=94
-Galletitas dulces|galletitas;galletas;galletitas dulces;galletitas rellenas;galletitas de chocolate;oreo;oreos;pepitos;chocolinas;rumba;rumbas;tentaciones;sonrisas;mana;manon;merengadas;opera;toddy galletitas;terrabusi;melba;diversion;lincoln;surtidas;galletitas surtidas;galletitas de vainilla;galletitas de limon;anillos;galletitas pepitos;cookies;cookie;galletitas con chips;criollitas dulces;formis;macucas|480|5|2|40|10|galletita|gr=20 hc=69
+Galletitas dulces|galletitas;galletas;galletitas dulces;galletitas rellenas;galletitas de chocolate;oreo;oreos;pepitos;chocolinas;rumba;rumbas;tentaciones;sonrisas;mana;manon;merengadas;opera;toddy galletitas;terrabusi;melba;diversion;lincoln;surtidas;galletitas surtidas;galletitas de vainilla;galletitas de limon;anillos;galletitas pepitos;cookies;cookie;galletitas con chips;criollitas dulces;formis;macucas|480|5|2|40|10|galletita|gr=20 hc=69 S
 Galletitas de agua|galletitas de agua;galletas de agua;criollitas;crackers;galletitas saladas;express;galletitas express;club social;traviata;traviatas;mediatarde;media tarde;pepas saladas;bay biscuit|420|10|3|30|7|galletita|gr=12 hc=66.5
 Galletitas integrales|galletitas integrales;galletas integrales;galletitas de salvado;granix;cerealitas;galletitas de avena;galletas de avena;galletitas con semillas;tostaditas integrales;galletitas multicereal|420|11|8|30|7|galletita|i.6 gr=14 hc=58.5
+Salmas|salmas;galletitas salmas;galletas salmas|390|9|4|18|6|galletita|gr=10 hc=63
 Vainillas|vainilla;vainillas;bizcochuelo;vainillas de huevo;piononos|390|8|1|40|7|vainilla|gr=4 hc=80
-Torta|torta;tortas;torta de chocolate;torta de cumpleaños;chocotorta;tiramisu;lemon pie;cheesecake;torta de ricota;torta de manzana;torta galesa;selva negra;rogel;torta rogel;marquise;tarta de frutilla;tarta de manzana;pastafrola;pasta frola;tarta dulce;budin;budín;budines;muffin;muffins;cupcake;cupcakes;magdalena;magdalenas;madalena;madalenas;bizcochuelo de chocolate;torta frita;tortas fritas;crumble;carrot cake;red velvet;postre helado;tarta de coco;coco|370|5|1.2|100|100|porción|gr=16 hc=51
+Torta|torta;tortas;torta de chocolate;torta de cumpleaños;chocotorta;tiramisu;lemon pie;cheesecake;torta de ricota;torta de manzana;torta galesa;selva negra;rogel;torta rogel;marquise;tarta de frutilla;tarta de manzana;pastafrola;pasta frola;tarta dulce;budin;budín;budines;muffin;muffins;cupcake;cupcakes;magdalena;magdalenas;madalena;madalenas;bizcochuelo de chocolate;torta frita;tortas fritas;crumble;carrot cake;red velvet;postre helado;tarta de coco|370|5|1.2|100|100|porción|gr=16 hc=51
 Brownie|brownie;brownies;blondie|450|5|2|70|70|brownie|gr=24 hc=52.5
 Panqueques|panqueque;panqueques;crepe;crepes;crepa;waffle;waffles;hotcakes;pancakes;pancake|230|6|1|120|60|panqueque|gr=8 hc=33
 Arroz con leche|arroz con leche;arrocito con leche|130|3|0.2|150||porción|gr=3 hc=22.5
@@ -291,7 +293,8 @@ Mermelada|mermelada;mermeladas;dulce de membrillo;membrillo;dulce de batata;merm
 Miel|miel|304|0.3|0|20|20|cucharada|gr=0 hc=75.5
 Azúcar|azucar;azucarado;azúcar|400|0|0|5|5|cucharadita|gr=0 hc=100
 Nutella|nutella;crema de avellanas;crema de cacao;mantecol untable|540|6|3|20|15|cucharada|gr=31 hc=58
-Barrita de cereal|barrita;barritas;barrita de cereal;barritas de cereal;barra de cereal;cereal bar;barrita proteica;barra proteica;granix barrita;mix barrita;quaker barrita;barrita de mani|400|6|3|25|25|barrita|gr=12 hc=65.5
+Barrita de cereal|barrita;barritas;barrita de cereal;barritas de cereal;barra de cereal;cereal bar;granix barrita;mix barrita;quaker barrita;barrita de mani;dubar;barrita dubar|400|6|3|25|25|barrita|gr=12 hc=65.5 S
+Barrita proteica|barrita proteica;barra proteica;barritas proteicas;barrita de proteina;barra de proteina;protein bar|380|30|5|50|50|barrita|S gr=12 hc=34
 Pochoclo|pochoclo;pochoclos;pop corn;popcorn;palomitas;pochoclo dulce;pochoclo salado;pororo|450|8|8|40||porción|i1 gr=20 hc=55.5
 Snacks salados|palitos;palitos salados;chizitos;chizito;doritos;nachos;conitos;3d;tostitos;cheetos;saladix;papas fritas de bolsa;mani saborizado;palitos de queso de paquete|500|6|3|40||paquete|F gr=28 hc=54.5
 # ---- Condimentos ----
@@ -332,7 +335,9 @@ Mate|mate;mates;matecito;matecitos;terere;mate amargo;mate dulce;mate con azucar
 
 // ==== ESTIMADOR LOCAL: lee la frase y la convierte en alimentos y cantidades ====
 const ESTIMADOR = (function(){
-  const norm = s => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"")
+  const FRACC = {"¼":" 1/4 ","½":" 1/2 ","¾":" 3/4 ","⅓":" 1/3 ","⅔":" 2/3 ","×":" x "};
+  const norm = s => s.replace(/[¼½¾⅓⅔×]/g,c=>FRACC[c]).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"")
+    .replace(/([a-z])\/([a-z])/g,"$1 $2")   // «natural/común» → dos palabras
     .replace(/(\d),(\d)/g,"$1.$2").replace(/(\d)\s*%/g,"$1").replace(/(\d)([a-z])/g,(m,a,b)=> a+" "+b)
     .replace(/[^a-z0-9.\/\s]+/g," ").replace(/\.(?!\d)/g," ").replace(/\s+/g," ").trim();
   // "x2" se separa en "x 2" y "7up"/"3d"/"h2o" se rearman abajo.
@@ -350,7 +355,8 @@ const ESTIMADOR = (function(){
     for(const [a,b] of Object.entries(GLUE)) n=n.split(" "+a+" ").join(" "+b+" ");
     const raw = n.trim().split(" ").filter(Boolean);
     const out=[];
-    for(const r of raw){ if(DROP.has(r)) continue; out.push({raw:r, t:sing(r)}); }
+    let de=false;   // «de» antes del token: «¼ de lata de garbanzos» (la cantidad es de lo que sigue) frente a «Garbanzos ¼ de lata Ricota»
+    for(const r of raw){ if(DROP.has(r)){ de = de || r==="de"; continue; } out.push({raw:r, t:sing(r), de}); de=false; }
     return out;
   }
 
@@ -366,7 +372,7 @@ const ESTIMADOR = (function(){
     pote:{g:190,un:"pote"},potecito:{g:120},caja:{g:200,un:"caja"},cajita:{g:200},
     rebanada:{u:1,g:30,un:"rebanada"},feta:{u:1,g:20,un:"feta"},tajada:{u:1,g:30,un:"tajada"},rodaja:{u:1,g:25,un:"rodaja"},
     unidad:{u:1},pieza:{u:1,g:25,un:"pieza"},bocha:{g:80,un:"bocha"},cucurucho:{g:160},
-    cucharada:{g:15,un:"cucharada"},cda:{g:15,un:"cucharada"},cucharadon:{g:20},cucharadita:{g:5,un:"cucharadita"},cdita:{g:5,un:"cucharadita"},
+    cucharada:{g:15,un:"cucharada"},cuchara:{g:15,un:"cucharada"},hoja:{g:8,un:"hoja"},cda:{g:15,un:"cucharada"},cucharadon:{g:20},cucharadita:{g:5,un:"cucharadita"},cdita:{g:5,un:"cucharadita"},
     punado:{g:30,un:"punado"},cuadradito:{g:7,un:"cuadradito"},cuadrado:{g:7,un:"cuadradito"},trozo:{p:0.6},pedazo:{p:0.6},pedacito:{p:0.3},
     paquete:{g:100,un:"paquete"},paquetito:{g:40},bolsita:{g:45},sobre:{g:10},
     medida:{g:45,un:"medida"},chorrito:{g:10},chorro:{g:10},hilo:{g:5},puntita:{g:5},
@@ -379,7 +385,8 @@ const ESTIMADOR = (function(){
     "casero","casera","natural","entero","entera","crudo","cruda","rallado","rallada","picado","picadito","relleno","rellena","gratinado","gratinada","tostado","tostada",
     "light","descremado","descremada","fresco","fresca","frio","fria","caliente","tibio","tibia","dorado","dorada","horneado","horneada","aire","freidora",
     "rodaja","cubo","tira","pure","pisado","pisada","fileteado","maduro","madura","verde","rojo","roja","amarillo","sola","solo","comun","clasico","clasica",
-    "suave","picante","condimentado","condimentada","sabor","sabores","recalentado","calentado","tostadito","congelado","congelada","prefrito","rebozado","rebozada","empanado","empanada_adj","apanado","apanada"]);
+    "suave","picante","condimentado","condimentada","sabor","sabores","recalentado","calentado","tostadito","congelado","congelada","prefrito","rebozado","rebozada","empanado","empanada_adj","apanado","apanada",
+    "congelado","congelada","empanizado","empanizada","sopera","entero"]);
   const FRITO = new Set(["frito","frita","fritito","frititos"]);
   const STOP = new Set(["comi","comimo","almorce","cene","desayune","meriende","tome","tomo","bebi","picotee","pique","probe","pedi","compre","hice","cocine","prepare","termine",
     "me","mi","mis","con","y","e","o","u","ni","sin","mas","tambien","despue","antes","luego","hoy","ayer","manana","noche","tarde","mediodia","temprano",
@@ -389,7 +396,9 @@ const ESTIMADOR = (function(){
     "especia","pimenton","aji","molido","albahaca","perejil","comino","curry","nuez_moscada","edulcorante","sacarina","stevia","hielo","agua_","porcion_","cosa","alguna","alguno",
     "dulce","salado","salada","casi","aprox","aproximadamente","mas_o_meno","meno","menos","maso","cerca","unos","unas","x","segundo","segunda","primero","primera","vez","veces",
     "nomas","solamente","sobre","encima","arriba","adentro","mezclado","mezclada","acompanado","acompanada","tambien","porque","lugar","bar","cafeteria","facultad","facu","trabajo",
-    "serenisima","sancor","ilolay","paladini","cagnoli","fela","fiambreria","variedad","marca",
+    "serenisima","sancor","ilolay","paladini","cagnoli","fela","fiambreria","variedad","marca","tregar","gallo","granja","sol","integra",
+    "hecha","hecho","agregado","agregada","previamente","parte","puno","menor","mayor","tu","total","ademas","tirando","proteina","kcal","caloria",
+    "air","fryer","airfryer","sobro","quedo_","aproximado","aproximada",
     "oficina","amigo","amiga","familia","novia","novio","vieja","viejo","abuela","abuelo","mama","papa_","hermano","hermana","companero","companera","cumple","cumpleano","juntada","asadito_","mcdonald","burger","king","starbuck","havanna_","freddo_","mostrador","kiosco","super","supermercado","mismo","misma"]);
 
   // ---- carga de la tabla ----
@@ -405,7 +414,7 @@ const ESTIMADOR = (function(){
         else if(key==="n") x.nz=true; else if(key==="c") x.c=true; else if(key==="r") x.r=true; else if(key==="a") x.a=true;
         else if(key==="l") x.l=true; else if(key==="F") x.F=true; else if(key==="P") x.P=true; else if(key==="b") x.b=true; else if(key==="B") x.B=true;
         else if(key==="gr") x.gr=+val; else if(key==="hc") x.hc=+val;
-        else if(key==="cnt") x.cnt=+val; else if(key==="M") x.M=true; else if(key==="T") x.T=true;
+        else if(key==="cnt") x.cnt=+val; else if(key==="M") x.M=true; else if(key==="T") x.T=true; else if(key==="S") x.S=true;
       }
       x.id=foods.length; foods.push(x);
       const seen=new Set();
@@ -414,6 +423,9 @@ const ESTIMADOR = (function(){
     return {foods, alias};
   }
 
+  // Sabores: después de un alimento marcado S («barrita de chocolate y naranja»), no suman otro alimento.
+  const SABORES = new Set(["chocolate","naranja","frutilla","limon","vainilla","banana","coco","menta","mani","almendra","avellana","cereza","durazno",
+    "manzana","arandano","fruto","rojo","dulce","leche","crema","cookie","caramelo","maracuya","mango","anana","nuez","pistacho","cafe","miel","frambuesa"]);
   let DB=null, BYFIRST=null, VOCAB=null, BYNAME=null;
   const INTEG = {"Fideos":"Fideos integrales","Arroz":"Arroz integral","Pan blanco":"Pan integral","Pan lactal":"Pan integral","Wrap":"Rapidita integral","Galletitas de agua":"Galletitas integrales","Pizza":"Pizza integral","Galletitas dulces":"Galletitas integrales"};
   function init(txt){
@@ -463,26 +475,39 @@ const ESTIMADOR = (function(){
     // 1) buscar alimentos (la coincidencia más larga primero)
     for(let i=0;i<T.length;i++){
       if(used[i]) continue;
+      if(T[i].t==="sopa" && i>0 && /^cuchar/.test(T[i-1].t)){ used[i]=true; T[i].puente=true; continue; }   // «tres cucharas sopas» (dictado de «cucharadas soperas»)
+      const prev=items[items.length-1];
+      if(prev && ADJ.has(T[i].t)){ let k=i-1; while(k>=prev.e && (STOP.has(T[k].t)||STOP.has(T[k].raw)) && !["con","y","e","o","mas"].includes(T[k].raw)) k--;
+        if(k+1===prev.e) continue; }   // «arroz (Gallo) tostado»: adjetivo, no el sándwich «tostado»
       const list=BYFIRST.get(T[i].t)||[];
-      let hit=null;
-      for(const a of list){ if(i+a.tk.length>T.length) continue; let ok=true; for(let j=0;j<a.tk.length;j++){ if(T[i+j].t!==a.tk[j] || used[i+j]){ ok=false; break; } } if(ok){ hit=a; break; } }
+      let hit=null, hitEnd=i, talla=1;
+      // un tamaño puede ir en medio del nombre: «milanesa mediana de pollo»
+      for(const a of list){ let j=i, k=0, ok=true, tl=1, saltos=0;
+        while(k<a.tk.length){ if(j>=T.length || used[j]){ ok=false; break; }
+          if(T[j].t===a.tk[k]){ j++; k++; continue; }
+          if(k>0 && SIZE[T[j].raw]!==undefined && saltos<2){ tl*=SIZE[T[j].raw]; saltos++; j++; continue; }
+          ok=false; break; }
+        if(ok){ hit=a; hitEnd=j; talla=tl; break; } }
       if(i>0 && isNum(T[i-1]) && items.length){
         // "3 empanadas de carne y 2 de pollo": primero probar con el plato anterior
         const h=items[items.length-1].head; const alt=(BYFIRST.get(h)||[]).find(a=> a.tk.length>1 && i+a.tk.length-1<=T.length && a.tk.slice(1).every((t,j)=>T[i+j].t===t && !used[i+j]));
         if(alt && (!hit || alt.tk.length-1>=hit.tk.length)){ const end=i+alt.tk.length-1; for(let j=i;j<end;j++) used[j]=true; items.push({food:alt.food, s:i, e:end, head:h}); i=end-1; continue; }
       }
       if(!hit) continue;
-      const end=i+hit.tk.length; for(let j=i;j<end;j++) used[j]=true;
-      items.push({food:hit.food, s:i, e:end, head:hit.tk[0]}); i=end-1;
+      let end=hitEnd; for(let j=i;j<end;j++) used[j]=true;
+      if(hit.food.S && end<T.length && SABORES.has(T[end].t)){   // sabores: «de chocolate y naranja»
+        while(end<T.length && !used[end] && (SABORES.has(T[end].t) || (T[end].raw==="y" && end+1<T.length && SABORES.has(T[end+1].t)))){ used[end]=true; end++; } }
+      items.push({food:hit.food, s:i, e:end, head:hit.tk[0], al:hit.tk.length, sz0:talla}); i=end-1;
     }
     // 2) cantidades alrededor de cada alimento
     const free = k => k>=0 && k<T.length && !used[k];
+    const inicios = new Set(items.map(x=>x.s));
     const pesoPuro = u => u && u.g && !u.u && !u.p && !u.un;
     for(const it of items){
-      it.num=null; it.unit=null; it.size=1; it.frito=false; it.neg=false; it.gExp=null; it.integral=false;
+      it.num=null; it.unit=null; it.size=it.sz0||1; it.frito=false; it.neg=false; it.gExp=null; it.integral=false;
       let j=it.s-1, guard=0; const nums=[];
-      while(free(j) && guard++<6){
-        const o=T[j];
+      while((free(j) || (j>=0 && T[j].puente)) && guard++<6){
+        const o=T[j]; if(o.puente){ j--; continue; }
         if(o.raw==="sin"){ it.neg=true; used[j]=true; break; }
         if(SIZE[o.raw]!==undefined && !UNIT[o.t]){ it.size*=SIZE[o.raw]; used[j]=true; j--; continue; }
         if(UNIT[o.t] && it.unit==null && !isNum(o)){ it.unit=UNIT[o.t]; it.unitW=o.t; used[j]=true; j--; continue; }
@@ -499,7 +524,7 @@ const ESTIMADOR = (function(){
         if(SIZE[o.raw]!==undefined){ it.size*=SIZE[o.raw]; used[k]=true; k++; continue; }
         if(/^x\d/.test(o.raw)){ it.num=numOf(o); used[k]=true; k++; continue; }
         if((o.raw==="como"||o.raw==="aprox"||o.raw==="aproximadamente"||o.raw==="unos"||o.raw==="unas") && T[k+1] && isNum(T[k+1])){ used[k]=true; k++; continue; }
-        if(isNum(o) && numOf(o)!=null && T[k+1] && UNIT[T[k+1].t]){
+        if(isNum(o) && numOf(o)!=null && T[k+1] && UNIT[T[k+1].t] && !(inicios.has(k+2) && T[k+2].de)){   // «… ¼ de lata de garbanzos»: esa cantidad es del alimento que sigue
           const u=UNIT[T[k+1].t];
           if(pesoPuro(u)) it.gExp=numOf(o)*u.g; else { it.num=numOf(o); it.unit=u; it.unitW=T[k+1].t; }
           used[k]=used[k+1]=true; k+=2; continue; }
@@ -535,6 +560,18 @@ const ESTIMADOR = (function(){
     }
     // el mismo alimento nombrado dos veces seguidas ("una bocha de helado", "galletitas oreo") cuenta una vez
     for(let i=items.length-1;i>0;i--){ const a=items[i-1], b=items[i]; if(a.food===b.food && b.s-a.e<=1){ if(b.num!=null && a.num==null){ a.g=b.g; } items.splice(i,1); } }
+    // listas del tipo «Tomate ½ tomate chico» o «Milanesa de pollo ¼ de una milanesa»: encabezado y después la cantidad, sin «y» ni «con» en el medio
+    const conCant = it => it.num!=null || it.gExp!=null || it.unit!=null || (it.size||1)!==1;
+    for(let i=items.length-1;i>0;i--){ const a=items[i-1], b=items[i];
+      const entre=T.slice(a.e,b.s), aclara=entre.some(o=>["aproximadamente","aprox","osea"].includes(o.raw));   // «2 pedacitos, aproximadamente ½ boniato»
+      if(!(a.food===b.food || (a.head===b.head && (b.al||1)===1)) || b.s-a.e>5 || (conCant(a) && !aclara)) continue;
+      if(entre.some(o=>["y","e","con","mas"].includes(o.raw))) continue;
+      a.g = a.food===b.food? b.g : Math.max(1, Math.round(b.g/(b.food.u||b.food.por)*(a.food.u||a.food.por)));
+      a.e=b.e; items.splice(i,1); }
+    // panes seguidos («rebanada de pan lactal Fargo negro»): vale el más específico, con la cantidad del primero
+    for(let i=items.length-1;i>0;i--){ const a=items[i-1], b=items[i];
+      if(!(a.food.b && b.food.b) || b.s-a.e>1 || a.food===b.food) continue;
+      a.g=Math.max(1, Math.round(a.g/(a.food.u||a.food.por)*(b.food.u||b.food.por))); a.food=b.food; a.e=b.e; items.splice(i,1); }
     // 3) reglas de combinación
     let out = items.filter(i=>!i.neg);
     // si algo ya trae pan (hamburguesa, pancho, sándwich), no se suma "pan" aparte cerca

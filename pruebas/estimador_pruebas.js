@@ -59,6 +59,20 @@ const CASOS = [
   ["una coca zero",                        {kcal:[0,5]}],
   ["una cerveza",                          {kcal:[180,220]}],
   ["un fernet",                            {kcal:[250,300]}],
+  // Frases reales registradas por usuarios (palabras no reconocidas, 28/10/2026)
+  ["🍖 ¾ de una milanesa mediana de pollo, hecha sin aceite agregado. 🍠 Un pedacito de boniato, menor que tu puño. 🧀 2 cucharadas soperas de ricota light Tregar. 🥚 2 claras de huevo. 🫘 ¼ de lata de garbanzos. Y después, como parte de esa comida o postre,: 🥣 50 g de yogur natural/común. 🫐 10 arándanos congelados.", {kcal:[560,720], prot:[42,58]}],
+  ["3 galletitas Salmas 68 kcal 1 barrita Dubar de chocolate y naranja", {kcal:[140,210], fruta:[0,0]}],
+  ["Arroz Gallo tostado previamente en un poco de aceite, una milanesa de soja de la granja del sol y un huevo frito.", {kcal:[580,740]}],
+  ["Huevo 1 huevo entero + 1 clara Milanesa de pollo ¼ de una milanesa que sobró de ayer Tomate ½ tomate chico (aprox. ¼ de uno grande) Garbanzos ¼ de lata Ricota Tregar light 1 cucharada sopera Boniato 2 pedacitos, aproximadamente ½ boniato chico en total* Lechuga 5 hojas Zanahoria ½ zanahoria, con hummus como acompañamiento", {kcal:[500,680]}],
+  ["Tres. Croquetas espinaca, empanizados hechas en Air Fryer 1/4 de taza de garbanzos, tres cucharas, sopas de ricota, un tomate chico y una hoja de lechuga, además de qué un sandwichito de miga 5 × 5, con huevo y jamón y después de postre dos cucharadas de dulce leche con con coco", {kcal:[720,950]}],
+  ["Una barrita proteica de íntegra con 15 g de proteína, y, una banana mediana tirando grandes", {kcal:[250,340], prot:[13,20], fruta:[1,1]}],
+  ["Una rebanasa de pan lactal fargo negro con queso finlandia", {kcal:[120,190], integ:[1,1.5]}],
+  // Casos puntuales de esas frases
+  ["10 arandanos",                         {kcal:[5,15]}],
+  ["una barrita de chocolate y naranja",   {kcal:[80,120], fruta:[0,0]}],
+  ["arroz tostado",                        {kcal:[220,300]}],
+  ["¾ de una milanesa mediana de pollo",   {kcal:[230,310]}],
+  ["tomate ½ tomate chico",                {kcal:[5,15], verd:[0.5,0.5]}],
 ];
 let fallas=0;
 for(const [frase, esp] of CASOS){
