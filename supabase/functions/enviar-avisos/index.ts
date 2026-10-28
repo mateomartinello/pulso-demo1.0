@@ -6,7 +6,7 @@
 const SUPABASE_URL = "https://aihixquihhpirxmjhumg.supabase.co";
 const CLAVE_PUBLICA = "sb_publishable_4rprl49Z0iCw1uuv0Bk6Tw_7-bdMaTb";
 const VAPID_PUBLICA = "BPbi0hFzII-GcGYVX2Y_ulYxwdQc9rpX-vS5ejgFcRfzqGNYFvNvC_zX2cBmvJ9jSuYVHAFvCbnUs60_1TXyYZA";
-const VAPID_SUJETO = "https://mateomartinello.github.io/pulso/";
+const VAPID_SUJETO = "mailto:verificacionpulso@gmail.com";   // contacto para los servicios de notificaciones (no depende del enlace de la app)
 
 // Textos neutros, sin calorías ni números (sirven también en modo cuidado).
 const TEXTOS: Record<string, [string, string]> = {

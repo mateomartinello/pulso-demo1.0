@@ -8,5 +8,5 @@ const CONFIG = {
   VAPID_PUBLICA: "BPbi0hFzII-GcGYVX2Y_ulYxwdQc9rpX-vS5ejgFcRfzqGNYFvNvC_zX2cBmvJ9jSuYVHAFvCbnUs60_1TXyYZA",
   APP_VERSION: "0.4.3",
   DEMO: "demo 1.0",   // versión de la demo: la pantalla de inicio dice «Bienvenido a la demo 1.0»
-  CONTACTO: "[completar: mail de contacto]",
+  CONTACTO: "verificacionpulso@gmail.com",
 };
