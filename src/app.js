@@ -362,7 +362,7 @@ const GUIA=[
   {id:"tarjeta", v:"hoy", sel:"#v-hoy .tarjeta", t:"Esta es la sugerencia para este momento. Si no te interesa, deslizala hacia un costado para ocultarla: la receta completa queda más abajo."},
   {id:"registro", v:"hoy", sel:"#otroTxt", t:()=>"Anotá acá lo que comiste, como lo dirías. ¿No querés escribir? "+(ES_IOS? "Tocá el micrófono del teclado (abajo a la derecha) y dictalo." : "Tocá el micrófono del teclado y dictalo.")},
   {id:"datos", v:"hoy", sel:'#v-hoy [aria-label="Datos nutricionales de hoy"]', t:"Acá ves cómo vas en el día. Se actualiza con cada cosa que registrás."},
-  {id:"mov", v:"mov", sel:"#v-mov .prog", t:()=>"Acá se junta tu movimiento de la semana."+(ES_IOS? " Si querés que se cargue solo, conectá Apple Salud desde Perfil." : "")},
+  {id:"mov", v:"mov", sel:"#v-mov .prog", t:()=>"Acá se junta tu movimiento de la semana."+(ES_IOS && CONFIG.SALUD? " Si querés que se cargue solo, conectá Apple Salud desde Perfil." : "")},
   {id:"semana", v:"semana", sel:"#v-semana .prog", t:"Un resumen de tus últimos 7 días, con ideas para la semana."},
   {id:"marcas", v:"perfil", sel:"#v-perfil .marcas", t:"Las marcas que usás quedan guardadas acá. Las podés cambiar cuando quieras."},
 ];
@@ -655,7 +655,7 @@ function renderPerfil(){
     const lab=x=> x==="otro"? (DB.perfil.resp[q.id+"_otro"]||"Otro") : (q.opts.concat(q.viejas||[]).find(o=>o[0]===x)||[,x])[1];
     resumen.push(el("li",{}, el("div",{}, el("div",{class:"s"},q.t), el("div",{}, Array.isArray(v)? (v.length? v.map(lab).join(", "):"Nada") : lab(v))))); }
   const c=DB.perfil.resp.cuerpo||{}, dp=DB.perfil.resp.datos||{};
-  box.append(
+  agregar(box,
     el("section",{class:"card hero"}, el("div",{class:"label"},"Tu plan"),
       el("div",{class:"meta",style:"margin-top:8px"}, P.care? null : el("span",{},el("b",{},nf(P.kcal))," kcal por día de referencia"), el("span",{},el("b",{},nf(P.prot))," g de proteína como mínimo")),
       el("div",{class:"meta",style:"margin-top:8px"}, el("span",{},ESTRUCTURAS[P.est].n), ...slotsHoy().map(([k])=>el("span",{},`${SLOTDEF[k].n} ${P.horas[k]} h`))),
@@ -667,7 +667,7 @@ function renderPerfil(){
       el("ul",{class:"log"}, resumen),
       el("div",{class:"row",style:"margin-top:12px"}, el("button",{class:"btn small",type:"button",onclick:()=>{ DB.perfil.completo=false; ONB.i=0; persist(); render(); }},"Editar respuestas"),
         el("button",{class:"btn small ghost",type:"button",onclick:()=>{ DB.guia={}; persist(); S.view="hoy"; render(); window.scrollTo(0,0); }},"Ver la guía de nuevo"))),
-    seccionMarcas(), seccionSalud(), seccionAvisos(), seccionPrivacidad(),
+    seccionMarcas(), CONFIG.SALUD? seccionSalud() : null, seccionAvisos(), seccionPrivacidad(),
     tarjetaCuenta(),
     el("p",{class:"enlace-baja"}, el("a",{href:"#eliminar-cuenta"},"Eliminar mi cuenta")));
 }
@@ -690,7 +690,7 @@ function terminos(){
     el("p",{},"Tu cuenta guarda tu nombre, tu apellido, tu mail y una copia de tus respuestas y tus registros, para que los recuperes al volver a entrar o desde otro dispositivo. Tu mail también se usa para enviarte el código de ingreso y novedades de Pulso, invitarte a encuestas o estudios y responder tus consultas o pedidos de acceso y borrado."),
     el("p",{},"Si eliminás tu cuenta (Perfil › Eliminar mi cuenta), antes te pedimos que respondas cinco preguntas sobre tu experiencia, que se conservan. Después borramos tu nombre, tu apellido, tu mail y la copia de tu cuenta. Tus registros y tus respuestas se conservan como datos generales, sin nada que los vincule a vos, para mejorar la app. Si querés que también se borren tus registros, pedilo escribiendo a "+CONFIG.CONTACTO+"."),
     el("p",{},"Seguimiento del ciclo menstrual (opcional): si lo activás, guardamos qué app usás para seguir tu ciclo, la fecha de inicio de tu último período, la duración habitual de tu ciclo y los antojos que registres. Es un dato de salud especialmente sensible. Lo podés desactivar cuando quieras desde Perfil › Editar respuestas."),
-    el("p",{},"Apple Salud (opcional): si conectás el atajo «Pulso Salud», tu iPhone nos envía cada día tus pasos y tus minutos de ejercicio. Para dejar de enviarlos, borrá la automatización en la app Atajos y tocá «Dejar de leer Salud» en Perfil."),
+    CONFIG.SALUD? el("p",{},"Apple Salud (opcional): si conectás el atajo «Pulso Salud», tu iPhone nos envía cada día tus pasos y tus minutos de ejercicio. Para dejar de enviarlos, borrá la automatización en la app Atajos y tocá «Dejar de leer Salud» en Perfil.") : null,
     el("p",{},"Para qué: entender cómo se usa la app y mejorar sus recomendaciones. No se venden ni se ceden a terceros."),
     el("p",{},"Recordatorios (opcionales, independientes de compartir datos): si los activás, guardamos en nuestro servidor la dirección de notificaciones de tu dispositivo, los horarios de tus comidas, tu zona horaria y qué momentos del día ya registraste (no qué comiste), con un código aparte, que no se vincula con tu cuenta. Se usan solo para enviarte los avisos; las marcas diarias se borran a los pocos días y todo se borra al desactivarlos. Para enviarlos se usan los servicios de notificaciones de Apple, Google, Mozilla o Microsoft, según tu dispositivo."),
     el("p",{},"Si la comida te genera malestar seguido, hablarlo con un profesional de salud ayuda. En Argentina, la Línea de Salud Mental 0800-999-0091 es gratuita y atiende las 24 horas."),

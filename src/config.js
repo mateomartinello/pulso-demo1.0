@@ -9,6 +9,8 @@ const CONFIG = {
   APP_VERSION: "0.5.0",
   DEMO: "demo 1.0",   // versión de la demo: la pantalla de inicio dice «Bienvenido a la demo 1.0»
   CONTACTO: "verificacionpulso@gmail.com",
+  // Apple Salud por el atajo «Pulso Salud»: apagado hasta que el atajo funcione en el iPhone (en la prueba del 28/10/2026 daba «No samples found»).
+  SALUD: false,
   // Atajo «Pulso Salud» (Apple Salud → Pulso): enlace de iCloud; mientras tanto, el archivo firmado del repositorio.
   ATAJO_SALUD: "https://mateomartinello.github.io/pulso-demo1.0/atajo/Pulso%20Salud.shortcut",
 };
