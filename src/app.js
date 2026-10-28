@@ -2,7 +2,7 @@
 // Cada pregunta: 4 opciones + «Otro» (con texto). type: single | multi | numbers
 const PREGUNTAS = [
   {id:"sexo", sec:"Vos", t:"¿Con qué sexo te identificás?", sub:"Se usa solo para estimar tu gasto de energía.", type:"single",
-   opts:[["h","Hombre"],["m","Mujer"],["nb","No binario"],["pnd","Prefiero no decirlo"]]},
+   opts:[["h","Hombre"],["m","Mujer"],["pnd","Prefiero no decirlo"]], sinOtro:true, viejas:[["nb","No binario"]]},
   {id:"cuerpo", sec:"Vos", t:"Tus datos físicos", sub:"Con esto se calcula tu energía diaria. Quedan guardados en tu dispositivo.", type:"numbers",
    fields:[["edad","Edad","años",14,100],["altura","Altura","cm",120,220],["peso","Peso","kg",35,250]]},
   {id:"objetivo", sec:"Objetivo", t:"¿Qué querés lograr?", type:"single",
@@ -12,9 +12,9 @@ const PREGUNTAS = [
   {id:"patron", sec:"Alimentación", t:"¿Cómo comés?", type:"single",
    opts:[["omni","Como de todo"],["flex","Mayormente vegetal, con algo de carne"],["veg","Vegetariano"],["vegano","Vegano"]]},
   {id:"restric", sec:"Alimentación", t:"¿Tenés alguna restricción por salud?", sub:"Podés marcar varias.", type:"multi",
-   opts:[["gluten","Celiaquía o sin gluten"],["lactosa","Intolerancia a la lactosa"],["nuez","Alergia a frutos secos"],["huevo","Alergia al huevo"]]},
+   opts:[["gluten","Celiaquía o sin gluten"],["lactosa","Intolerancia a la lactosa"],["mani","Alergia al maní"],["nuez","Alergia a frutos secos"],["huevo","Alergia al huevo"],["pescado","Alergia al pescado"],["marisco","Alergia a los mariscos"]]},
   {id:"nocome", sec:"Alimentación", t:"¿Qué no comés porque no te gusta?", sub:"Podés marcar varias.", type:"multi",
-   opts:[["pescado","Pescado"],["cerdo","Carne de cerdo"],["legumbre","Legumbres"],["lacteo","Lácteos"]]},
+   opts:[["pescado","Pescado"],["cerdo","Carne de cerdo"],["legumbre","Legumbres"],["lacteo","Lácteos"],["pan","Pan"]]},
   {id:"estructura", sec:"Tu día", t:"¿Cuántas comidas hacés por día?", type:"single",
    opts:[["dac","Desayuno, almuerzo y cena"],["amc","Almuerzo, merienda y cena"],["damc","Desayuno, almuerzo, merienda y cena"],["dcamc","Cuatro comidas y colaciones"]]},
   {id:"hAlm", sec:"Tu día", t:"¿A qué hora solés almorzar?", type:"single",
@@ -25,11 +25,7 @@ const PREGUNTAS = [
    opts:[["milanesas","Milanesas"],["pastas","Pastas"],["bowls","Arroz o bowls"],["ensaladas","Ensaladas"]]},
   {id:"snacks", sec:"Tus gustos", t:"Entre comidas, ¿qué solés comer?", sub:"Podés marcar varios.", type:"multi",
    opts:[["galletitas","Galletitas o alfajores"],["fruta","Fruta"],["frutos","Frutos secos"],["salados","Snacks salados"]]},
-  {id:"pan", sec:"Marcas", t:"¿Qué pan comprás?", type:"single",
-   opts:[["bimbo","Bimbo"],["fargo","Fargo"],["lactal","Lactal"],["panaderia","De panadería"],["no","No como pan"]]},
-  {id:"lacteos", sec:"Marcas", t:"¿Qué marca de yogur o lácteos comprás?", type:"single",
-   opts:[["serenisima","La Serenísima"],["yogurisimo","Yogurísimo"],["propia","Marca del supermercado"],["no","No consumo"]]},
-  {id:"bebida", sec:"Marcas", t:"¿Qué tomás con las comidas?", type:"single",
+  {id:"bebida", sec:"Tus gustos", t:"¿Qué tomás con las comidas?", type:"single",
    opts:[["agua","Agua"],["gaseosa","Gaseosa común"],["zero","Gaseosa sin azúcar"],["jugo","Jugos"]]},
   {id:"equipo", sec:"Tu cocina", t:"¿Con qué cocinás?", sub:"Podés marcar varios.", type:"multi",
    opts:[["hornalla","Hornallas"],["horno","Horno"],["freidora","Freidora de aire"],["microondas","Microondas"]]},
@@ -39,11 +35,21 @@ const PREGUNTAS = [
    opts:[["ajustado","Ajustado"],["moderado","Moderado"],["holgado","Holgado"],["pnd","Prefiero no decirlo"]]},
   {id:"mov", sec:"Movimiento", t:"¿Qué tipo de actividad te gusta?", sub:"Podés marcar varias.", type:"multi",
    opts:[["caminar","Caminar"],["correr","Correr"],["fuerza","Gimnasio o fuerza"],["deporte","Deportes en equipo"]]},
+  {id:"entreno", sec:"Movimiento", t:"¿Entrenás en un horario fijo?", sub:"Con esto te sugerimos qué comer antes y después de entrenar.", type:"single", sinOtro:true,
+   opts:[["manana","Sí, a la mañana"],["mediodia","Sí, al mediodía"],["tarde","Sí, a la tarde"],["noche","Sí, a la noche"],["variable","Entreno, pero sin horario fijo"],["no","No entreno"]]},
+  {id:"entrenoDias", sec:"Movimiento", t:"¿Qué días entrenás?", sub:"Podés marcar varios.", type:"multi", sinOtro:true, sinNinguna:true, si:R=>!!HORA_ENTRENO[R.entreno],
+   opts:[["1","Lunes"],["2","Martes"],["3","Miércoles"],["4","Jueves"],["5","Viernes"],["6","Sábado"],["0","Domingo"]]},
   {id:"sueno", sec:"Descanso", t:"¿Cuánto dormís en una noche normal?", type:"single",
    opts:[["5","Menos de 6 horas"],["6.5","Entre 6 y 7 horas"],["7.5","Entre 7 y 8 horas"],["8.5","Más de 8 horas"]]},
+  {id:"cicloApp", sec:"Tu ciclo", t:"¿Usás alguna app para seguir tu ciclo menstrual?", sub:"Es opcional. Sirve para acompañarte en los días previos a tu período, cuando son más comunes los antojos. Lo podés cambiar en Perfil.", type:"single", sinOtro:true, si:R=>R.sexo==="m",
+   opts:[["flo","Flo"],["clue","Clue"],["salud","Salud de Apple"],["otra","Otra app"],["ninguna","No uso ninguna"],["off","Prefiero no usar esta función"]]},
+  {id:"ciclo", sec:"Tu ciclo", t:"¿Cuándo empezó tu último período?", sub:"Con esto estimamos las fechas siguientes. Si tus ciclos son irregulares, igual sirve como referencia.", type:"ciclo", si:R=>R.sexo==="m" && R.cicloApp && R.cicloApp!=="off"},
   {id:"relacion", sec:"Bienestar", t:"¿Cómo describirías tu relación con la comida?", sub:"Nos ayuda a cuidarte. Esta respuesta queda solo en tu dispositivo.", type:"single",
    opts:[["tranquila","Tranquila, sin problemas"],["emocional","A veces como por ansiedad, estrés o aburrimiento"],["control","Me genera culpa o necesito controlarla mucho"],["tca","Tuve o tengo un trastorno de la conducta alimentaria"]]},
 ];
+
+const HORA_ENTRENO = {manana:8, mediodia:13, tarde:18, noche:20};   // hora de inicio supuesta de cada franja
+const visible = (q,R) => !q.si || q.si(R);
 
 // ==== UTILIDADES ====
 const $ = s => document.querySelector(s);
@@ -76,13 +82,14 @@ function ans(id){ return DB.perfil?.resp?.[id]; }
 function has(id,v){ const a=ans(id); return Array.isArray(a)? a.includes(v) : a===v; }
 function calcPlan(p){
   const r=p.resp; const edad=+r.cuerpo?.edad||25, alt=+r.cuerpo?.altura||170, peso=+r.cuerpo?.peso||70;
+  // Modo cuidado (menores de 18 o relación difícil con la comida): la app no muestra calorías. Todo lo demás es igual.
   const care = edad<18 || r.relacion==="control" || r.relacion==="tca";
   const s = r.sexo==="h"? 5 : r.sexo==="m"? -161 : -78;
   const bmr = 10*peso + 6.25*alt - 5*edad + s;
   const fa = {sed:1.2, lig:1.375, mod:1.55, alt:1.725}[r.actividad] || 1.375;
   let kcal = bmr*fa;
   const obj = r.objetivo;
-  if(obj==="bajar" && !care) kcal = Math.max(kcal*0.85, bmr*1.1);
+  if(obj==="bajar") kcal = Math.max(kcal*0.85, bmr*1.1);
   if(obj==="ganar") kcal *= 1.10;
   kcal = Math.round(kcal/50)*50;
   const protKg = (obj==="bajar"||obj==="ganar") ? 1.6 : 1.0;
@@ -90,34 +97,39 @@ function calcPlan(p){
   const pat=r.patron;
   if(pat==="veg"||pat==="vegano") ["vacuna","cerdo","pollo","pescado"].forEach(g=>excl.add(g));
   if(pat==="vegano") ["huevo","lacteo"].forEach(g=>excl.add(g));
-  for(const x of (r.restric||[])){ if(x==="gluten") excl.add("gluten"); if(x==="nuez") excl.add("nuez"); if(x==="huevo") excl.add("huevo"); }
+  for(const x of (r.restric||[])){ if(["gluten","mani","nuez","huevo","pescado","marisco"].includes(x)) excl.add(x); }
   for(const x of (r.nocome||[])){ if(["pescado","cerdo","legumbre","lacteo"].includes(x)) excl.add(x); }
-  if(r.pan==="no") excl.add("pan");
+  if(r.pan==="no" || (r.nocome||[]).includes("pan")) excl.add("pan");   // r.pan: pregunta de marcas de versiones anteriores
   let eq = new Set((r.equipo||[]).filter(x=>x!=="otro")); if(!eq.size) eq=new Set(["hornalla"]);
   const tmax = r.tiempo==="15"?15 : r.tiempo==="30"?30 : r.tiempo==="60"?60 : r.tiempo==="tandas"?60 : 40;
   const est = ESTRUCTURAS[r.estructura] ? r.estructura : "damc";
   const hAlm = +r.hAlm || 13, hCen = +r.hCen || 21;
   const horas = {des:"8:30", col:"10:30", alm:hAlm+":00", mer:Math.round((hAlm+hCen)/2)+":00", cen:hCen+":00"};
-  return { care, edad, peso, kcal, prot:Math.round(peso*protKg), excl, eq, tmax, est, horas,
-    pan: PANES[r.pan] || PANES.generico, sinLactosa:(r.restric||[]).includes("lactosa"),
-    metas:{frutas:2, verduras:3, integrales:excl.has("gluten")?2:3, nueces:excl.has("nuez")?0:1, rojaSem:2, movMin:150, fuerza:2, sueno:7},
+  const hE=HORA_ENTRENO[r.entreno]; const hm=h=>Math.floor(h)+":"+pad(Math.round((h%1)*60));
+  if(hE){ horas.pre=hm(hE-1.5); horas.post=hm(hE+1.5); }   // antes: 1 h 30 min antes; después: al terminar (se supone 1 h de entreno)
+  return { care, edad, peso, kcal, prot:Math.round(peso*protKg), excl, eq, tmax, est, horas, entrenoDias: hE? (r.entrenoDias||[]) : [],
+    pan: PANES[DB.marcas?.pan] || PANES[r.pan] || PANES.generico, sinLactosa:(r.restric||[]).includes("lactosa"),
+    metas:{grasaMin:Math.round(kcal*0.2/9), frutas:2, verduras:3, integrales:excl.has("gluten")?2:3, nueces:excl.has("nuez")?0:1, rojaSem:2, movMin:150, fuerza:2, sueno:7},
     flex: pat==="flex", budget:r.presupuesto, platos:r.platos||[], prefMov:(r.mov||[]).filter(x=>x!=="otro") };
 }
 let PLAN = null;
 
 // ==== RECETAS: aplicar el pan elegido y filtrar por perfil ====
-function ingOf(id){ if(id==="pan" && PLAN){ return {...ING.pan, ...PLAN.pan, g:["gluten"], pan:true}; } return ING[id]; }
+function ingOf(id){
+  if(id==="pan" && PLAN){ return {...ING.pan, ...PLAN.pan, g:["gluten"], pan:true}; }
+  const m=marcaDeIng(id); return m? {...ING[id], k:m.k, p:m.p, f:m.f, hc:m.hc, gr:m.gr} : ING[id];
+}
 function escala(x,f){ if(f>1 && x.fijo) return 1; if(f>1 && x.pr) return Math.min(f,1.15); return f; }
 function nutr(rec, factor){
   factor = factor || 1;
-  let k=0,p=0,fib=0,veg=0,fruta=0,integ=0,nuez=false,vitC=false,roja=false,atun=false;
+  let k=0,p=0,hc=0,gr=0,fib=0,veg=0,fruta=0,integ=0,nuez=false,vitC=false,roja=false,atun=false;
   for(const [id,g,esc] of rec.i){
     const x=ingOf(id); const gg = esc ? g*escala(x,factor) : g;
-    k+=x.k*gg/100; p+=x.p*gg/100; fib+=x.f*gg/100;
+    k+=x.k*gg/100; p+=x.p*gg/100; hc+=(x.hc||0)*gg/100; gr+=(x.gr||0)*gg/100; fib+=x.f*gg/100;
     if(x.veg) veg+=gg; if(x.fruta) fruta+=gg; if(x.integral) integ+=gg;
     if(x.nuez && gg>=15) nuez=true; if(x.vitC && gg>=60) vitC=true; if(x.roja) roja=true; if(x.atun) atun=true;
   }
-  return {kcal:Math.round(k), prot:Math.round(p), fibra:Math.round(fib),
+  return {kcal:Math.round(k), prot:Math.round(p), carb:Math.round(hc), grasa:Math.round(gr), fibra:Math.round(fib),
     verduras:Math.round(veg/VEG_PORCION*2)/2, frutas:Math.round(fruta/FRUTA_PORCION*2)/2, integrales:Math.round(integ/INT_PORCION*2)/2,
     nueces:nuez?1:0, vitC, roja, atun};
 }
@@ -133,7 +145,15 @@ function recetasDe(pool){ const all=RECETAS.filter(r=>r.s===pool); const u=all.f
 // ==== ESTADO DEL DÍA ====
 const S = { today: dayKey(new Date()), slot:null, offsets:{}, adj:{}, view:"hoy" };
 function day(k){ k=k||S.today; if(!DB.dias[k]) DB.dias[k]={comidas:[], ejercicio:[], sueno:null}; const d=DB.dias[k]; d.comidas=d.comidas||[]; d.ejercicio=d.ejercicio||[]; return d; }
-function slotsHoy(){ return ESTRUCTURAS[PLAN.est].slots; }
+// Momentos del día: los de la estructura elegida y, los días de entreno (o después de registrar movimiento), antes y después de entrenar.
+function slotsHoy(){
+  const base=ESTRUCTURAS[PLAN.est].slots.slice(), d=DB.dias[S.today];
+  const entrena = PLAN.entrenoDias.includes(String(keyDate(S.today).getDay()));
+  if(entrena) base.push(["pre",.08]);
+  if(entrena || d?.postHora) base.push(["post",.10]);
+  const hr=k=>{ const [a,b]=PLAN.horas[k].split(":").map(Number); return a+b/60; };
+  return base.sort((x,y)=>hr(x[0])-hr(y[0]));
+}
 function slotNow(){
   const h=new Date().getHours()+new Date().getMinutes()/60; const sl=slotsHoy().map(s=>s[0]);
   const hr = k=>{ const [a,b]=PLAN.horas[k].split(":").map(Number); return a+b/60; };
@@ -141,15 +161,15 @@ function slotNow(){
   let best=sl[0]; for(const k of sl){ if(h >= hr(k)-1.5) best=k; } return best;
 }
 function totals(comidas){
-  const t={kcal:0,prot:0,fibra:0,verduras:0,frutas:0,integrales:0,nueces:0,vitC:false,roja:0,atun:0,sinEstimar:0};
+  const t={kcal:0,prot:0,carb:0,grasa:0,fibra:0,verduras:0,frutas:0,integrales:0,nueces:0,vitC:false,roja:0,atun:0,sinEstimar:0};
   for(const c of comidas||[]){ if(c.kcal==null){ t.sinEstimar++; continue; }
-    t.kcal+=c.kcal; t.prot+=c.prot||0; t.fibra+=c.fibra||0; t.verduras+=c.verduras||0; t.frutas+=c.frutas||0; t.integrales+=c.integrales||0;
+    t.kcal+=c.kcal; t.prot+=c.prot||0; t.carb+=c.carb||0; t.grasa+=c.grasa||0; t.fibra+=c.fibra||0; t.verduras+=c.verduras||0; t.frutas+=c.frutas||0; t.integrales+=c.integrales||0;
     t.nueces+=c.nueces||0; if(c.vitC) t.vitC=true; if(c.roja) t.roja++; if(c.atun) t.atun++; }
   return t;
 }
 function last7(){ return Array.from({length:7},(_,i)=>keyShift(S.today,i-6)); }
 function weekCount(field){ let n=0; for(const k of last7()) for(const c of (DB.dias[k]?.comidas||[])) if(c[field]) n++; return n; }
-function exKcal(k){ return (day(k).ejercicio||[]).reduce((a,e)=>a+(e.kcal||0),0); }
+function exKcal(k){ return (day(k).ejercicio||[]).reduce((a,e)=>a+(e.kcal||0),0) + (saludDia(k||S.today)?.entrenos||[]).reduce((a,e)=>a+(e.kcal||0),0); }
 function target(){ return PLAN.kcal + exKcal(); }
 function slotShare(slot){ return (slotsHoy().find(s=>s[0]===slot)||[0,.25])[1]; }
 
@@ -234,23 +254,67 @@ function sesionIniciar(){
   DB.sesion={id:uid(), inicio:ahora, ultimo:ahora, fin:null}; persist();
 }
 function sesionPausar(){ const s=DB.sesion; if(!s || s.fin) return; s.fin=s.ultimo=Date.now(); persist(); sesionEnviar(s, true); }
-document.addEventListener("visibilitychange",()=>{ if(document.hidden) sesionPausar(); else sesionIniciar(); });
-window.addEventListener("pagehide", sesionPausar);
+document.addEventListener("visibilitychange",()=>{ if(document.hidden){ sesionPausar(); DB.cerradaDesde=Date.now(); persist(); } else { sesionIniciar(); if(movAlVolver() && S.view==="hoy") render(); delete DB.cerradaDesde; persist(); } });
+window.addEventListener("pagehide",()=>{ sesionPausar(); DB.cerradaDesde=Date.now(); persist(); });
 setInterval(()=>{ if(DB.sesion && !DB.sesion.fin && !document.hidden){ DB.sesion.ultimo=Date.now(); persist(); } }, 30000);
 
 // ==== REGISTRO ====
 function addComida(e){ const c={id:uid(), hora:new Date().toISOString(), ...e}; day().comidas.push(c); persist(); enviar("comida", c); marcarAviso(S.today, c.slot, true); render(); }
 function delComida(id, k){ const d=day(k); const slot=d.comidas.find(c=>c.id===id)?.slot; d.comidas=d.comidas.filter(c=>c.id!==id); persist(); enviar("comida_borrada",{id},k);
   if(slot && !d.comidas.some(c=>c.slot===slot)) marcarAviso(k||S.today, slot, false); render(); }
-function addEjercicio(e){ const x={id:uid(), hora:new Date().toISOString(), ...e}; day().ejercicio.push(x); persist(); enviar("ejercicio", x); render(); }
+function addEjercicio(e){ const x={id:uid(), hora:new Date().toISOString(), ...e}; const d=day(); d.ejercicio.push(x);
+  if(!d.postHora){ const t=new Date(); d.postHora=t.getHours()+":"+pad(t.getMinutes()); S.slot="post"; }   // se ofrece el «Después de entrenar»
+  persist(); enviar("ejercicio", x); render(); }
 function delEjercicio(id){ const d=day(); d.ejercicio=d.ejercicio.filter(c=>c.id!==id); persist(); enviar("ejercicio_borrado",{id}); render(); }
 function setSueno(s){ day().sueno={...s, hora:new Date().toISOString()}; persist(); enviar("sueno", day().sueno); render(); }
+
+// ==== MARCAS (tabla en data.js) ====
+function marcaDeIng(id){ for(const [k,P] of Object.entries(MARCAS)){ if(k!=="pan" && P.ing.includes(id)){ const o=P.opts[DB.marcas?.[k]]; if(o) return o; } } return null; }
+// Marca nombrada en el texto («yogur Ser», «una coca»), si la hay.
+function marcaEnTexto(prod, txt){
+  const t=" "+ESTIMADOR.norm(txt)+" ";
+  let mejor=null; for(const [k,o] of Object.entries(MARCAS[prod].opts)) for(const a of o.al){ if(t.includes(" "+a+" ") && (!mejor || a.length>mejor[1])) mejor=[k,a.length]; }
+  return mejor? mejor[0] : null;
+}
+function prodDe(nombre){ return Object.keys(MARCAS).find(k=>MARCAS[k].alimentos.includes(nombre)); }
+function marcasPendientes(r, txt){ return [...new Set(r.items.map(it=>prodDe(it.n)).filter(k=>k && !DB.marcas?.[k] && !marcaEnTexto(k,txt)))]; }
+function guardarMarcas(m){ const x=Object.entries(m||{}).filter(([,v])=>v); if(!x.length) return; DB.marcas={...(DB.marcas||{}), ...Object.fromEntries(x)}; persist(); }
+// Rehace la cuenta de una comida escrita con los valores de la marca de cada producto («otra» = valores generales).
+function conMarcas(r, txt){
+  const out={kcal:r.kcal, prot:r.prot, carb:r.carb, grasa:r.grasa, fibra:r.fibra, items:[], marcas:{}};
+  for(const it of r.items){
+    const k=prodDe(it.n), m=k && (marcaEnTexto(k,txt) || DB.marcas?.[k]), o=m && MARCAS[k].opts[m], gen=ESTIMADOR.alimento(it.n);
+    if(!o || !gen){ out.items.push(ESTIMADOR.describir(it)); continue; }
+    out.marcas[k]=m;
+    let g=it.g; if(o.u && gen.u && it.g%gen.u===0) g=it.g/gen.u*o.u;   // por unidades: el tamaño de la unidad de esa marca
+    const d=(a,b)=>(a*g-b*it.g)/100;
+    out.kcal+=d(o.k,gen.k); out.prot+=d(o.p,gen.p); out.carb+=d(o.hc,gen.hc); out.grasa+=d(o.gr,gen.gr); out.fibra+=d(o.f,gen.f);
+    out.items.push(ESTIMADOR.describir({...it, g, u:o.u||it.u})+" ("+o.n+")");
+  }
+  for(const c of ["kcal","prot","carb","grasa","fibra"]) out[c]=Math.max(0,Math.round(out[c]));
+  return out;
+}
+function grupoMarca(prod, sel){
+  const P=MARCAS[prod], box=el("div",{class:"opts"});
+  const draw=()=>box.replaceChildren(...Object.entries(P.opts).concat([["otra",{n:"Otra o no sé"}]]).map(([v,o])=>el("button",{type:"button",class:"opt"+(sel[prod]===v?" on":""),onclick:()=>{ sel[prod]=v; draw(); }},o.n)));
+  draw(); return el("div",{class:"stack",style:"gap:8px"}, el("div",{class:"label"},`¿Qué marca de ${P.n} usaste?`), box);
+}
+// Perfil › Mis marcas
+function seccionMarcas(){
+  const filas=Object.entries(MARCAS).map(([k,P])=>{ const s=el("select",{id:"marca-"+k,"aria-label":"Marca de "+P.n},
+      el("option",{value:""},"Sin elegir"), ...Object.entries(P.opts).map(([v,o])=>el("option",{value:v},o.n)), el("option",{value:"otra"},"Otra o no sé"));
+    s.value=DB.marcas?.[k]||""; s.addEventListener("change",()=>{ const m={...(DB.marcas||{})}; if(s.value) m[k]=s.value; else delete m[k]; DB.marcas=m; persist(); });
+    return el("li",{}, el("label",{for:"marca-"+k},cap(P.n)), s); });
+  return el("section",{class:"card"}, el("h3",{},"Mis marcas"),
+    el("p",{class:"note",style:"margin:0 0 8px"},"Pulso usa los valores de la marca que elegiste. Te la pregunta la primera vez que registrás cada producto."),
+    el("ul",{class:"marcas"}, filas));
+}
 
 // ==== HAMBRE Y EMOCIONES: pregunta breve antes de guardar ====
 const HAMBRE=[["ninguna","Nada de hambre"],["poca","Poca"],["moderada","Moderada"],["mucha","Mucha"]];
 const MOTIVO=[["hambre","Hambre física"],["horario","Horario o costumbre"],["emocion","Ansiedad o estrés"],["aburrimiento","Aburrimiento"]];
-function preguntarEmocion(onDone){
-  const st={hambre:null, motivo:null, otro:""};
+function preguntarEmocion(onDone, marcasPend=[]){
+  const st={hambre:null, motivo:null, otro:"", marcas:{}};
   const sheet=$("#sheet"); sheet.replaceChildren();
   const grupo=(titulo, opts, key)=>{ const box=el("div",{class:"opts"});
     const draw=()=>{ box.replaceChildren(...opts.concat([["otro","Otro"]]).map(([v,t])=>el("button",{type:"button",class:"opt"+(st[key]===v?" on":""),onclick:()=>{st[key]=v; draw(); otroIn.hidden = !(st.hambre==="otro"||st.motivo==="otro");}},t))); };
@@ -262,18 +326,21 @@ function preguntarEmocion(onDone){
     grupo("¿Cuánta hambre tenías?", HAMBRE, "hambre"),
     grupo("¿Qué te llevó a comer?", MOTIVO, "motivo"),
     otroIn,
+    ...marcasPend.map(prod=>grupoMarca(prod, st.marcas)),
     el("div",{class:"row",style:"margin-top:6px"},
-      el("button",{class:"btn primary",type:"button",onclick:()=>{ cerrarSheet(); onDone({hambre:st.hambre, motivo:st.motivo, emoOtro:st.otro||undefined}); }},"Guardar"),
-      el("button",{class:"btn ghost",type:"button",onclick:()=>{ cerrarSheet(); onDone({}); }},"Saltear"))));
+      el("button",{class:"btn primary",type:"button",onclick:()=>{ cerrarSheet(); guardarMarcas(st.marcas); onDone({hambre:st.hambre, motivo:st.motivo, emoOtro:st.otro||undefined}); }},"Guardar"),
+      el("button",{class:"btn ghost",type:"button",onclick:()=>{ cerrarSheet(); guardarMarcas(st.marcas); onDone({}); }},"Saltear"))));
   sheet.hidden=false;
 }
 function cerrarSheet(){ $("#sheet").hidden=true; $("#sheet").replaceChildren(); }
 
 // ==== RENDER: GENERAL ====
 function render(){
+  if(necesitaInstalar() || ONB.paso==="admin"){ $("#app").hidden=true; $("#onb").hidden=false; renderOnb(); return; }
   if(location.hash==="#eliminar-cuenta" && DB.auth && DB.perfil?.completo){ $("#app").hidden=true; $("#onb").hidden=false; cuentaParar(); const b=$("#onb"); b.replaceChildren(); renderBaja(b); return; }
   if(!DB.auth || !DB.perfil?.completo || !DB.consent?.acepta || ONB.paso==="avisos"){ $("#app").hidden=true; $("#onb").hidden=false; renderOnb(); return; }
   PLAN = calcPlan(DB.perfil);
+  if(DB.dias[S.today]?.postHora) PLAN.horas.post=DB.dias[S.today].postHora;   // movimiento registrado hoy: «Después de entrenar» a esa hora
   if(!S.slot || !slotsHoy().some(s=>s[0]===S.slot)) S.slot=slotNow();
   $("#onb").hidden=true; $("#app").hidden=false;
   const nombre=DB.perfil.resp.datos?.nombre;
@@ -283,9 +350,30 @@ function render(){
   document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.v===S.view)));
   for(const v of ["hoy","mov","semana","historial","recetario","perfil"]) $("#v-"+v).hidden = v!==S.view;
   ({hoy:renderHoy, mov:renderMov, semana:renderSemana, historial:renderHistorial, recetario:renderRecetario, perfil:renderPerfil})[S.view]();
+  guiaMostrar();
 }
 document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{ S.view=b.dataset.v; render(); window.scrollTo(0,0); }));
 $("#btnPerfil").addEventListener("click",()=>{ S.view="perfil"; render(); window.scrollTo(0,0); });
+
+// ==== GUÍA: consejos en contexto, de a uno, la primera vez que se ve cada parte ====
+// Cada consejo aparece justo arriba de lo que explica, con «Entendido». En Perfil, «Ver la guía de nuevo» los vuelve a mostrar.
+const GUIA=[
+  {id:"momentos", v:"hoy", sel:"#v-hoy .slots", t:"Tocá cada momento del día para ver qué te sugerimos comer."},
+  {id:"tarjeta", v:"hoy", sel:"#v-hoy .tarjeta", t:"Esta es la sugerencia para este momento. Si no te interesa, deslizala hacia un costado para ocultarla: la receta completa queda más abajo."},
+  {id:"registro", v:"hoy", sel:"#otroTxt", t:()=>"Anotá acá lo que comiste, como lo dirías. ¿No querés escribir? "+(ES_IOS? "Tocá el micrófono del teclado (abajo a la derecha) y dictalo." : "Tocá el micrófono del teclado y dictalo.")},
+  {id:"datos", v:"hoy", sel:'#v-hoy [aria-label="Datos nutricionales de hoy"]', t:"Acá ves cómo vas en el día. Se actualiza con cada cosa que registrás."},
+  {id:"mov", v:"mov", sel:"#v-mov .prog", t:()=>"Acá se junta tu movimiento de la semana."+(ES_IOS? " Si querés que se cargue solo, conectá Apple Salud desde Perfil." : "")},
+  {id:"semana", v:"semana", sel:"#v-semana .prog", t:"Un resumen de tus últimos 7 días, con ideas para la semana."},
+  {id:"marcas", v:"perfil", sel:"#v-perfil .marcas", t:"Las marcas que usás quedan guardadas acá. Las podés cambiar cuando quieras."},
+];
+function guiaMostrar(){
+  document.querySelectorAll(".guia").forEach(x=>x.remove());
+  if(!$("#sheet").hidden) return;
+  const g=GUIA.find(x=>x.v===S.view && !(DB.guia||{})[x.id] && document.querySelector(x.sel)); if(!g) return;
+  const objetivo=document.querySelector(g.sel);
+  objetivo.before(el("div",{class:"guia",role:"note"}, el("p",{}, typeof g.t==="function"? g.t() : g.t),
+    el("button",{class:"btn small",type:"button",onclick:()=>{ DB.guia={...(DB.guia||{}), [g.id]:1}; persist(); guiaMostrar(); }},"Entendido")));
+}
 
 // ==== HOY ====
 function ingRows(rec, f){
@@ -293,51 +381,45 @@ function ingRows(rec, f){
     const unit = x.u ? ` · ${frac(gg/x.u)} ${x.uN||"unidad"}${gg/x.u>1.25 && !(x.uN||"").endsWith(".")?"s":""}` : "";
     return el("li",{}, el("span",{},x.n), el("span",{}, `${gg} g`, el("small",{},unit))); }));
 }
-function nutrLine(n){
-  const care=PLAN.care;
+function nutrLine(n, completa){
+  const care=PLAN.care, g=(v,t)=>el("span",{},el("b",{},nf(v)),` g ${t}`);
   return el("div",{class:"meta",style:"margin-top:10px"},
-    care?null:el("span",{},el("b",{},nf(n.kcal))," kcal"), care?null:el("span",{},el("b",{},nf(n.prot))," g proteína"),
-    n.verduras? el("span",{},el("b",{},nf(n.verduras,1))," verdura"):null, n.frutas? el("span",{},el("b",{},nf(n.frutas,1))," fruta"):null,
-    n.integrales? el("span",{},el("b",{},nf(n.integrales,1))," integral"):null);
+    care?null:el("span",{},el("b",{},nf(n.kcal))," kcal"), g(n.prot,"proteína"), n.carb!=null? g(n.carb,"carbohidratos"):null, n.grasa!=null? g(n.grasa,"grasas"):null,
+    completa? g(n.fibra,"fibra"):null,
+    completa && n.verduras? el("span",{},el("b",{},nf(n.verduras,1))," verdura"):null, completa && n.frutas? el("span",{},el("b",{},nf(n.frutas,1))," fruta"):null,
+    completa && n.integrales? el("span",{},el("b",{},nf(n.integrales,1))," integral"):null);
 }
 function adjSeg(key){
   const cur=S.adj[key]||1;
   return el("div",{class:"seg",role:"group","aria-label":"Cuánto comiste"},
     [[0.75,"Menos"],[1,"Igual"],[1.25,"Más"]].map(([v,t])=>el("button",{type:"button","aria-pressed":String(cur===v),onclick:()=>{S.adj[key]=v; render();}},t)));
 }
-function scaleN(n,a){ const o={...n}; for(const k of ["kcal","prot","fibra"]) o[k]=Math.round(n[k]*a); for(const k of ["verduras","frutas","integrales"]) o[k]=Math.round(n[k]*a*2)/2; return o; }
+function scaleN(n,a){ const o={...n}; for(const k of ["kcal","prot","carb","grasa","fibra"]) o[k]=Math.round(n[k]*a); for(const k of ["verduras","frutas","integrales"]) o[k]=Math.round(n[k]*a*2)/2; return o; }
 
+// Orden de Hoy: sueño y movimiento → tarjeta de la sugerencia (se desliza para ocultarla) → registro → datos del día → receta completa.
 function renderHoy(){
   const box=$("#v-hoy"); box.replaceChildren();
   const d=day();
-  if(PLAN.care) box.append(cardCuidado());
   if(!d.sueno && new Date().getHours()<16) box.append(cardSueno());
+  if(!movAunNo()) box.append(cardMovRapido(true));
+  if(cicloInfo()?.antojos && !d.antojo) box.append(cardAntojo());
   // momentos del día
   const hechos=new Set(d.comidas.map(c=>c.slot));
   box.append(el("div",{class:"slots","aria-label":"Comidas del día"}, slotsHoy().map(([k])=>el("button",{class:"slot",type:"button","aria-pressed":String(S.slot===k),onclick:()=>{S.slot=k; render();}},
     hechos.has(k)? el("span",{class:"ck","aria-label":"registrada"},"✓"):null, SLOTDEF[k].n, el("span",{class:"note"},PLAN.horas[k]+" h")))));
-  // sugerencia
+  // sugerencia: tarjeta corta arriba, receta completa abajo
   const slot=S.slot; const {rec,count}=elegir(slot);
   const ya=d.comidas.filter(c=>c.slot===slot);
+  let completa=null;
   if(!rec) box.append(el("article",{class:"card hero"}, el("div",{class:"label"},`${SLOTDEF[slot].n} · ${PLAN.horas[slot]} h`),
-    el("p",{},"Todavía no tenemos recetas que se ajusten a todo tu perfil para este momento del día. Registrá lo que comas en «Comí otra cosa», más abajo.")));
+    el("p",{},"Todavía no tenemos recetas que se ajusten a todo tu perfil para este momento del día. Registrá lo que comas más abajo.")));
   else { const {f,why}=factorFor(slot,rec); const n=nutr(rec,f);
-  box.append(el("article",{class:"card hero"},
-    el("div",{class:"label"}, `${SLOTDEF[slot].n} · ${PLAN.horas[slot]} h${slot===slotNow()?" · ahora":""}`),
-    ya.length? el("div",{class:"note",style:"margin-top:4px"},`Ya registraste: ${ya.map(c=>c.nombre).join(", ")}.`):null,
-    el("h2",{},rec.n),
-    el("div",{class:"meta"}, rec.t? el("span",{},el("b",{},rec.t)," min"):el("span",{},"Sin cocción"), el("span",{},"1 porción"), PLAN.sinLactosa && rec.i.some(([id])=>(ING[id].g||[]).includes("lacteo"))? el("span",{},"Usá lácteos sin lactosa"):null),
-    why? el("div",{class:"factor"},why):null,
-    ingRows(rec,f), el("ol",{class:"steps"}, rec.pasos.map(p=>el("li",{},p))), nutrLine(n),
-    el("div",{class:"actions"},
-      el("div",{class:"row"}, adjSeg(rec.id),
-        el("button",{class:"btn primary",type:"button",onclick:()=>{ const a=S.adj[rec.id]||1; const m=scaleN(n,a);
-          preguntarEmocion(emo=>{ addComida({slot, recetaId:rec.id, nombre:rec.n+(a!==1?(a<1?" (menos)":" (más)"):""), ...m, ...emo}); S.adj[rec.id]=1; }); }},"Lo comí")),
-      count>1? el("div",{class:"row"}, el("button",{class:"btn small",type:"button",onclick:()=>{ S.offsets[slot]=(S.offsets[slot]||0)+1; render(); }},`Otra opción (${count})`)):null))); }
-  // movimiento rápido
-  box.append(cardMovRapido());
-  // progreso
-  box.append(el("section",{class:"stack","aria-label":"Progreso de hoy"}, el("h3",{},"Hoy vas así"), progreso(d.comidas)));
+    if(!tarjetaOculta(slot)) box.append(tarjetaReceta(slot, rec, n, count, ya));
+    completa=el("article",{class:"card"},
+      el("div",{class:"label"},`Receta · ${SLOTDEF[slot].n}`), el("h2",{},rec.n),
+      el("div",{class:"meta"}, rec.t? el("span",{},el("b",{},rec.t)," min"):el("span",{},"Sin cocción"), el("span",{},"1 porción"), PLAN.sinLactosa && rec.i.some(([id])=>(ING[id].g||[]).includes("lacteo"))? el("span",{},"Usá lácteos sin lactosa"):null),
+      why? el("div",{class:"factor"},why):null,
+      ingRows(rec,f), nutrLine(n, true), el("ol",{class:"steps"}, rec.pasos.map(p=>el("li",{},p)))); }
   // registro
   const otro=el("textarea",{id:"otroTxt",placeholder:"Escribilo como lo dirías. Por ejemplo: dos porciones de pizza de muzzarella y una gaseosa sin azúcar."});
   const sel=el("select",{id:"otroSlot","aria-label":"Momento del día"}, slotsHoy().map(([k])=>el("option",{value:k},SLOTDEF[k].n))); sel.value=slot;
@@ -346,15 +428,50 @@ function renderHoy(){
     const r=ESTIMADOR.analizar(txt);
     if(!r.items.length){ msg.textContent="No reconocí ningún alimento. Probá nombrarlo de otra forma."; return; }
     const nombre=cap(txt).replace(/[.\s]+$/,"");
-    preguntarEmocion(emo=> addComida({slot:sel.value, recetaId:null, nombre:nombre.length>140?nombre.slice(0,137)+"…":nombre, kcal:r.kcal, prot:r.prot, fibra:r.fibra,
+    preguntarEmocion(emo=>{ const a=conMarcas(r, txt);
+      addComida({slot:sel.value, recetaId:null, nombre:nombre.length>140?nombre.slice(0,137)+"…":nombre, kcal:a.kcal, prot:a.prot, carb:a.carb, grasa:a.grasa, fibra:a.fibra,
       verduras:r.verduras, frutas:r.frutas, integrales:r.integrales, nueces:r.nueces, vitC:r.vitC, roja:r.roja, atun:r.atun, fuera:true, texto:txt,
-      items:r.items.map(ESTIMADOR.describir), noRec:r.sobras, ...emo})); };
+      items:a.items, marcas:a.marcas, noRec:r.sobras, ...emo}); }, marcasPendientes(r, txt)); };
   otro.addEventListener("keydown",e=>{ if(e.key==="Enter"&&!e.shiftKey){ e.preventDefault(); registrar(); } });
   box.append(el("section",{class:"card"}, el("h3",{},"Registro de hoy"),
     el("ul",{class:"log"}, d.comidas.length? ordenar(d.comidas).map(c=>logItem(c,true)) : el("li",{class:"note"},"Todavía no registraste nada hoy.")),
     el("div",{class:"sep"}),
-    el("div",{class:"stack",style:"gap:10px"}, el("label",{for:"otroTxt",class:"label"},"Comí otra cosa"), otro,
+    el("div",{class:"stack",style:"gap:10px"}, el("label",{for:"otroTxt",class:"label"},"Anotá lo que comiste"), otro,
       el("div",{class:"row"}, sel, el("button",{class:"btn small",type:"button",onclick:registrar},"Registrar"), msg))));
+  // datos del día
+  box.append(el("section",{class:"stack","aria-label":"Datos nutricionales de hoy"}, el("h3",{},"Hoy vas así"), progreso(d.comidas)));
+  if(completa) box.append(completa);
+}
+// Tarjeta corta de la sugerencia: nombre y macros principales. Deslizarla hacia un costado la oculta (la receta completa queda abajo).
+function tarjetaReceta(slot, rec, n, count, ya){
+  const card=el("article",{class:"card hero tarjeta"},
+    el("div",{class:"label"}, `${SLOTDEF[slot].n} · ${PLAN.horas[slot]} h${slot===slotNow()?" · ahora":""}`),
+    ya.length? el("div",{class:"note",style:"margin-top:4px"},`Ya registraste: ${ya.map(c=>c.nombre).join(", ")}.`):null,
+    el("h2",{},rec.n), nutrLine(n),
+    el("div",{class:"actions"},
+      el("div",{class:"row"}, adjSeg(rec.id),
+        el("button",{class:"btn primary",type:"button",onclick:()=>{ const a=S.adj[rec.id]||1; const m=scaleN(n,a);
+          const pend=Object.keys(MARCAS).filter(k=>!DB.marcas?.[k] && MARCAS[k].ing.some(id=>rec.i.some(([x])=>x===id)));
+          preguntarEmocion(emo=>{ const {f}=factorFor(slot,rec); const m2=scaleN(nutr(rec,f),a);   // con las marcas recién elegidas
+            addComida({slot, recetaId:rec.id, nombre:rec.n+(a!==1?(a<1?" (menos)":" (más)"):""), ...m2, ...emo}); S.adj[rec.id]=1; }, pend); }},"Lo comí")),
+      count>1? el("div",{class:"row"}, el("button",{class:"btn small",type:"button",onclick:()=>{ S.offsets[slot]=(S.offsets[slot]||0)+1; render(); }},`Otra opción (${count})`)):null));
+  deslizable(card, ()=>{ ocultarTarjeta(slot); render(); });
+  return card;
+}
+function tarjetaOculta(slot){ return !!(DB.ocultas||{})[S.today+"|"+slot]; }
+function ocultarTarjeta(slot){ const o={}; for(const [k,v] of Object.entries(DB.ocultas||{})) if(k.slice(0,10)>=keyShift(S.today,-2)) o[k]=v; o[S.today+"|"+slot]=1; DB.ocultas=o; persist(); }
+// Arrastre horizontal con el dedo (o el mouse): pasado un umbral, la tarjeta sale de la pantalla y se llama a alSalir.
+function deslizable(card, alSalir){
+  let x0=null, y0=0, dx=0, id=null, horizontal=null;
+  card.addEventListener("pointerdown",ev=>{ if(ev.target.closest("button,a,input,textarea,select")) return; x0=ev.clientX; y0=ev.clientY; dx=0; id=ev.pointerId; horizontal=null; card.style.transition="none"; });
+  card.addEventListener("pointermove",ev=>{ if(x0==null || ev.pointerId!==id) return; dx=ev.clientX-x0; const dy=ev.clientY-y0;
+    if(horizontal==null && (Math.abs(dx)>8 || Math.abs(dy)>8)){ horizontal=Math.abs(dx)>Math.abs(dy); if(horizontal) card.setPointerCapture(id); }
+    if(horizontal){ card.style.transform=`translateX(${dx}px) rotate(${dx/40}deg)`; card.style.opacity=String(1-Math.min(Math.abs(dx)/320,0.6)); } });
+  const fin=()=>{ if(x0==null) return; const salir=horizontal && Math.abs(dx)>110; x0=null;
+    card.style.transition="transform .2s ease-out, opacity .2s ease-out";
+    if(salir){ card.style.transform=`translateX(${Math.sign(dx)*window.innerWidth}px)`; card.style.opacity="0"; setTimeout(alSalir,200); }
+    else { card.style.transform=""; card.style.opacity=""; } };
+  for(const e of ["pointerup","pointercancel"]) card.addEventListener(e,fin);
 }
 function ordenar(arr){ const o=slotsHoy().map(s=>s[0]); return [...arr].sort((a,b)=>o.indexOf(a.slot)-o.indexOf(b.slot)||String(a.hora).localeCompare(String(b.hora))); }
 function horaTxt(c){ const d=new Date(c.hora); return isNaN(d)?"":" · "+pad(d.getHours())+":"+pad(d.getMinutes())+" h"; }
@@ -362,7 +479,7 @@ const MOT_TXT=Object.fromEntries(MOTIVO.concat([["otro","Otro motivo"]]));
 function logItem(c, borrable, k){
   return el("li",{},
     el("div",{}, el("div",{class:"s"},(SLOTDEF[c.slot]?.n||"")+horaTxt(c)+(c.fuera?" · fuera del plan":"")), el("div",{},c.nombre),
-      el("div",{class:"note"}, PLAN.care? (c.motivo?MOT_TXT[c.motivo]:"") : (c.kcal==null?"Sin estimar":`${nf(c.kcal)} kcal · ${nf(c.prot)} g proteína`)+(c.motivo?` · ${MOT_TXT[c.motivo]}`:"")),
+      el("div",{class:"note"}, (c.kcal==null?"Sin estimar":(PLAN.care?"":`${nf(c.kcal)} kcal · `)+`${nf(c.prot)} g proteína`+(c.carb!=null?` · ${nf(c.carb)} g carbohidratos · ${nf(c.grasa)} g grasas`:""))+(c.motivo?` · ${MOT_TXT[c.motivo]}`:"")),
       Array.isArray(c.items)&&c.items.length? el("div",{class:"det"},"Contado: "+c.items.join(" · ")):null,
       Array.isArray(c.noRec)&&c.noRec.length? el("div",{class:"det warn"},"No se contó: "+c.noRec.map(w=>"«"+w+"»").join(", ")):null),
     borrable? el("button",{class:"x",type:"button","aria-label":"Borrar "+c.nombre,onclick:()=>delComida(c.id,k)},"×"):null);
@@ -370,18 +487,16 @@ function logItem(c, borrable, k){
 function progreso(comidas){
   const t=totals(comidas), M=PLAN.metas, box=el("div",{class:"prog"});
   const item=(k,v,goal,unit,opt={})=>{ const pct=goal? clamp(v/goal,0,1)*100:0; const over=opt.max && v>goal; const done=!over && v>=goal;
-    return el("div",{class:"pi"+(over?" over":done?" done":"")}, el("div",{class:"k"},k), el("div",{class:"v"},opt.txt||nf(v,1), el("small",{}, opt.txt?"":` / ${nf(goal)}${unit}`)), el("div",{class:"bar"},el("i",{style:`width:${pct}%`}))); };
-  if(!PLAN.care){ box.append(item("Energía",t.kcal,target()," kcal"), item("Proteína (mín.)",t.prot,PLAN.prot," g")); }
+    return el("div",{class:"pi"+(over?" over":done?" done":"")}, el("div",{class:"k"},k), el("div",{class:"v"},opt.txt||nf(v,1), el("small",{}, opt.txt? (opt.unidad? " · "+opt.unidad : "") : ` / ${nf(goal)}${unit}`)), el("div",{class:"bar"},el("i",{style:`width:${pct}%`}))); };
+  const dato=(k,v,unit)=>el("div",{class:"pi"}, el("div",{class:"k"},k), el("div",{class:"v"},nf(v), el("small",{},unit)));
+  if(!PLAN.care) box.append(item("Energía",t.kcal,target()," kcal"));
+  box.append(item("Proteína (mín.)",t.prot,PLAN.prot," g"), dato("Carbohidratos",t.carb," g"));
+  const gMin=M.grasaMin; box.append(item("Grasas (mín.)",t.grasa,gMin," g",{txt: t.grasa<=0? "Falta" : t.grasa>=gMin? "Cubierta" : null, unidad:`${nf(t.grasa)} / ${nf(gMin)} g`}), dato("Fibra",t.fibra," g"));
   box.append(item("Frutas",t.frutas,M.frutas,""), item("Verduras",t.verduras,M.verduras,""), item("Integrales",t.integrales,M.integrales,""));
   if(M.nueces) box.append(item("Frutos secos",t.nueces,M.nueces,""));
   box.append(item("Vitamina C",t.vitC?1:0,1,"",{txt:t.vitC?"Cubierta":"Falta una fuente"}));
   if(!PLAN.excl.has("vacuna")) box.append(item("Carne roja · 7 días",weekCount("roja"),M.rojaSem,"",{max:true}));
   return box;
-}
-function cardCuidado(){
-  return el("section",{class:"card care"}, el("h3",{},"Tu app, en modo cuidado"),
-    el("p",{style:"margin:0 0 8px"},"Por lo que nos contaste, la app no muestra calorías ni metas numéricas, y nunca te va a proponer comer menos. Se enfoca en la variedad, los horarios y cómo te sentís."),
-    el("p",{class:"note",style:"margin:0"},"Si la comida te genera malestar seguido, hablarlo con un profesional de salud ayuda. En Argentina, la Línea de Salud Mental 0800-999-0091 es gratuita y atiende las 24 horas."));
 }
 function cardSueno(){
   const st={horas:null, calidad:null};
@@ -396,10 +511,44 @@ function cardSueno(){
   draw(); return box;
 }
 
+// ==== CICLO MENSTRUAL Y ANTOJOS ====
+// Fecha estimada a partir del último período y la duración del ciclo (o de lo que llegue de Salud de Apple).
+// Antojos: desde 5 días antes del período estimado hasta su 2.º día, una vez por día.
+function cicloInfo(){
+  const R=DB.perfil?.resp; if(!R || R.sexo!=="m" || !R.cicloApp || R.cicloApp==="off" || !R.ciclo?.ultimo) return null;
+  const dur=clamp(+R.ciclo.duracion||28,20,45), desde=Math.round((keyDate(S.today)-keyDate(R.ciclo.ultimo))/864e5);
+  if(desde<0) return null;
+  const dia=desde%dur;   // 0 = primer día del período (estimado)
+  return {dia, dur, proximo:keyShift(S.today, dur-dia), antojos: dia>=dur-5 || dia<=1};
+}
+const ANTOJOS=[["dulce","Algo dulce",["Una fruta con yogur y una cucharadita de miel","Banana pisada con canela","Un puñado de pasas de uva"]],
+  ["chocolate","Chocolate",["Dos cuadraditos de chocolate amargo (70 %)","Yogur con cacao amargo y banana","Frutillas con un cuadradito de chocolate"]],
+  ["salado","Algo salado",["Un puñado de maní o almendras sin sal","Galletas de arroz con queso untable","Pochoclo casero con poca sal"]],
+  ["frito","Algo frito",["Papas o batatas al horno","Milanesa al horno","Garbanzos tostados al horno con pimentón"]]];
+function cardAntojo(){
+  const box=el("section",{class:"card"}); let elegido=null;
+  const marcar=tipo=>{ day().antojo={tipo, hora:new Date().toISOString()}; persist(); enviar("antojo",{tipo, dia_ciclo:cicloInfo()?.dia}); };
+  const draw=()=>{ const a=ANTOJOS.find(x=>x[0]===elegido);
+    box.replaceChildren(); agregar(box, el("h3",{},"¿Tenés algún antojo?"),
+      el("p",{class:"note",style:"margin:0 0 10px"},"En estos días del ciclo los antojos son más comunes. Si tenés uno, te damos opciones que también suman."),
+      el("div",{class:"opts"}, ANTOJOS.map(([v,t])=>el("button",{type:"button",class:"opt"+(elegido===v?" on":""),onclick:()=>{ elegido=v; draw(); }},t)),
+        el("button",{type:"button",class:"opt",onclick:()=>{ marcar("ninguno"); render(); }},"No, ninguno")),
+      a? el("ul",{class:"ideas",style:"margin-top:12px"}, a[2].map(t=>el("li",{},t))) : null,
+      a? el("button",{class:"btn small primary",type:"button",style:"margin-top:12px",onclick:()=>{ marcar(elegido); render(); }},"Listo") : null,
+      el("p",{class:"note",style:"margin:12px 0 0"}, el("button",{class:"btn link",type:"button",onclick:()=>{ cicloEmpezo(); render(); }},"¿Empezó tu período hoy? Marcalo")));
+  };
+  draw(); return box;
+}
+function cicloEmpezo(){ const R=DB.perfil.resp; R.ciclo={...(R.ciclo||{duracion:28}), ultimo:S.today}; persist(); enviar("ciclo",{inicio:S.today, origen:"app"}); respaldoPronto(); }
+
 // ==== MOVIMIENTO ====
 const ACT=[["caminar","Caminar",3.5],["correr","Correr",8],["fuerza","Fuerza o gimnasio",5],["deporte","Deporte",7]];
 const ACT_MET=Object.fromEntries(ACT.map(a=>[a[0],a[2]])); const ACT_TXT=Object.fromEntries(ACT.map(a=>[a[0],a[1]]));
-function cardMovRapido(){
+// «Aún no» oculta la tarjeta de Hoy; vuelve cuando se abre la app después de tenerla cerrada (o en segundo plano) 30 minutos o más.
+const MOV_VUELVE=30*60000;
+function movAunNo(){ return !!DB.movAunNo && dayKey(new Date(DB.movAunNo))===S.today; }
+function movAlVolver(){ if(DB.cerradaDesde && Date.now()-DB.cerradaDesde>=MOV_VUELVE && DB.movAunNo){ delete DB.movAunNo; persist(); return true; } return false; }
+function cardMovRapido(conAunNo){
   const st={tipo:null, min:null};
   const box=el("section",{class:"card"});
   const draw=()=>{ const hoy=day().ejercicio;
@@ -408,22 +557,28 @@ function cardMovRapido(){
         el("button",{class:"x",type:"button","aria-label":"Borrar actividad",onclick:()=>delEjercicio(e.id)},"×")))):null,
       el("div",{class:"opts"}, ACT.map(([v,t])=>el("button",{type:"button",class:"opt"+(st.tipo===v?" on":""),onclick:()=>{st.tipo=v; draw();}},t)), el("button",{type:"button",class:"opt"+(st.tipo==="otro"?" on":""),onclick:()=>{st.tipo="otro"; draw();}},"Otro")),
       st.tipo? el("div",{class:"opts",style:"margin-top:8px"}, [15,30,45,60].map(m=>el("button",{type:"button",class:"opt"+(st.min===m?" on":""),onclick:()=>{st.min=m; draw();}},m+" min"))) : null,
-      st.tipo && st.min? el("button",{class:"btn small primary",type:"button",style:"margin-top:10px",onclick:()=>{ const met=ACT_MET[st.tipo]||5; addEjercicio({tipo:st.tipo, min:st.min, kcal:Math.round((met-1)*PLAN.peso*st.min/60)}); }},"Guardar") : null].filter(Boolean));
+      st.tipo && st.min? el("button",{class:"btn small primary",type:"button",style:"margin-top:10px",onclick:()=>{ const met=ACT_MET[st.tipo]||5; addEjercicio({tipo:st.tipo, min:st.min, kcal:Math.round((met-1)*PLAN.peso*st.min/60)}); }},"Guardar") : null,
+      conAunNo && !hoy.length && !st.tipo? el("button",{class:"btn small ghost",type:"button",style:"margin-top:10px",onclick:()=>{ DB.movAunNo=Date.now(); persist(); render(); }},"Aún no") : null].filter(Boolean));
   };
   draw(); return box;
 }
-function semanaMov(){ let min=0, fuerza=0; for(const k of last7()) for(const e of (DB.dias[k]?.ejercicio||[])){ if(e.tipo==="fuerza") fuerza++; else min+=e.min; } return {min, fuerza}; }
+function semanaMov(){ let min=0, fuerza=0; for(const k of last7()){ for(const e of (DB.dias[k]?.ejercicio||[])){ if(e.tipo==="fuerza") fuerza++; else min+=e.min; }
+  for(const e of (saludDia(k)?.entrenos||[])){ if(/fuerza|pesas|strength/i.test(e.tipo)) fuerza++; else min+=e.min||0; } } return {min, fuerza}; }
+function movDia(k){ return (DB.dias[k]?.ejercicio||[]).map(e=>`${ACT_TXT[e.tipo]||e.otro||"Actividad"} · ${e.min} min`).concat((saludDia(k)?.entrenos||[]).map(e=>`${e.tipo} · ${e.min} min (desde Salud)`)); }
 function renderMov(){
   const box=$("#v-mov"); box.replaceChildren();
-  const s=semanaMov(), dias=last7().slice().reverse().filter(k=>(DB.dias[k]?.ejercicio||[]).length);
+  const s=semanaMov(), dias=last7().slice().reverse().filter(k=>movDia(k).length || saludDia(k)?.pasos!=null);
+  const pasos=last7().map(k=>saludDia(k)?.pasos).filter(x=>x!=null);
   box.append(
     el("div",{class:"prog"},
       el("div",{class:"pi"}, el("div",{class:"k"},"Actividad aeróbica · 7 días"), el("div",{class:"v"},nf(s.min),el("small",{}," min"))),
-      el("div",{class:"pi"}, el("div",{class:"k"},"Sesiones de fuerza · 7 días"), el("div",{class:"v"},s.fuerza))),
+      el("div",{class:"pi"}, el("div",{class:"k"},"Sesiones de fuerza · 7 días"), el("div",{class:"v"},s.fuerza)),
+      pasos.length? el("div",{class:"pi"}, el("div",{class:"k"},"Pasos por día · promedio"), el("div",{class:"v"},nf(pasos.reduce((a,b)=>a+b,0)/pasos.length))) : null),
     el("section",{class:"card"}, el("h3",{},"Lo que registraste esta semana"),
       dias.length? el("ul",{class:"log"}, dias.map(k=>el("li",{}, el("div",{},
         el("div",{class:"s"}, cap(keyDate(k).toLocaleDateString("es-AR",{weekday:"long",day:"numeric"}))+(k===S.today?" · hoy":"")),
-        el("div",{}, DB.dias[k].ejercicio.map(e=>`${ACT_TXT[e.tipo]||e.otro||"Actividad"} · ${e.min} min`).join(" · "))))))
+        movDia(k).length? el("div",{}, movDia(k).join(" · ")) : null,
+        saludDia(k)?.pasos!=null? el("div",{class:"note"}, `${nf(saludDia(k).pasos)} pasos`) : null))))
         : el("p",{class:"note",style:"margin:0"},"Todavía no registraste actividad en los últimos 7 días.")),
     cardMovRapido());
 }
@@ -441,7 +596,7 @@ function renderSemana(){
       PLAN.care?null:el("td",{},has?nf(t.kcal):"—"),
       el("td",{class:cls(t.frutas,M.frutas)},has?nf(t.frutas,1):"—"), el("td",{class:cls(t.verduras,M.verduras)},has?nf(t.verduras,1):"—"),
       el("td",{class:cls(t.integrales,M.integrales)},has?nf(t.integrales,1):"—"),
-      el("td",{},(d?.ejercicio||[]).reduce((a,e)=>a+e.min,0)||"—"), el("td",{},d?.sueno?.horas? nf(d.sueno.horas,1)+" h":"—")));
+      el("td",{},(d?.ejercicio||[]).reduce((a,e)=>a+e.min,0)+(saludDia(k)?.entrenos||[]).reduce((a,e)=>a+(e.min||0),0)||"—"), el("td",{},d?.sueno?.horas? nf(d.sueno.horas,1)+" h":"—")));
   }
   const avg=f=>n? acc[f]/n : 0; const sm=semanaMov(); const sAvg = sueno.length? sueno.reduce((a,b)=>a+b,0)/sueno.length : null;
   const ideas=[];
@@ -471,7 +626,7 @@ function renderHistorial(){
   for(const k of keys){ const d=DB.dias[k];
     box.append(el("section",{class:"card"}, el("h3",{}, cap(keyDate(k).toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long"}))+(k===S.today?" · hoy":"")),
       (d.comidas||[]).length? el("ul",{class:"log"}, ordenar(d.comidas).map(c=>logItem(c,false))) : null,
-      (d.ejercicio||[]).length? el("p",{class:"note",style:"margin:8px 0 0"},"Movimiento: "+d.ejercicio.map(e=>`${ACT_TXT[e.tipo]||"Actividad"} ${e.min} min`).join(" · ")) : null,
+      movDia(k).length? el("p",{class:"note",style:"margin:8px 0 0"},"Movimiento: "+movDia(k).join(" · ")) : null,
       d.sueno?.horas? el("p",{class:"note",style:"margin:4px 0 0"},`Sueño: ${nf(d.sueno.horas,1)} h, ${String(d.sueno.calidad).replace("_"," ")}`) : null));
   }
 }
@@ -480,7 +635,8 @@ function renderHistorial(){
 function renderRecetario(){
   const box=$("#v-recetario"); box.replaceChildren();
   box.append(el("p",{class:"note",style:"margin:0"},"Tu recetario, filtrado según lo que comés, tu cocina y tu tiempo. Las cantidades se ajustan a tu energía diaria en la pestaña Hoy."));
-  for(const [pool,t] of [["d","Desayuno o merienda"],["c","Colaciones"],["p","Almuerzo o cena"]]){
+  for(const [pool,t] of [["d","Desayuno o merienda"],["c","Colaciones"],["p","Almuerzo o cena"],["pre","Antes de entrenar"],["post","Después de entrenar"]]){
+    if((pool==="pre"||pool==="post") && !PLAN.horas.pre) continue;
     if(pool==="c" && !slotsHoy().some(s=>s[0]==="col")) continue;
     if(pool==="d" && !slotsHoy().some(s=>s[0]==="des"||s[0]==="mer")) continue;
     const list=recetasDe(pool);
@@ -495,22 +651,23 @@ function renderRecetario(){
 function renderPerfil(){
   const box=$("#v-perfil"); box.replaceChildren(); const P=PLAN;
   const resumen=[];
-  for(const q of PREGUNTAS){ if(q.type==="numbers" || q.type==="datos") continue; const v=ans(q.id); if(v==null) continue;
-    const lab=x=> x==="otro"? (DB.perfil.resp[q.id+"_otro"]||"Otro") : (q.opts.find(o=>o[0]===x)||[,x])[1];
+  for(const q of PREGUNTAS){ if(!q.opts || q.id==="relacion" || !visible(q,DB.perfil.resp)) continue; const v=ans(q.id); if(v==null) continue;
+    const lab=x=> x==="otro"? (DB.perfil.resp[q.id+"_otro"]||"Otro") : (q.opts.concat(q.viejas||[]).find(o=>o[0]===x)||[,x])[1];
     resumen.push(el("li",{}, el("div",{}, el("div",{class:"s"},q.t), el("div",{}, Array.isArray(v)? (v.length? v.map(lab).join(", "):"Nada") : lab(v))))); }
   const c=DB.perfil.resp.cuerpo||{}, dp=DB.perfil.resp.datos||{};
   box.append(
     el("section",{class:"card hero"}, el("div",{class:"label"},"Tu plan"),
-      P.care? el("p",{},"Modo cuidado: sin calorías ni metas numéricas. El foco está en comer variado, en horarios regulares y en cómo te sentís.")
-        : el("div",{class:"meta",style:"margin-top:8px"}, el("span",{},el("b",{},nf(P.kcal))," kcal por día de referencia"), el("span",{},el("b",{},nf(P.prot))," g de proteína como mínimo")),
+      el("div",{class:"meta",style:"margin-top:8px"}, P.care? null : el("span",{},el("b",{},nf(P.kcal))," kcal por día de referencia"), el("span",{},el("b",{},nf(P.prot))," g de proteína como mínimo")),
       el("div",{class:"meta",style:"margin-top:8px"}, el("span",{},ESTRUCTURAS[P.est].n), ...slotsHoy().map(([k])=>el("span",{},`${SLOTDEF[k].n} ${P.horas[k]} h`))),
       el("p",{class:"note",style:"margin:10px 0 0"},"La energía se estima con la ecuación de Mifflin-St Jeor y tu nivel de actividad. Es una referencia: si tu peso cambia sin que lo busques, actualizá tus datos.")),
     el("section",{class:"card"}, el("h3",{},"Tus respuestas"),
       (dp.nombre||dp.email)? el("p",{style:"margin:0 0 4px"},[dp.nombre,dp.apellido].filter(Boolean).join(" ")+(dp.email?` · ${dp.email}`:"")) : null,
       el("p",{class:"note",style:"margin:0 0 6px"},`${c.edad||"—"} años · ${c.altura||"—"} cm · ${c.peso||"—"} kg`),
+      cicloInfo()? el("p",{class:"note",style:"margin:0 0 6px"},`Tu ciclo: próximo período estimado el ${keyDate(cicloInfo().proximo).toLocaleDateString("es-AR",{day:"numeric",month:"long"})}.`) : null,
       el("ul",{class:"log"}, resumen),
-      el("div",{class:"row",style:"margin-top:12px"}, el("button",{class:"btn small",type:"button",onclick:()=>{ DB.perfil.completo=false; ONB.i=0; persist(); render(); }},"Editar respuestas"))),
-    seccionAvisos(), seccionPrivacidad(),
+      el("div",{class:"row",style:"margin-top:12px"}, el("button",{class:"btn small",type:"button",onclick:()=>{ DB.perfil.completo=false; ONB.i=0; persist(); render(); }},"Editar respuestas"),
+        el("button",{class:"btn small ghost",type:"button",onclick:()=>{ DB.guia={}; persist(); S.view="hoy"; render(); window.scrollTo(0,0); }},"Ver la guía de nuevo"))),
+    seccionMarcas(), seccionSalud(), seccionAvisos(), seccionPrivacidad(),
     tarjetaCuenta(),
     el("p",{class:"enlace-baja"}, el("a",{href:"#eliminar-cuenta"},"Eliminar mi cuenta")));
 }
@@ -528,17 +685,20 @@ function seccionPrivacidad(){
 function terminos(){
   return el("div",{class:"legal"},
     el("p",{},el("b",{},"Borrador para revisión legal.")," Pulso es una herramienta de bienestar general. No reemplaza la consulta con profesionales de la salud ni da diagnósticos."),
-    el("p",{},"Para usar Pulso tenés que crear una cuenta con tu mail y aceptar estos términos. Al aceptarlos, se envían a una base de datos del equipo de Pulso tus respuestas al cuestionario (salvo la pregunta sobre tu relación con la comida), el tiempo que tardaste en cada pregunta, tus comidas, tu actividad, tu descanso y cuándo y por cuánto tiempo usás la app. Estos datos quedan vinculados a tu cuenta: el equipo de Pulso puede saber de quién es cada registro."),
+    el("p",{},"Para usar Pulso tenés que crear una cuenta con tu mail y aceptar estos términos. Al aceptarlos, se envían a una base de datos del equipo de Pulso tus respuestas al cuestionario (salvo la pregunta sobre tu relación con la comida), el tiempo que tardaste en cada pregunta, tus comidas (con las marcas que elegiste), tu actividad, tu descanso, tus antojos y cuándo y por cuánto tiempo usás la app. Estos datos quedan vinculados a tu cuenta: el equipo de Pulso puede saber de quién es cada registro."),
     el("p",{},"Textos libres: lo que escribas en campos de texto —por ejemplo, la descripción de una comida en «Comí otra cosa» o las respuestas «Otro»— se envía tal cual lo escribiste. No incluyas nombres ni datos que te identifiquen. La única excepción es la respuesta «Otro» sobre tu relación con la comida, que nunca sale de tu dispositivo."),
     el("p",{},"Tu cuenta guarda tu nombre, tu apellido, tu mail y una copia de tus respuestas y tus registros, para que los recuperes al volver a entrar o desde otro dispositivo. Tu mail también se usa para enviarte el código de ingreso y novedades de Pulso, invitarte a encuestas o estudios y responder tus consultas o pedidos de acceso y borrado."),
     el("p",{},"Si eliminás tu cuenta (Perfil › Eliminar mi cuenta), antes te pedimos que respondas cinco preguntas sobre tu experiencia, que se conservan. Después borramos tu nombre, tu apellido, tu mail y la copia de tu cuenta. Tus registros y tus respuestas se conservan como datos generales, sin nada que los vincule a vos, para mejorar la app. Si querés que también se borren tus registros, pedilo escribiendo a "+CONFIG.CONTACTO+"."),
+    el("p",{},"Seguimiento del ciclo menstrual (opcional): si lo activás, guardamos qué app usás para seguir tu ciclo, la fecha de inicio de tu último período, la duración habitual de tu ciclo y los antojos que registres. Es un dato de salud especialmente sensible. Lo podés desactivar cuando quieras desde Perfil › Editar respuestas."),
+    el("p",{},"Apple Salud (opcional): si conectás el atajo «Pulso · Salud», tu iPhone nos envía cada día tus pasos, tus entrenamientos (tipo, hora, duración y energía) y, si tu app de ciclo lo guarda en Salud, el inicio de tu último período. Para dejar de enviarlos, borrá la automatización en la app Atajos y tocá «Dejar de leer Salud» en Perfil."),
     el("p",{},"Para qué: entender cómo se usa la app y mejorar sus recomendaciones. No se venden ni se ceden a terceros."),
-    el("p",{},"Recordatorios (opcionales, independientes de compartir datos): si los activás, guardamos en nuestro servidor la dirección de notificaciones de tu dispositivo, los horarios de tus comidas, tu zona horaria y qué momentos del día ya registraste (no qué comiste), con un código distinto del de los datos anónimos. Se usan solo para enviarte los avisos; las marcas diarias se borran a los pocos días y todo se borra al desactivarlos. Para enviarlos se usan los servicios de notificaciones de Apple, Google, Mozilla o Microsoft, según tu dispositivo."),
+    el("p",{},"Recordatorios (opcionales, independientes de compartir datos): si los activás, guardamos en nuestro servidor la dirección de notificaciones de tu dispositivo, los horarios de tus comidas, tu zona horaria y qué momentos del día ya registraste (no qué comiste), con un código aparte, que no se vincula con tu cuenta. Se usan solo para enviarte los avisos; las marcas diarias se borran a los pocos días y todo se borra al desactivarlos. Para enviarlos se usan los servicios de notificaciones de Apple, Google, Mozilla o Microsoft, según tu dispositivo."),
+    el("p",{},"Si la comida te genera malestar seguido, hablarlo con un profesional de salud ayuda. En Argentina, la Línea de Salud Mental 0800-999-0091 es gratuita y atiende las 24 horas."),
     el("p",{},"Algunos de estos datos son de salud y la Ley 25.326 de Protección de Datos Personales los considera sensibles. Para ejercer tus derechos de acceso, rectificación o supresión, escribí a "+CONFIG.CONTACTO+"."));
 }
 
 // ==== CUESTIONARIO (UI) ====
-const ONB = {i:-1, draft:null, tiempos:{}};
+const ONB = {i:-1, dir:1, draft:null, tiempos:{}};
 // Tiempo que la persona tarda en cada pregunta (sin contar el tiempo con la app en segundo plano).
 const CRONO = {id:null, desde:0};
 function cronoMarcar(id){
@@ -565,28 +725,24 @@ function renderOnb(){
   const box=$("#onb"); box.replaceChildren(); cuentaParar();
   if(!ONB.draft) ONB.draft = JSON.parse(JSON.stringify(DB.perfil?.resp||{}));
   const R=ONB.draft; const total=PREGUNTAS.length;
+  if(ONB.paso==="admin"){ cronoMarcar(null); renderAdmin(box); return; }
+  // Sin instalar (salvo administrador): solo la bienvenida y los pasos para instalar.
+  if(necesitaInstalar()){ cronoMarcar(null); if(ONB.paso==="instalar") renderInstalar(box); else { ONB.paso=null; renderInicio(box); } return; }
   if(ONB.paso==="avisos"){ cronoMarcar(null); renderOfertaAvisos(box); return; }
-  if(!DB.auth && ONB.paso!=="instalar" && (DB.perfil?.completo || ONB.i>=0)) ONB.paso="ingreso";
+  if(!DB.auth && (DB.perfil?.completo || ONB.i>=0)) ONB.paso="ingreso";
   if(ONB.paso==="ingreso"){ cronoMarcar(null); renderIngreso(box); return; }
   if(ONB.paso==="bienvenida" && DB.auth){ cronoMarcar(null); renderBienvenida(box); return; }
   if(DB.perfil?.completo && !DB.consent?.acepta) ONB.i=total;   // perfil de una versión anterior: falta aceptar los términos
-  if(ONB.i<0){
-    cronoMarcar(null);
-    if(ONB.paso==="instalar"){ renderInstalar(box); return; }
-    const inst=necesitaInstalar();
-    box.append(el("div",{class:"onb-card"}, el("div",{class:"eyebrow"}, CONFIG.DEMO? "Bienvenido a la "+CONFIG.DEMO : "Bienvenida"), el("h1",{},"Pulso"),
-      el("p",{class:"lead"},"Comer, moverte, y descansar mejor.", el("br"), "Un plan hecho sólo para vos."),
-      el("p",{},"Pulso te acompaña con tus comidas, según tus gustos y tu cocina.", el("br"), "Además, contempla tu actividad física, tu sueño, y tu relación con la comida."),
-      el("p",{},"Es gratis."),
-      el("button",{class:"btn primary big",type:"button",onclick:()=>{ if(inst) ONB.paso="instalar"; else if(!DB.auth) ONB.paso="ingreso"; else ONB.i=0; renderOnb(); window.scrollTo(0,0); }},"Empezar")));
-    return;
-  }
+  if(ONB.i<0){ cronoMarcar(null); renderInicio(box); return; }
   if(ONB.i>=total){ cronoMarcar(null); if(DB.consent?.acepta){ finalizarCuestionario(); return; } renderConsent(box); return; }
-  const q=PREGUNTAS[ONB.i]; cronoMarcar(q.id);
-  const next=()=>{ ONB.i++; renderOnb(); window.scrollTo(0,0); };
-  const atras=()=>{ ONB.i--; renderOnb(); };
-  const prog=el("div",{class:"onb-prog"}, el("i",{style:`width:${(ONB.i/total)*100}%`}));
-  const card=el("div",{class:"onb-card"}, prog, el("div",{class:"eyebrow"},`${q.sec} · ${ONB.i+1} de ${total}`), el("h2",{},q.t), q.sub? el("p",{class:"note"},q.sub):null);
+  const q=PREGUNTAS[ONB.i];
+  if(!visible(q,R)){ ONB.i += ONB.dir<0? -1 : 1; if(ONB.i<0) ONB.i=0; renderOnb(); return; }   // pregunta que no corresponde: se saltea
+  cronoMarcar(q.id);
+  const next=()=>{ ONB.dir=1; ONB.i++; renderOnb(); window.scrollTo(0,0); };
+  const atras=()=>{ ONB.dir=-1; ONB.i--; renderOnb(); };
+  const vis=PREGUNTAS.filter(x=>visible(x,R)), pos=vis.indexOf(q);
+  const prog=el("div",{class:"onb-prog"}, el("i",{style:`width:${(pos/vis.length)*100}%`}));
+  const card=el("div",{class:"onb-card"}, prog, el("div",{class:"eyebrow"},`${q.sec} · ${pos+1} de ${vis.length}`), el("h2",{},q.t), q.sub? el("p",{class:"note"},q.sub):null);
   const otroIn=el("input",{type:"text",id:"q-"+q.id+"-otro",placeholder:"Escribilo",value:R[q.id+"_otro"]||""}); otroIn.addEventListener("input",()=>{ R[q.id+"_otro"]=otroIn.value; ok(); });
   otroIn.addEventListener("blur",()=>ok());
   const sig=el("button",{class:"btn primary",type:"button",onclick:next},"Siguiente");
@@ -609,6 +765,17 @@ function renderOnb(){
       return el("label",{class:"campo",for:"q-"+k}, el("span",{},lab), inp); })));
     card.append(nav()); box.append(card); ok(); return;
   }
+  if(q.type==="ciclo"){
+    R.ciclo=R.ciclo||{duracion:28}; const hoy=dayKey(new Date());
+    const f=el("input",{type:"date",id:"q-ciclo-ultimo",max:hoy,min:keyShift(hoy,-90),value:R.ciclo.ultimo||""});
+    const n=el("input",{type:"number",id:"q-ciclo-dur",inputmode:"numeric",min:"20",max:"45",value:R.ciclo.duracion??28});
+    const chk=()=>{ R.ciclo={ultimo:f.value||null, duracion:+n.value||28}; sig.disabled=!(f.value && f.value<=hoy && +n.value>=20 && +n.value<=45); };
+    f.addEventListener("input",chk); n.addEventListener("input",chk);
+    card.append(el("div",{class:"nums"}, el("label",{class:"num",for:"q-ciclo-ultimo"}, el("span",{},"Primer día"), f),
+      el("label",{class:"num",for:"q-ciclo-dur"}, el("span",{},"Duración habitual del ciclo"), el("span",{class:"numrow"}, n, el("small",{},"días")))),
+      el("p",{class:"note"},"Si no sabés la duración, dejá 28 días, que es lo más común."));
+    card.append(nav()); box.append(card); chk(); return;
+  }
   if(q.type==="numbers"){
     R.cuerpo=R.cuerpo||{};
     card.append(el("div",{class:"nums"}, q.fields.map(([k,lab,un,mn,mx])=>{ const inp=el("input",{type:"number",id:"q-"+k,inputmode:"decimal",min:String(mn),max:String(mx),value:R.cuerpo[k]??""});
@@ -617,14 +784,21 @@ function renderOnb(){
     card.append(nav()); box.append(card); ok(); return;
   }
   const opts=el("div",{class:"choices"});
-  const draw=()=>{ opts.replaceChildren(...q.opts.concat([["otro","Otro"]]).map(([v,t])=>{
+  const draw=()=>{ opts.replaceChildren(...q.opts.concat(q.sinOtro? [] : [["otro","Otro"]]).map(([v,t])=>{
     const sel = q.type==="multi" ? (R[q.id]||[]).includes(v) : R[q.id]===v;
     return el("button",{type:"button",class:"choice"+(sel?" on":""),"aria-pressed":String(sel),onclick:()=>{
       if(q.type==="multi"){ let a=(R[q.id]||[]).slice(); if(a.includes(v)) a=a.filter(x=>x!==v); else a.push(v); R[q.id]=a; tocado=true; draw(); ok(); }
       else { R[q.id]=v; draw(); ok(); if(v!=="otro") setTimeout(next,160); else otroIn.focus(); } }}, t); })); };
   draw();
-  card.append(opts, otroWrap, nav(q.type==="multi" ? el("button",{class:"btn ghost",type:"button",onclick:()=>{ R[q.id]=[]; next(); }},"Ninguna") : null));
+  card.append(opts, otroWrap, nav(q.type==="multi" && !q.sinNinguna ? el("button",{class:"btn ghost",type:"button",onclick:()=>{ R[q.id]=[]; next(); }},"Ninguna") : null));
   box.append(card); ok();
+}
+function renderInicio(box){
+  box.append(el("div",{class:"onb-card"}, el("div",{class:"eyebrow"}, CONFIG.DEMO? "Bienvenido a la "+CONFIG.DEMO : "Bienvenida"), el("h1",{},"Pulso"),
+    el("p",{class:"lead"},"Comer, moverte, y descansar mejor.", el("br"), "Un plan hecho sólo para vos."),
+    el("p",{},"Pulso te acompaña con tus comidas, según tus gustos y tu cocina.", el("br"), "Además, contempla tu actividad física, tu sueño, y tu relación con la comida."),
+    el("p",{},"Es gratis."),
+    el("button",{class:"btn primary big",type:"button",onclick:()=>{ if(necesitaInstalar()) ONB.paso="instalar"; else if(!DB.auth) ONB.paso="ingreso"; else ONB.i=0; renderOnb(); window.scrollTo(0,0); }},"Empezar")));
 }
 // Términos y condiciones: obligatorios para entrar, al final del cuestionario.
 function renderConsent(box){
@@ -653,8 +827,10 @@ function finalizarCuestionario(){
 // ==== ARRANQUE ====
 { const m=new URLSearchParams(location.search).get("momento"); if(m && SLOTDEF[m]){ S.slot=m; S.view="hoy"; } if(location.search) history.replaceState(null,"",location.pathname+location.hash); }
 sesionIniciar();
+movAlVolver(); delete DB.cerradaDesde; persist();
 render();
 ingresoPorEnlace();
 flushSoon();
 sincronizarAvisos();
+leerSalud();
 setInterval(()=>{ const k=dayKey(new Date()); if(k!==S.today){ S.today=k; S.slot=null; S.offsets={}; render(); } },60000);

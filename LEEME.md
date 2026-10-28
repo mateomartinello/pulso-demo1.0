@@ -1,6 +1,8 @@
 # Pulso — cómo publicarla y activar la base común
 
-Pulso es un solo archivo: `index.html`. No necesita servidor. Los datos de cada persona quedan en su propio navegador; si acepta compartirlos, se envían anónimos a Supabase.
+Pulso es una app web instalable (PWA): `index.html` (lo arma `build.py` a partir de `src/`), `manifest.webmanifest`, `sw.js` e `iconos/`. Desde la versión 0.5.0 se usa **solo instalada** (pantalla de inicio o app de la computadora); desde una pestaña del navegador solo muestra los pasos para instalarla. Excepciones: el administrador y las pruebas en `localhost` (con `?bloqueo` se prueba el bloqueo en local). Los datos de cada persona quedan en su cuenta y en Supabase.
+
+**Publicación actual:** repositorio `mateomartinello/pulso-demo1.0`, app en `https://mateomartinello.github.io/pulso-demo1.0/`.
 
 ## 1. Publicar en GitHub Pages (unos 5 minutos)
 
@@ -43,15 +45,26 @@ La app es instalable (PWA: `manifest.webmanifest`, `sw.js`, `iconos/`) y puede m
 ## 2c. Cuentas (desde la versión 0.4.0)
 
 - **Ingreso:** mail + código de 6 dígitos que vence en una hora (Supabase Auth). Los mails salen de `verificacionpulso@gmail.com` por SMTP de Gmail (contraseña de aplicación cargada en Authentication › Emails › SMTP Settings; límite de 30 mails por hora). Las plantillas «Magic link or OTP» y «Confirm sign up» muestran `{{ .Token }}`. La app también acepta el enlace de ingreso, por si algún mail lo trae.
-- **URL Configuration:** Site URL `https://mateomartinello.github.io/pulso/` y redirección permitida `https://mateomartinello.github.io/pulso/**`.
+- **URL Configuration:** Site URL `https://mateomartinello.github.io/pulso-demo1.0/` y redirección permitida `https://mateomartinello.github.io/pulso-demo1.0/**`.
+- **Asunto de los mails:** las plantillas «Magic link or OTP» y «Confirm sign up» llevan el código en el asunto (`Tu código de Pulso: {{ .Token }}`), para leerlo desde la notificación. La app tiene «Pegar código» y el campo usa `autocomplete="one-time-code"`.
 - **Tabla `usuarios`:** nombre, apellido, mail, `anon_id` y `respaldo` (copia del perfil y los registros). Solo la lee la propia persona, con las funciones `mi_usuario`, `guardar_usuario` y `eliminar_cuenta`.
 - **Eventos vinculados:** `eventos.user_id` se completa solo con la cuenta de la sesión. Para analizar con nombre y mail: vista `eventos_con_usuario` (solo la ve el dueño del proyecto).
 - **Eliminar la cuenta:** Perfil › «Eliminar mi cuenta» (página `#eliminar-cuenta`), con 5 preguntas abiertas obligatorias. Borra nombre, apellido, mail, respaldo y la cuenta; los eventos quedan sin `user_id` y la encuesta se guarda como evento `baja`.
-- **Versión de prueba (opcional):** `python3 build.py prueba` la arma en `prueba/` y se publica en `/pulso/prueba/`, sin tocar la app principal. Al terminar, borrar `prueba/`.
+- **Versión de prueba (opcional):** `python3 build.py prueba` la arma en `prueba/` y se publica en `/pulso-demo1.0/prueba/`, sin tocar la app principal. Al terminar, borrar `prueba/`.
+
+## 2c bis. Novedades de la versión 0.5.0 (base de datos: `supabase/migracion-0.5.sql`)
+
+- **Administrador:** en «Tus datos» (y al pie de la pantalla de instalar), «Iniciar como administrador» pide un PIN de 4 dígitos. La Edge Function `ingreso-admin` (`supabase/functions/ingreso-admin/index.ts`, «Verify JWT» apagado) verifica el PIN con `admin_verificar_pin` (bcrypt; bloqueo de 1 hora tras 5 intentos fallidos) y entra a la cuenta `verificacionpulso+admin@gmail.com` con su contraseña (secreto `ADMIN_CLAVE` de la función). La cuenta figura en la tabla `administradores` y las vistas de análisis la excluyen. Para cambiar el PIN: `select public.admin_definir_pin('1234');` en SQL Editor.
+- **Apple Salud:** el atajo de iPhone «Pulso · Salud» llama a `salud_importar` con la clave pública y un código personal que la app genera en Perfil (`salud_codigo_nuevo`; en la base solo queda su huella). Guarda pasos, entrenamientos y el inicio del último período en `salud_dia`, y un evento `salud`. La app los lee con `mi_salud`. El enlace de iCloud del atajo va en `CONFIG.ATAJO_SALUD`; los pasos para armarlo están en `supabase/atajo-salud.md`.
+- **Ciclo menstrual (opcional, solo si respondió «Mujer»):** app que usa, fecha del último período y duración del ciclo; la tarjeta de antojos aparece desde 5 días antes del período estimado hasta el 2.º día. Eventos `ciclo` y `antojo`.
+- **Marcas:** tabla `MARCAS` en `src/data.js` (valores por 100 g de rótulos, aproximados). Se preguntan una vez por producto y se guardan en el dispositivo y en el respaldo de la cuenta.
+- **Palabras no reconocidas:** vista `palabras_no_reconocidas` (palabra, veces, ejemplo, última vez), para sumarlas a la tabla del estimador.
+- **Macros:** las recetas y la tabla de alimentos tienen carbohidratos (`hc`) y grasas (`gr`) por 100 g; en la tabla del estimador, `hc` sale por diferencia con la energía salvo frutos secos y bebidas con alcohol.
+- **Modo cuidado (menores de 18 o relación difícil con la comida):** solo oculta las calorías.
 
 ## 2d. Pruebas del estimador de comidas
 
-`sh pruebas/correr.sh` corre unas 50 frases de comidas comunes («dos porciones de pizza de muzzarella», «pollo con arroz», «un cortado»…) y avisa si alguna estimación sale del rango esperado. Correrlo después de cada cambio en la tabla de alimentos (`src/estimador.js`). Para ver el detalle de una frase: `sh pruebas/estimar.sh "frase"`.
+`sh pruebas/correr.sh` corre 51 frases de comidas comunes (con rangos de energía, proteína, carbohidratos, grasas y porciones) («dos porciones de pizza de muzzarella», «pollo con arroz», «un cortado»…) y avisa si alguna estimación sale del rango esperado. Correrlo después de cada cambio en la tabla de alimentos (`src/estimador.js`). Para ver el detalle de una frase: `sh pruebas/estimar.sh "frase"`.
 
 ## 3. Ver y analizar los datos
 

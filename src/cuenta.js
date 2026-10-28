@@ -38,7 +38,7 @@ let respaldoT=null;
 function respaldoPronto(ya){ clearTimeout(respaldoT); respaldoT=setTimeout(()=>subirRespaldo(), ya?0:4000); }
 async function subirRespaldo(keepalive){
   if(!DB.auth || !DB.perfil?.completo || !DB.consent?.acepta || !navigator.onLine) return;
-  const resp={perfil:DB.perfil, dias:DB.dias, consent:DB.consent, secret:DB.secret};
+  const resp={perfil:DB.perfil, dias:DB.dias, consent:DB.consent, secret:DB.secret, marcas:DB.marcas||{}};
   const firma=String(hash(JSON.stringify(resp))); if(firma===DB.respaldoFirma) return;
   const d=DB.perfil.resp.datos||{};
   try{ if(await rpcCuenta("guardar_usuario",{p_nombre:d.nombre||null, p_apellido:d.apellido||null, p_anon_id:DB.anonId, p_respaldo:resp}, keepalive)){ DB.respaldoFirma=firma; persist(); } }catch(e){}
@@ -52,9 +52,10 @@ function unirDias(a,b){
     if(!o.sueno && d.sueno) o.sueno=d.sueno; }
   return out;
 }
-async function alIngresar(j){
+async function alIngresar(j, op={}){
   guardarSesion(j);
   let u=null; try{ u=await rpcCuenta("mi_usuario"); }catch(e){}
+  DB.admin = !!(op.admin || u?.admin);
   const r=u?.respaldo||{};
   if(r.perfil?.completo){
     const mismaCuenta = DB.cuentaId===DB.auth.user.id && DB.perfil?.completo;
@@ -62,6 +63,7 @@ async function alIngresar(j){
     DB.dias=unirDias(r.dias, DB.dias);
     if(u.anon_id) DB.anonId=u.anon_id;
     if(r.secret){ DB.secret=r.secret; secretHash=null; }
+    if(r.marcas) DB.marcas={...r.marcas, ...(DB.marcas||{})};
   }
   // Nombre y apellido: los de la cuenta si ya los tenía; si no, los que escribió al ingresar. El mail es siempre el de la cuenta.
   const escritos={nombre:INGRESO.nombre, apellido:INGRESO.apellido};
@@ -89,10 +91,37 @@ function renderBienvenida(box){
   const nombre=ONB.draft?.datos?.nombre;
   box.append(el("div",{class:"onb-card"}, el("div",{class:"eyebrow"},"Tu cuenta"),
     el("h2",{},`¡Perfecto${nombre? ", "+nombre : ""}! Ya entraste a tu cuenta.`),
-    el("p",{},`Ahora, ${PREGUNTAS.length} preguntas rápidas para armar tu plan: casi todas se responden con un toque.`),
+    el("p",{},`Ahora, unas ${PREGUNTAS.filter(q=>!q.si).length} preguntas rápidas para armar tu plan: casi todas se responden con un toque.`),
     el("button",{class:"btn primary big",type:"button",onclick:()=>{ ONB.paso=null; ONB.i=0; renderOnb(); window.scrollTo(0,0); }},"Empezar el cuestionario")));
 }
-function trasInstalar(){ if(DB.auth){ ONB.paso=null; ONB.i=0; } else ONB.paso="ingreso"; renderOnb(); window.scrollTo(0,0); }
+
+// ---- Ingreso de administrador: PIN de 4 dígitos verificado en Supabase (función «ingreso-admin»). Cuenta de prueba fuera del análisis. ----
+function irAdmin(desde){ ONB.adminDesde=desde; ONB.paso="admin"; renderOnb(); window.scrollTo(0,0); }
+function renderAdmin(box){
+  const msg=el("p",{class:"note",role:"status"});
+  const inp=el("input",{type:"password",id:"admin-pin",name:"pin",inputmode:"numeric",autocomplete:"off",maxlength:"4",placeholder:"••••"});
+  const btn=el("button",{class:"btn primary big",type:"submit"},"Entrar");
+  const entrar=async()=>{ const pin=inp.value.replace(/\D/g,"");
+    if(pin.length!==4){ msg.textContent="La clave tiene 4 dígitos."; inp.focus(); return; }
+    btn.disabled=true; msg.textContent=""; const espera=cargando(3000,"Entrando como administrador…");
+    try{ const res=await fetch(CONFIG.SUPABASE_URL.replace(/\/$/,"")+"/functions/v1/ingreso-admin",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({pin})});
+      const j=await res.json().catch(()=>({}));
+      if(res.ok && j.access_token){ Object.assign(INGRESO,{nombre:"Administrador", apellido:"Pulso"}); await Promise.all([espera, alIngresar(j,{admin:true})]); cerrarCarga(); return; }
+      msg.textContent = j.error==="bloqueado"? "Demasiados intentos fallidos. El ingreso de administrador queda bloqueado durante una hora." : j.error==="mal"? "La clave no es correcta." : "No se pudo entrar ahora. Probá de nuevo en un rato.";
+    }catch(e){ msg.textContent="Sin conexión. Revisá internet y probá de nuevo."; }
+    cerrarCarga(); btn.disabled=false; inp.value=""; inp.focus(); };
+  box.append(el("div",{class:"onb-card"}, volver(()=>{ ONB.paso=ONB.adminDesde||null; renderOnb(); window.scrollTo(0,0); }),
+    el("div",{class:"eyebrow"},"Administrador"), el("h2",{},"Ingreso de administrador"),
+    el("p",{},"Escribí la clave de 4 dígitos. Lo que registres como administrador no cuenta en los datos generales de Pulso."),
+    el("form",{class:"campos",novalidate:true,onsubmit:ev=>{ ev.preventDefault(); entrar(); }}, el("label",{class:"campo",for:"admin-pin"}, el("span",{},"Clave"), inp), btn), msg));
+  setTimeout(()=>inp.focus(),50);
+}
+// «Empezar de cero» (solo administrador): borra perfil y registros, en el dispositivo y en la copia de la cuenta.
+async function adminEmpezarDeCero(){
+  DB.perfil=null; DB.dias={}; DB.consent=null; DB.respaldoFirma=null; DB.avisoOfrecido=false; persist();
+  try{ await rpcCuenta("guardar_usuario",{p_nombre:"Administrador", p_apellido:"Pulso", p_anon_id:DB.anonId, p_respaldo:{}}); }catch(e){}
+  ONB.draft={datos:{nombre:"Administrador", apellido:"Pulso", email:DB.auth?.user?.email}}; ONB.i=0; ONB.paso=null; S.view="hoy"; S.confirmarCierre=false; render(); window.scrollTo(0,0);
+}
 
 // ---- Pantalla de ingreso ----
 const INGRESO={paso:"mail", email:"", msg:"", enviadoEn:0};
@@ -105,27 +134,29 @@ async function pedirCodigo(email){
 }
 function renderIngreso(box){
   const msg=el("p",{class:"note",role:"status"},INGRESO.msg||"");
-  const card=el("div",{class:"onb-card"}, el("div",{class:"eyebrow"},"Tu cuenta"));
+  const card=el("div",{class:"onb-card"});
   if(INGRESO.paso==="mail"){
+    // Formulario real con name y autocomplete: así el iPhone ofrece autocompletar nombre, apellido y mail.
     const campo=(id,lab,attrs)=>{ const i=el("input",{id,spellcheck:"false",...attrs}); return [i, el("label",{class:"campo",for:id}, el("span",{},lab), i)]; };
-    const [nom,lNom]=campo("ing-nombre","Nombre",{type:"text",autocomplete:"given-name",autocapitalize:"words",value:INGRESO.nombre||""});
-    const [ape,lApe]=campo("ing-apellido","Apellido",{type:"text",autocomplete:"family-name",autocapitalize:"words",value:INGRESO.apellido||""});
-    const [inp,lMail]=campo("ing-mail","Mail",{type:"email",autocomplete:"email",inputmode:"email",autocapitalize:"off",value:INGRESO.email,placeholder:"tu@mail.com"});
-    const btn=el("button",{class:"btn primary big",type:"button"},"Siguiente");
+    const [nom,lNom]=campo("ing-nombre","Nombre",{type:"text",name:"given-name",autocomplete:"given-name",autocapitalize:"words",value:INGRESO.nombre||""});
+    const [ape,lApe]=campo("ing-apellido","Apellido",{type:"text",name:"family-name",autocomplete:"family-name",autocapitalize:"words",value:INGRESO.apellido||""});
+    const [inp,lMail]=campo("ing-mail","Mail",{type:"email",name:"email",autocomplete:"email",inputmode:"email",autocapitalize:"off",value:INGRESO.email,placeholder:"tu@mail.com"});
+    const btn=el("button",{class:"btn primary big",type:"submit"},"Siguiente");
     const enviarCod=async()=>{ const n=nom.value.trim(), a=ape.value.trim(), e=inp.value.trim().toLowerCase();
       if(!n){ msg.textContent="Escribí tu nombre."; nom.focus(); return; }
       if(!a){ msg.textContent="Escribí tu apellido."; ape.focus(); return; }
       if(!EMAIL_RE.test(e)){ msg.textContent="Revisá el mail: parece incompleto."; inp.focus(); return; }
       btn.disabled=true; msg.textContent="Enviando el código…"; const r=await pedirCodigo(e); btn.disabled=false;
       if(r.ok){ Object.assign(INGRESO,{nombre:n, apellido:a, email:e, paso:"codigo", msg:"", enviadoEn:Date.now()}); renderOnb(); window.scrollTo(0,0); } else msg.textContent=r.msg; };
-    btn.addEventListener("click",enviarCod); for(const i of [nom,ape,inp]) i.addEventListener("keydown",ev=>{ if(ev.key==="Enter") enviarCod(); });
-    agregar(card, el("h2",{},"Tus datos"),
+    agregar(card, DB.perfil?.completo? null : volver(()=>{ INGRESO.msg=""; ONB.paso=null; ONB.i=-1; renderOnb(); window.scrollTo(0,0); }),
+      el("div",{class:"eyebrow"},"Tu cuenta"), el("h2",{},"Tus datos"),
       el("p",{},"Te vamos a mandar un código a tu mail para confirmar que es tuyo. Si ya usaste Pulso, recuperás tus respuestas y tus registros."),
       DB.perfil?.completo && !DB.cuentaId? el("p",{class:"note"},"Ahora Pulso guarda tus datos en tu cuenta. Lo que ya registraste en este dispositivo se suma a ella.") : null,
-      el("div",{class:"campos"}, lNom, lApe, lMail), btn, msg);
+      el("form",{class:"campos",novalidate:true,onsubmit:ev=>{ ev.preventDefault(); enviarCod(); }}, lNom, lApe, lMail, btn), msg,
+      el("p",{class:"enlace-baja"}, el("button",{class:"btn link",type:"button",onclick:()=>irAdmin("ingreso")},"Iniciar como administrador")));
   } else {
-    const inp=el("input",{type:"text",id:"ing-cod",autocomplete:"one-time-code",inputmode:"numeric",maxlength:"6",placeholder:"123456"});
-    const btn=el("button",{class:"btn primary big",type:"button"},"Confirmar código");
+    const inp=el("input",{type:"text",id:"ing-cod",name:"one-time-code",autocomplete:"one-time-code",inputmode:"numeric",maxlength:"6",placeholder:"123456"});
+    const btn=el("button",{class:"btn primary big",type:"submit"},"Confirmar código");
     const entrar=async()=>{ const t=inp.value.replace(/\D/g,"");
       if(t.length<6){ msg.textContent="El código tiene 6 dígitos."; inp.focus(); return; }
       btn.disabled=true; msg.textContent=""; const espera=cargando(3000,"Entrando a tu cuenta…");
@@ -134,14 +165,20 @@ function renderIngreso(box){
         msg.textContent="El código no es correcto o venció. Revisá el último mail que te llegó o pedí uno nuevo.";
       }catch(e){ msg.textContent="Sin conexión. Revisá internet y probá de nuevo."; }
       cerrarCarga(); btn.disabled=false; };
-    btn.addEventListener("click",entrar); inp.addEventListener("keydown",ev=>{ if(ev.key==="Enter") entrar(); });
+    // «Pegar código»: toma los 6 dígitos de lo copiado (por ejemplo, del asunto del mail) y entra.
+    const pegar = navigator.clipboard?.readText ? el("button",{class:"btn",type:"button",onclick:async()=>{
+      try{ const t=((await navigator.clipboard.readText()).match(/\b\d{6}\b/)||[])[0];
+        if(t){ inp.value=t; entrar(); } else msg.textContent="No encontramos un código de 6 dígitos en lo que copiaste."; }
+      catch(e){ msg.textContent="No se pudo pegar. Mantené apretado el campo del código y elegí «Pegar»."; } }},"Pegar código") : null;
     const reenviar=el("button",{class:"btn link",type:"button",onclick:async()=>{
       if(Date.now()-INGRESO.enviadoEn<60000){ msg.textContent="Esperá un minuto antes de pedir otro código."; return; }
       msg.textContent="Enviando…"; const r=await pedirCodigo(INGRESO.email); if(r.ok){ INGRESO.enviadoEn=Date.now(); msg.textContent="Te mandamos un código nuevo."; } else msg.textContent=r.msg; }},"Reenviar el código");
-    agregar(card, el("h2",{},"Revisá tu mail"),
-      el("p",{},`Te mandamos un mail a ${INGRESO.email} con un código de 6 dígitos. Buscalo (si no está, revisá la carpeta de spam) y escribí el código acá.`),
-      el("label",{class:"campo",for:"ing-cod"}, el("span",{},"Código"), inp), btn, msg,
-      el("div",{class:"row"}, reenviar, el("button",{class:"btn link",type:"button",onclick:()=>{ INGRESO.paso="mail"; INGRESO.msg=""; renderOnb(); }},"Usar otro mail")));
+    agregar(card, volver(()=>{ INGRESO.paso="mail"; INGRESO.msg=""; renderOnb(); window.scrollTo(0,0); }),
+      el("div",{class:"eyebrow"},"Tu cuenta"), el("h2",{},"Revisá tu mail"),
+      el("p",{},`Te mandamos un mail a ${INGRESO.email} con un código de 6 dígitos (también está en el asunto). Buscalo (si no está, revisá la carpeta de spam) y escribí el código acá.`),
+      el("form",{class:"campos",novalidate:true,onsubmit:ev=>{ ev.preventDefault(); entrar(); }},
+        el("label",{class:"campo",for:"ing-cod"}, el("span",{},"Código"), inp), btn, pegar), msg,
+      el("div",{class:"row"}, reenviar));
   }
   box.append(card);
   setTimeout(()=>box.querySelector("input")?.focus(), 50);
@@ -179,6 +216,9 @@ function tarjetaCuenta(){
   const draw=()=>{
     card.replaceChildren(el("h3",{},"Tu cuenta"),
       el("p",{style:"margin:0 0 10px"},`Entraste como ${DB.auth?.user?.email||"—"}. Si cerrás sesión, tus datos quedan guardados en tu cuenta y los recuperás al volver a entrar.`));
+    if(DB.admin) card.append(el("p",{class:"note",style:"margin:0 0 10px"},"Estás como administrador: lo que registres no cuenta en los datos generales."),
+      el("div",{class:"row",style:"margin-bottom:10px"}, el("button",{class:"btn small",type:"button",onclick:ev=>{ const b=ev.currentTarget;
+        if(!b.dataset.ok){ b.dataset.ok="1"; b.textContent="Tocá de nuevo para borrar todo"; return; } adminEmpezarDeCero(); }},"Empezar de cero")));
     if(!S.confirmarCierre) card.append(el("button",{class:"btn small",type:"button",onclick:()=>{ S.confirmarCierre=true; draw(); }},"Cerrar sesión"));
     else card.append(el("div",{class:"confirmar"},
       el("p",{class:"confirmar-preg"},"¿Estás seguro de que querés cerrar sesión?"),
@@ -238,3 +278,45 @@ function renderBaja(box){
     el("p",{},"Esta acción no se puede deshacer."), btn, msg, cancelar));
 }
 window.addEventListener("hashchange",()=>render());
+
+// ---- Apple Salud: un atajo de iPhone manda pasos, entrenamientos y el inicio del último período (si lo hay) ----
+// La app genera un código personal para pegar en el atajo y lee lo que llegó con «mi_salud».
+let saludLeyendo=false;
+async function leerSalud(){
+  if(saludLeyendo || !DB.auth || !DB.salud?.activo || !navigator.onLine) return;
+  saludLeyendo=true;
+  try{ const filas=await rpcCuenta("mi_salud",{p_desde:keyShift(S.today,-14)});
+    const dias={}; let periodo=null;
+    for(const f of filas||[]){ dias[f.fecha]={pasos:f.pasos, entrenos:(Array.isArray(f.entrenos)?f.entrenos:[]).map(e=>({tipo:String(e.tipo||"Entrenamiento").slice(0,40), inicio:e.inicio||null, min:Math.round(+e.min||0), kcal:Math.round(+e.kcal||0)}))};
+      if(f.periodo && (!periodo || f.periodo>periodo)) periodo=f.periodo; }
+    DB.salud={...DB.salud, dias, leido:Date.now()};
+    const R=DB.perfil?.resp;   // ciclo: si la app de ciclo escribe en Salud, se toma el último inicio
+    if(periodo && R?.sexo==="m" && ["salud","clue"].includes(R.cicloApp) && (!R.ciclo?.ultimo || periodo>R.ciclo.ultimo)){ R.ciclo={...(R.ciclo||{duracion:28}), ultimo:periodo}; }
+    const hoy=dias[S.today]; const d=day();   // entrenamiento de hoy que llegó de Salud: se ofrece el «Después de entrenar»
+    if(hoy?.entrenos?.length && !d.postHora){ const fin=new Date(hoy.entrenos[0].inicio||Date.now()); fin.setMinutes(fin.getMinutes()+(hoy.entrenos[0].min||0)); d.postHora=fin.getHours()+":"+pad(fin.getMinutes()); }
+    persist(); if(DB.perfil?.completo) render();
+  }catch(e){}
+  saludLeyendo=false;
+}
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden) leerSalud(); });
+function saludDia(k){ return DB.salud?.dias?.[k] || null; }
+function seccionSalud(){
+  const card=el("section",{class:"card"}, el("h3",{},"Apple Salud"));
+  const msg=el("p",{class:"note",role:"status",style:"margin:8px 0 0"});
+  const nuevoCodigo=async()=>{ msg.textContent="Generando…";
+    try{ const c=await rpcCuenta("salud_codigo_nuevo"); if(!c) throw 0; DB.salud={...(DB.salud||{}), activo:true}; persist();
+      msg.replaceChildren("Tu código: ", el("b",{class:"codigo"},c), " ");
+      try{ await navigator.clipboard.writeText(c); msg.append("(ya está copiado). Pegalo en el atajo cuando te lo pida."); }catch(e){ msg.append("Copialo y pegalo en el atajo cuando te lo pida."); }
+    }catch(e){ msg.textContent="No se pudo generar el código. Revisá la conexión y probá de nuevo."; } };
+  if(!ES_IOS && !DB.admin){ agregar(card, el("p",{style:"margin:0"},"La conexión con Apple Salud funciona en iPhone. En Android, el movimiento se registra a mano.")); return card; }
+  agregar(card, el("p",{style:"margin:0 0 8px"},"Pulso puede leer tus pasos y tus entrenamientos de Salud (y, si tu app de ciclo los guarda ahí, el inicio de tu período), así no los cargás a mano. Usa un atajo de la app Atajos de tu iPhone."),
+    el("ol",{class:"pasos-inst"},
+      el("li",{}, CONFIG.ATAJO_SALUD? el("a",{href:CONFIG.ATAJO_SALUD,target:"_blank",rel:"noopener"},"Instalá el atajo «Pulso · Salud»") : "Instalá el atajo «Pulso · Salud» (el enlace va a estar acá muy pronto)", ", y permitile leer Salud."),
+      el("li",{}, "Tocá «Generar mi código» y pegalo cuando el atajo te lo pida."),
+      el("li",{}, "En Atajos › Automatización, creá una automatización «Hora del día» a las 23:00 que ejecute «Pulso · Salud» sin preguntar. Si tenés Apple Watch, sumá otra «Al terminar un entrenamiento».")),
+    el("div",{class:"row",style:"margin-top:10px"}, el("button",{class:"btn small",type:"button",onclick:nuevoCodigo}, DB.salud?.activo? "Generar un código nuevo" : "Generar mi código"),
+      DB.salud?.activo? el("button",{class:"btn small ghost",type:"button",onclick:()=>{ DB.salud={...DB.salud, activo:false}; persist(); render(); }},"Dejar de leer Salud") : null),
+    DB.salud?.leido? el("p",{class:"note",style:"margin:8px 0 0"},`Última lectura: ${new Date(DB.salud.leido).toLocaleString("es-AR",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}.`) : null,
+    msg);
+  return card;
+}

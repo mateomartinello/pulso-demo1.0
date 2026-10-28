@@ -2,6 +2,8 @@
 .btn.ghost{border-color:var(--gold);color:var(--muted)}
 .btn.link{border:0;background:none;color:var(--muted);text-decoration:underline;padding:6px 0;font-weight:500}
 .btn.big{font-size:16px;padding:13px 18px;width:100%}
+.volver{align-self:flex-start;font:inherit;font-size:15px;font-weight:600;color:var(--muted);background:none;border:0;padding:4px 0;margin:-6px 0 -4px;cursor:pointer}
+.volver:focus-visible{outline:2px solid var(--green);outline-offset:2px}
 .opts{display:flex;flex-wrap:wrap;gap:6px}
 .opt{font:inherit;font-size:13.5px;background:var(--card);color:var(--body);border:1px solid var(--gold);border-radius:999px;padding:7px 12px;cursor:pointer}
 .opt.on{background:var(--green);border-color:var(--green);color:var(--bg)}
@@ -39,6 +41,16 @@
 .btn-perfil:focus-visible{outline:2px solid var(--green);outline-offset:2px}
 .top{align-items:flex-start;flex-wrap:nowrap}
 .top .date{margin-top:4px}
+.tarjeta{touch-action:pan-y;user-select:none;-webkit-user-select:none;cursor:grab}
+.tarjeta .btn{user-select:none}
+.marcas{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.marcas li{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px}
+.marcas select{max-width:58%}
+.guia{position:relative;background:var(--ink);color:var(--bg);border-radius:10px;padding:12px 14px;margin-bottom:4px;display:flex;flex-direction:column;gap:8px;align-items:flex-start;font-size:14px}
+.guia p{margin:0}
+.guia::after{content:"";position:absolute;left:24px;bottom:-7px;width:14px;height:14px;background:var(--ink);transform:rotate(45deg)}
+.guia .btn{border-color:var(--bg);color:var(--bg)}
+.codigo{font-family:ui-monospace,Menlo,monospace;letter-spacing:.04em}
 .choices{display:flex;flex-direction:column;gap:8px}
 .choice{font:inherit;font-size:15px;text-align:left;background:var(--card);color:var(--body);border:1px solid var(--gold);border-radius:8px;padding:13px 14px;cursor:pointer}
 .choice.on{border-color:var(--green);background:var(--ok-bg);color:var(--ink);font-weight:600}
@@ -51,7 +63,6 @@ input[type=text]{font:inherit;color:var(--body);background:var(--card);border:1p
 .numrow input{width:100px;font-size:16px}
 .checks{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
 .legal{font-size:13px;color:var(--body)} .legal p{margin:8px 0}
-.care{border-color:var(--ok);background:var(--ok-bg)}
 .ideas{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px}
 #sheet{position:fixed;inset:0;background:rgba(20,22,16,.45);display:flex;align-items:flex-end;justify-content:center;z-index:20;padding:12px}
 .sheet-card{background:var(--bg);border-radius:12px;padding:18px;max-width:560px;width:100%;display:flex;flex-direction:column;gap:12px;max-height:90vh;overflow:auto;margin-bottom:env(safe-area-inset-bottom,0px)}

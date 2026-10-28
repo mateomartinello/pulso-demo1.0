@@ -1,68 +1,70 @@
-// ==== INGREDIENTES (valores aproximados por 100 g: kcal, proteína g, fibra g) ====
-// g = grupos para filtrar según el perfil: vacuna, cerdo, pollo, pescado, huevo, lacteo, soja, legumbre, gluten, nuez
+// ==== INGREDIENTES (valores aproximados por 100 g: kcal, proteína g, fibra g, hc = carbohidratos disponibles g, gr = grasas g) ====
+// g = grupos para filtrar según el perfil: vacuna, cerdo, pollo, pescado, marisco, huevo, lacteo, soja, legumbre, gluten, mani, nuez
+// (el maní también lleva «nuez»: por precaución, quien es alérgico a los frutos secos tampoco recibe recetas con maní)
 const ING = {
-  fideosInt:   {n:"Fideos integrales (secos)", k:350, p:14, f:9, integral:true, g:["gluten"]},
-  arrozInt:    {n:"Arroz integral (crudo)", k:365, p:7.5, f:3.5, integral:true},
-  avena:       {n:"Avena", k:380, p:13, f:10, integral:true, g:["gluten"]},
-  pan:         {n:"Pan", k:243, p:12.1, f:5.4, integral:true, u:38, uN:"rebanada", g:["gluten"], pan:true},
-  rapiditaInt: {n:"Rapiditas integrales", k:290, p:9, f:6, integral:true, u:40, uN:"rapidita", g:["gluten"]},
-  galletaArroz:{n:"Galletas de arroz", k:380, p:8, f:3, integral:true, u:10, uN:"galleta"},
-  panRallado:  {n:"Pan rallado", k:395, p:13, f:4.5, g:["gluten"]},
-  papa:        {n:"Papa", k:77, p:2, f:2.2},
-  batata:      {n:"Batata", k:86, p:1.6, f:3, veg:true},
-  pollo:       {n:"Pechuga de pollo (cruda)", k:120, p:22.5, f:0, pr:true, g:["pollo"]},
-  vacuna:      {n:"Carne vacuna magra: nalga o peceto (cruda)", k:135, p:21.5, f:0, roja:true, pr:true, g:["vacuna"]},
-  cerdo:       {n:"Solomillo de cerdo (crudo)", k:143, p:21, f:0, roja:true, pr:true, g:["cerdo"]},
-  merluza:     {n:"Filet de merluza (crudo)", k:90, p:18, f:0, pr:true, g:["pescado"]},
-  atun:        {n:"Atún al natural (escurrido)", k:116, p:25.5, f:0, atun:true, u:120, uN:"lata", fijo:true, g:["pescado"]},
-  milaSoja:    {n:"Milanesa de soja", k:200, p:14, f:4, u:110, uN:"unidad", pr:true, g:["soja","gluten"]},
-  tofu:        {n:"Tofu", k:76, p:8, f:0.3, pr:true, g:["soja"]},
-  lentejas:    {n:"Lentejas cocidas (de lata, enjuagadas)", k:116, p:9, f:8, pr:true, g:["legumbre"]},
-  garbanzos:   {n:"Garbanzos cocidos (de lata, enjuagados)", k:164, p:9, f:7.6, pr:true, g:["legumbre"]},
-  huevo:       {n:"Huevo", k:143, p:12.6, f:0, u:50, uN:"huevo", pr:true, g:["huevo"]},
-  quesoCrem:   {n:"Queso cremoso / fresco", k:300, p:20, f:0, pr:true, g:["lacteo"]},
-  quesoUnt:    {n:"Queso untable", k:130, p:11, f:0, g:["lacteo"]},
-  quesoRall:   {n:"Queso rallado", k:390, p:33, f:0, pr:true, g:["lacteo"]},
-  yogGriego:   {n:"Yogur griego natural", k:110, p:8, f:0, g:["lacteo"]},
-  yogNat:      {n:"Yogur natural sin azúcar", k:65, p:4, f:0, g:["lacteo"]},
-  leche:       {n:"Leche", k:61, p:3.2, f:0, g:["lacteo"]},
-  bebidaVeg:   {n:"Bebida vegetal sin azúcar", k:20, p:0.6, f:0.3},
-  tomate:      {n:"Tomate", k:18, p:0.9, f:1.2, veg:true},
-  salsaTom:    {n:"Tomate triturado", k:30, p:1.5, f:1.5, veg:true},
-  lechuga:     {n:"Lechuga", k:15, p:1.4, f:1.3, veg:true},
-  rucula:      {n:"Rúcula", k:25, p:2.6, f:1.6, veg:true},
-  espinaca:    {n:"Espinaca", k:23, p:2.9, f:2.2, veg:true},
-  zanahoria:   {n:"Zanahoria", k:41, p:0.9, f:2.8, veg:true},
-  zapallo:     {n:"Zapallo anco", k:45, p:1, f:2, veg:true},
-  zucchini:    {n:"Zucchini", k:17, p:1.2, f:1, veg:true},
-  morron:      {n:"Morrón rojo", k:31, p:1, f:2.1, veg:true, vitC:true},
-  cebolla:     {n:"Cebolla", k:40, p:1.1, f:1.7, veg:true},
-  palta:       {n:"Palta", k:160, p:2, f:6.7},
-  aceitunas:   {n:"Aceitunas", k:145, p:1, f:3.3},
-  aceite:      {n:"Aceite de oliva", k:884, p:0, f:0, u:13, uN:"cda."},
-  banana:      {n:"Banana", k:89, p:1.1, f:2.6, fruta:true, u:120, uN:"banana"},
-  manzana:     {n:"Manzana", k:52, p:0.3, f:2.4, fruta:true, u:180, uN:"manzana"},
-  pera:        {n:"Pera", k:57, p:0.4, f:3.1, fruta:true, u:180, uN:"pera"},
-  naranja:     {n:"Naranja", k:47, p:0.9, f:2.4, fruta:true, vitC:true, u:180, uN:"naranja"},
-  mandarina:   {n:"Mandarina", k:53, p:0.8, f:1.8, fruta:true, u:100, uN:"mandarina"},
-  kiwi:        {n:"Kiwi", k:61, p:1.1, f:3, fruta:true, vitC:true, u:75, uN:"kiwi"},
-  frutillas:   {n:"Frutillas", k:32, p:0.7, f:2, fruta:true, vitC:true},
-  nueces:      {n:"Nueces", k:654, p:15, f:6.7, nuez:true, g:["nuez"]},
-  almendras:   {n:"Almendras", k:579, p:21, f:12.5, nuez:true, g:["nuez"]},
-  mani:        {n:"Maní tostado sin sal", k:585, p:24, f:8, nuez:true, g:["nuez"]},
-  mantMani:    {n:"Mantequilla de maní", k:590, p:25, f:6, nuez:true, g:["nuez"]},
-  choco70:     {n:"Chocolate 70% cacao", k:600, p:7.8, f:11, choco:true},
+  fideosInt:   {n:"Fideos integrales (secos)", k:350, p:14, f:9, hc:66, gr:2.5, integral:true, g:["gluten"]},
+  arrozInt:    {n:"Arroz integral (crudo)", k:365, p:7.5, f:3.5, hc:72, gr:2.7, integral:true},
+  avena:       {n:"Avena", k:380, p:13, f:10, hc:59, gr:7, integral:true, g:["gluten"]},
+  pan:         {n:"Pan", k:243, p:12.1, f:5.4, hc:37, gr:3.4, integral:true, u:38, uN:"rebanada", g:["gluten"], pan:true},
+  rapiditaInt: {n:"Rapiditas integrales", k:290, p:9, f:6, hc:45, gr:7, integral:true, u:40, uN:"rapidita", g:["gluten"]},
+  galletaArroz:{n:"Galletas de arroz", k:380, p:8, f:3, hc:79, gr:3, integral:true, u:10, uN:"galleta"},
+  panRallado:  {n:"Pan rallado", k:395, p:13, f:4.5, hc:72, gr:5, g:["gluten"]},
+  papa:        {n:"Papa", k:77, p:2, f:2.2, hc:15.5, gr:0.1},
+  batata:      {n:"Batata", k:86, p:1.6, f:3, hc:19, gr:0.1, veg:true},
+  pollo:       {n:"Pechuga de pollo (cruda)", k:120, p:22.5, f:0, hc:0, gr:2.6, pr:true, g:["pollo"]},
+  vacuna:      {n:"Carne vacuna magra: nalga o peceto (cruda)", k:135, p:21.5, f:0, hc:0, gr:4.5, roja:true, pr:true, g:["vacuna"]},
+  cerdo:       {n:"Solomillo de cerdo (crudo)", k:143, p:21, f:0, hc:0, gr:5, roja:true, pr:true, g:["cerdo"]},
+  merluza:     {n:"Filet de merluza (crudo)", k:90, p:18, f:0, hc:0, gr:2, pr:true, g:["pescado"]},
+  atun:        {n:"Atún al natural (escurrido)", k:116, p:25.5, f:0, hc:0, gr:1.5, atun:true, u:120, uN:"lata", fijo:true, g:["pescado"]},
+  milaSoja:    {n:"Milanesa de soja", k:200, p:14, f:4, hc:17, gr:8, u:110, uN:"unidad", pr:true, g:["soja","gluten"]},
+  tofu:        {n:"Tofu", k:76, p:8, f:0.3, hc:1.9, gr:4.8, pr:true, g:["soja"]},
+  lentejas:    {n:"Lentejas cocidas (de lata, enjuagadas)", k:116, p:9, f:8, hc:15, gr:0.4, pr:true, g:["legumbre"]},
+  garbanzos:   {n:"Garbanzos cocidos (de lata, enjuagados)", k:164, p:9, f:7.6, hc:22, gr:2.6, pr:true, g:["legumbre"]},
+  huevo:       {n:"Huevo", k:143, p:12.6, f:0, hc:0.7, gr:10, u:50, uN:"huevo", pr:true, g:["huevo"]},
+  quesoCrem:   {n:"Queso cremoso / fresco", k:300, p:20, f:0, hc:2, gr:24, pr:true, g:["lacteo"]},
+  quesoUnt:    {n:"Queso untable", k:130, p:11, f:0, hc:4, gr:8, g:["lacteo"]},
+  quesoRall:   {n:"Queso rallado", k:390, p:33, f:0, hc:3, gr:27.5, pr:true, g:["lacteo"]},
+  yogGriego:   {n:"Yogur griego natural", k:110, p:8, f:0, hc:4, gr:7, g:["lacteo"]},
+  yogNat:      {n:"Yogur natural sin azúcar", k:65, p:4, f:0, hc:5, gr:3, g:["lacteo"]},
+  leche:       {n:"Leche", k:61, p:3.2, f:0, hc:4.8, gr:3.3, g:["lacteo"]},
+  bebidaVeg:   {n:"Bebida vegetal sin azúcar", k:20, p:0.6, f:0.3, hc:0.6, gr:1.3},
+  tomate:      {n:"Tomate", k:18, p:0.9, f:1.2, hc:2.7, gr:0.2, veg:true},
+  salsaTom:    {n:"Tomate triturado", k:30, p:1.5, f:1.5, hc:5, gr:0.2, veg:true},
+  lechuga:     {n:"Lechuga", k:15, p:1.4, f:1.3, hc:1.5, gr:0.2, veg:true},
+  rucula:      {n:"Rúcula", k:25, p:2.6, f:1.6, hc:2, gr:0.7, veg:true},
+  espinaca:    {n:"Espinaca", k:23, p:2.9, f:2.2, hc:1.4, gr:0.4, veg:true},
+  zanahoria:   {n:"Zanahoria", k:41, p:0.9, f:2.8, hc:7, gr:0.2, veg:true},
+  zapallo:     {n:"Zapallo anco", k:45, p:1, f:2, hc:9, gr:0.1, veg:true},
+  zucchini:    {n:"Zucchini", k:17, p:1.2, f:1, hc:2.1, gr:0.3, veg:true},
+  morron:      {n:"Morrón rojo", k:31, p:1, f:2.1, hc:5, gr:0.3, veg:true, vitC:true},
+  cebolla:     {n:"Cebolla", k:40, p:1.1, f:1.7, hc:7.8, gr:0.1, veg:true},
+  palta:       {n:"Palta", k:160, p:2, f:6.7, hc:1.8, gr:14.7},
+  aceitunas:   {n:"Aceitunas", k:145, p:1, f:3.3, hc:0.5, gr:15},
+  aceite:      {n:"Aceite de oliva", k:884, p:0, f:0, hc:0, gr:100, u:13, uN:"cda."},
+  banana:      {n:"Banana", k:89, p:1.1, f:2.6, hc:19, gr:0.3, fruta:true, u:120, uN:"banana"},
+  manzana:     {n:"Manzana", k:52, p:0.3, f:2.4, hc:11, gr:0.2, fruta:true, u:180, uN:"manzana"},
+  pera:        {n:"Pera", k:57, p:0.4, f:3.1, hc:12, gr:0.1, fruta:true, u:180, uN:"pera"},
+  naranja:     {n:"Naranja", k:47, p:0.9, f:2.4, hc:9.4, gr:0.1, fruta:true, vitC:true, u:180, uN:"naranja"},
+  mandarina:   {n:"Mandarina", k:53, p:0.8, f:1.8, hc:11, gr:0.3, fruta:true, u:100, uN:"mandarina"},
+  kiwi:        {n:"Kiwi", k:61, p:1.1, f:3, hc:11.5, gr:0.5, fruta:true, vitC:true, u:75, uN:"kiwi"},
+  frutillas:   {n:"Frutillas", k:32, p:0.7, f:2, hc:5.7, gr:0.3, fruta:true, vitC:true},
+  nueces:      {n:"Nueces", k:654, p:15, f:6.7, hc:7, gr:65, nuez:true, g:["nuez"]},
+  almendras:   {n:"Almendras", k:579, p:21, f:12.5, hc:9.5, gr:50, nuez:true, g:["nuez"]},
+  mani:        {n:"Maní tostado sin sal", k:585, p:24, f:8, hc:13, gr:49, nuez:true, g:["mani","nuez"]},
+  mantMani:    {n:"Mantequilla de maní", k:590, p:25, f:6, hc:14, gr:50, nuez:true, g:["mani","nuez"]},
+  miel:        {n:"Miel", k:304, p:0.3, f:0, hc:82, gr:0, u:10, uN:"cdita."},
+  choco70:     {n:"Chocolate 70% cacao", k:600, p:7.8, f:11, hc:35, gr:43, choco:true},
 };
 // Tipos de pan según la marca elegida en el cuestionario (valores genéricos de pan lactal blanco y de panadería).
 const PANES = {
-  bimbo:     {n:"Pan lactal Bimbo", k:265, p:8, f:2.5, integral:false, u:25},
-  fargo:     {n:"Pan lactal Fargo", k:265, p:8, f:2.5, integral:false, u:25},
-  lactal:    {n:"Pan Lactal", k:265, p:8, f:2.5, integral:false, u:25},
-  panaderia: {n:"Pan de panadería", k:270, p:9, f:2.5, integral:false, u:60, uN:"pan"},
-  generico:  {n:"Pan integral", k:250, p:10, f:6, integral:true, u:30},
+  bimbo:     {n:"Pan lactal Bimbo", k:265, p:8, f:2.5, hc:47, gr:4, integral:false, u:25},
+  fargo:     {n:"Pan lactal Fargo", k:265, p:8, f:2.5, hc:47, gr:4, integral:false, u:25},
+  lactal:    {n:"Pan Lactal", k:265, p:8, f:2.5, hc:47, gr:4, integral:false, u:25},
+  panaderia: {n:"Pan de panadería", k:270, p:9, f:2.5, hc:52, gr:3, integral:false, u:60, uN:"pan"},
+  generico:  {n:"Pan integral", k:250, p:10, f:6, hc:37, gr:3.5, integral:true, u:30},
 };
 
-// d = desayuno o merienda · c = colación · p = almuerzo o cena
+// d = desayuno o merienda · c = colación · p = almuerzo o cena · pre y post = antes y después de entrenar
 // i: [ingrediente, gramos, escala] — escala 1 = se ajusta a la energía del perfil; las verduras y frutas no se escalan.
 // eq: equipamiento necesario; "horno|freidora" = cualquiera de los dos. cost: 1 barato · 2 medio · 3 más caro.
 const RECETAS = [
@@ -168,6 +170,30 @@ const RECETAS = [
   {id:"p20", s:"p", n:"Salteado rápido de tofu con zucchini, morrón y papa", t:15, cost:2, eq:["hornalla"], tipo:"bowls",
    i:[["tofu",200,1],["papa",250,1],["zucchini",150],["morron",80],["aceite",13,1]],
    pasos:["Cociná la papa en cubos chicos: 6 min en microondas tapada, o 10 min hervida.","Dorá el tofu en cubos con el aceite y sumá las verduras en tiras, 5–6 min.","Agregá la papa y condimentá con pimentón."]},
+  // ---- Antes de entrenar (1 a 2 h antes): carbohidratos fáciles, poca grasa y poca fibra ----
+  {id:"pre1", s:"pre", n:"Banana y galletas de arroz con miel", t:0, cost:1, eq:[], tipo:"pre",
+   i:[["banana",120],["galletaArroz",20,1],["miel",10,1]], pasos:["Untá las galletas con la miel.","La banana al lado."]},
+  {id:"pre2", s:"pre", n:"Tostada con miel y una mandarina", t:3, cost:1, eq:[], tipo:"pre",
+   i:[["pan",38,1],["miel",10,1],["mandarina",100]], pasos:["Tostá el pan y untalo con la miel.","Una mandarina al lado."]},
+  {id:"pre3", s:"pre", n:"Yogur con avena y frutillas", t:2, cost:1, eq:[], tipo:"pre",
+   i:[["yogNat",150,1],["avena",25,1],["frutillas",100]], pasos:["Mezclá el yogur con la avena.","Sumá las frutillas cortadas."]},
+  {id:"pre4", s:"pre", n:"Leche con banana pisada", t:2, cost:1, eq:[], tipo:"pre",
+   i:[["leche",200,1],["banana",120]], pasos:["Pisá la banana y mezclala con la leche fría (o licualas)."]},
+  {id:"pre5", s:"pre", n:"Pera y galletas de arroz", t:0, cost:1, eq:[], tipo:"pre",
+   i:[["pera",180],["galletaArroz",20,1]], pasos:["Una pera y dos galletas de arroz."]},
+  // ---- Después de entrenar (en la hora siguiente): proteína y carbohidratos ----
+  {id:"post1", s:"post", n:"Yogur griego con banana y avena", t:2, cost:2, eq:[], tipo:"post",
+   i:[["yogGriego",170,1],["banana",120],["avena",30,1]], pasos:["Mezclá el yogur con la avena.","Sumá la banana en rodajas."]},
+  {id:"post2", s:"post", n:"Sándwich de huevo y tomate", t:12, cost:1, eq:["hornalla"], tipo:"post",
+   i:[["pan",76,1],["huevo",100,1],["tomate",60]], pasos:["Herví los huevos 10 min (o hacelos revueltos).","Armá el sándwich con el huevo en rodajas y el tomate."]},
+  {id:"post3", s:"post", n:"Tostadas con atún y tomate", t:3, cost:2, eq:[], tipo:"post",
+   i:[["pan",76,1],["atun",120],["tomate",80]], pasos:["Escurrí el atún.","Sobre las tostadas, con el tomate en rodajas."]},
+  {id:"post4", s:"post", n:"Leche con avena y banana", t:5, cost:1, eq:[], tipo:"post",
+   i:[["leche",250,1],["avena",40,1],["banana",120]], pasos:["Mezclá la avena con la leche y dejala 5 min.","Sumá la banana en rodajas."]},
+  {id:"post5", s:"post", n:"Tostadas con mantequilla de maní y banana", t:3, cost:1, eq:[], tipo:"post",
+   i:[["pan",76,1],["mantMani",20,1],["banana",120]], pasos:["Untá la mantequilla de maní y sumá la banana en rodajas."]},
+  {id:"post6", s:"post", n:"Garbanzos con arroz y tomate", t:20, cost:1, eq:["hornalla"], tipo:"post",
+   i:[["arrozInt",60,1],["garbanzos",120,1],["tomate",80],["aceite",5,1]], pasos:["Cociná el arroz.","Calentá los garbanzos con el tomate picado y el aceite.","Serví todo junto."]},
 ];
 
 // Energía por momento del día según la estructura elegida (proporción del total)
@@ -177,6 +203,68 @@ const ESTRUCTURAS = {
   damc:  {n:"Desayuno, almuerzo, merienda y cena", slots:[["des",.20],["alm",.35],["mer",.15],["cen",.30]]},
   dcamc: {n:"Cuatro comidas y colaciones", slots:[["des",.18],["col",.10],["alm",.30],["mer",.14],["cen",.28]]},
 };
-const SLOTDEF = { des:{n:"Desayuno", pool:"d"}, col:{n:"Colación", pool:"c"}, alm:{n:"Almuerzo", pool:"p"}, mer:{n:"Merienda", pool:"d"}, cen:{n:"Cena", pool:"p"} };
+const SLOTDEF = { des:{n:"Desayuno", pool:"d"}, col:{n:"Colación", pool:"c"}, alm:{n:"Almuerzo", pool:"p"}, mer:{n:"Merienda", pool:"d"}, cen:{n:"Cena", pool:"p"},
+  pre:{n:"Antes de entrenar", pool:"pre"}, post:{n:"Después de entrenar", pool:"post"} };
 
 const VEG_PORCION = 80, FRUTA_PORCION = 150, INT_PORCION = 30;
+
+// ==== MARCAS ====
+// Se pregunta la marca una vez por producto (al registrar una comida escrita o al tocar «Lo comí» en una receta) y se recuerda;
+// se cambia en Perfil › Mis marcas. Si el texto nombra una marca, se usa esa para ese registro.
+// Valores por 100 g o 100 ml tomados de rótulos (aproximados; lista en revisión). u = gramos de una unidad, si la marca cambia el tamaño.
+// alimentos = filas de la tabla del estimador que corresponden al producto; ing = ingredientes de las recetas.
+const MARCAS = {
+  pan:      {n:"pan lactal", alimentos:["Pan lactal"], ing:["pan"], opts:{
+    bimbo:{n:"Bimbo", al:["bimbo"], ...PANES.bimbo}, fargo:{n:"Fargo", al:["fargo"], ...PANES.fargo}, lactal:{n:"Lactal", al:["lactal"], ...PANES.lactal},
+    panaderia:{n:"De panadería", al:["panaderia"], ...PANES.panaderia}, generico:{n:"Integral", al:["integral"], ...PANES.generico}}},
+  leche:    {n:"leche", alimentos:["Leche"], ing:["leche"], opts:{
+    lsEntera:{n:"La Serenísima entera", al:["serenisima"], k:60, p:3.1, f:0, hc:4.7, gr:3},
+    lsDesc:{n:"La Serenísima descremada", al:["serenisima descremada","descremada"], k:34, p:3.2, f:0, hc:4.8, gr:0.3},
+    sancor:{n:"Sancor entera", al:["sancor"], k:60, p:3.1, f:0, hc:4.8, gr:3},
+    ilolay:{n:"Ilolay entera", al:["ilolay"], k:60, p:3, f:0, hc:4.8, gr:3}}},
+  yogur:    {n:"yogur bebible", alimentos:["Yogur bebible"], ing:[], opts:{
+    lsClasico:{n:"La Serenísima Clásico", al:["serenisima"], k:78, p:2.7, f:0, hc:12.5, gr:2},
+    yogurisimo:{n:"Yogurísimo", al:["yogurisimo"], k:82, p:2.8, f:0, hc:13, gr:2.2},
+    ser:{n:"Ser", al:["ser"], k:40, p:3, f:0, hc:5.5, gr:0.4},
+    sancor:{n:"Sancor", al:["sancor"], k:80, p:2.6, f:0, hc:13, gr:2}}},
+  queso:    {n:"queso cremoso", alimentos:["Queso"], ing:["quesoCrem"], opts:{
+    ls:{n:"La Serenísima", al:["serenisima"], k:300, p:19, f:0, hc:1, gr:24},
+    sancor:{n:"Sancor", al:["sancor"], k:290, p:18, f:0, hc:1, gr:23.5},
+    ilolay:{n:"Ilolay", al:["ilolay"], k:300, p:19, f:0, hc:1, gr:24},
+    portSalutLight:{n:"Port Salut light", al:["port salut light","light"], k:215, p:22, f:0, hc:1, gr:14}}},
+  galletDulces: {n:"galletitas dulces", alimentos:["Galletitas dulces"], ing:[], opts:{
+    oreo:{n:"Oreo", al:["oreo"], k:480, p:5, f:2.5, hc:69, gr:20},
+    pepitos:{n:"Pepitos", al:["pepitos"], k:490, p:6, f:2.5, hc:66, gr:22},
+    chocolinas:{n:"Chocolinas", al:["chocolinas"], k:460, p:6, f:3, hc:71, gr:16},
+    variedad:{n:"Variedad (Terrabusi)", al:["variedad","terrabusi"], k:470, p:6, f:2, hc:67, gr:20}}},
+  galletAgua: {n:"galletitas de agua", alimentos:["Galletitas de agua"], ing:[], opts:{
+    criollitas:{n:"Criollitas", al:["criollitas"], k:425, p:10, f:3, hc:67, gr:12.5},
+    express:{n:"Express", al:["express"], k:410, p:10, f:3, hc:69, gr:10},
+    traviata:{n:"Traviata", al:["traviata"], k:420, p:10, f:3, hc:68, gr:12},
+    clubSocial:{n:"Club Social", al:["club social"], k:450, p:8.5, f:2.5, hc:65, gr:17}}},
+  cereales: {n:"cereales", alimentos:["Cereales"], ing:[], opts:{
+    zucaritas:{n:"Zucaritas", al:["zucaritas"], k:375, p:4.5, f:2, hc:87, gr:0.5},
+    cornFlakes:{n:"Corn Flakes", al:["corn flakes"], k:370, p:7, f:3, hc:83, gr:0.9},
+    specialK:{n:"Special K", al:["special k"], k:379, p:14, f:4.5, hc:72, gr:1.5},
+    fitness:{n:"Nestlé Fitness", al:["fitness"], k:375, p:8.5, f:8, hc:75, gr:2}}},
+  ddl:      {n:"dulce de leche", alimentos:["Dulce de leche"], ing:[], opts:{
+    ls:{n:"La Serenísima", al:["serenisima"], k:315, p:6.5, f:0, hc:55, gr:7.5},
+    sancor:{n:"Sancor", al:["sancor"], k:310, p:7, f:0, hc:54, gr:7},
+    havanna:{n:"Havanna", al:["havanna"], k:330, p:6, f:0, hc:57, gr:8.5},
+    ilolay:{n:"Ilolay", al:["ilolay"], k:315, p:6.5, f:0, hc:55, gr:7.5}}},
+  gaseosa:  {n:"gaseosa", alimentos:["Gaseosa"], ing:[], opts:{
+    coca:{n:"Coca-Cola", al:["coca"], k:42, p:0, f:0, hc:10.6, gr:0},
+    pepsi:{n:"Pepsi", al:["pepsi"], k:44, p:0, f:0, hc:11, gr:0},
+    sprite:{n:"Sprite", al:["sprite"], k:21, p:0, f:0, hc:5.2, gr:0},
+    manaos:{n:"Manaos", al:["manaos"], k:40, p:0, f:0, hc:10, gr:0}}},
+  jamon:    {n:"jamón cocido", alimentos:["Jamón cocido"], ing:[], opts:{
+    paladini:{n:"Paladini", al:["paladini"], k:110, p:17, f:0, hc:2, gr:4},
+    cagnoli:{n:"Cagnoli", al:["cagnoli"], k:120, p:18, f:0, hc:1.5, gr:4.5},
+    fela:{n:"Fela", al:["fela"], k:115, p:17, f:0, hc:2, gr:4.5},
+    fiambreria:{n:"De fiambrería", al:["fiambreria"], k:120, p:18, f:0, hc:3, gr:4}}},
+  alfajor:  {n:"alfajor", alimentos:["Alfajor","Alfajor triple"], ing:[], opts:{
+    jorgito:{n:"Jorgito", al:["jorgito"], k:440, p:5, f:1.5, hc:64, gr:18, u:55},
+    guaymallen:{n:"Guaymallén", al:["guaymallen"], k:430, p:5, f:1.5, hc:67, gr:16, u:38},
+    havanna:{n:"Havanna", al:["havanna"], k:460, p:5.5, f:2, hc:60, gr:22, u:55},
+    capitan:{n:"Capitán del Espacio", al:["capitan del espacio","capitan"], k:420, p:5, f:1.5, hc:63, gr:17, u:70}}},
+};
