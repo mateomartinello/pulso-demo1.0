@@ -10,5 +10,5 @@ const CONFIG = {
   DEMO: "demo 1.0",   // versión de la demo: la pantalla de inicio dice «Bienvenido a la demo 1.0»
   CONTACTO: "verificacionpulso@gmail.com",
   // Atajo «Pulso Salud» (Apple Salud → Pulso): enlace de iCloud; mientras tanto, el archivo firmado del repositorio.
-  ATAJO_SALUD: "https://mateomartinello.github.io/pulso-demo1.0/atajo/Pulso-Salud.shortcut",
+  ATAJO_SALUD: "https://mateomartinello.github.io/pulso-demo1.0/atajo/Pulso%20Salud.shortcut",
 };

@@ -278,7 +278,7 @@ function renderBaja(box){
 }
 window.addEventListener("hashchange",()=>render());
 
-// ---- Apple Salud: el atajo «Pulso Salud» (atajo/) manda pasos, minutos de ejercicio y el inicio del último período (si lo hay) ----
+// ---- Apple Salud: el atajo «Pulso Salud» (atajo/) manda los pasos y los minutos de ejercicio del día ----
 // «Conectar» genera un código personal y abre el atajo pasándoselo (lo guarda en Atajos); la app lee lo que llegó con «mi_salud».
 const ATAJO_NOMBRE="Pulso Salud";
 let saludLeyendo=false;
@@ -313,7 +313,7 @@ function seccionSalud(){
     }catch(e){ msg.textContent="No se pudo conectar. Revisá la conexión y probá de nuevo."; }
     b.disabled=false; };
   const paso=(titulo,...cuerpo)=>el("li",{}, el("b",{},titulo), ...cuerpo);
-  agregar(card, el("p",{style:"margin:0 0 8px"},"Pulso puede leer de Salud tus pasos y tus minutos de ejercicio de cada día (y, si tu app de ciclo los guarda ahí, el inicio de tu período), así no los cargás a mano. Son tres pasos, una sola vez."),
+  agregar(card, el("p",{style:"margin:0 0 8px"},"Pulso puede leer de Salud tus pasos y tus minutos de ejercicio de cada día, así no los cargás a mano. Son tres pasos, una sola vez."),
     el("ol",{class:"pasos-inst"},
       paso("Instalá el atajo. ", "Tocá el botón y después «Agregar atajo».",
         el("div",{style:"margin-top:6px"}, el("a",{class:"btn small",href:CONFIG.ATAJO_SALUD,target:"_blank",rel:"noopener"},"Instalar el atajo"))),
