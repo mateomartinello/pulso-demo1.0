@@ -1,47 +1,28 @@
-# Atajo «Pulso · Salud» (Apple Salud → Pulso)
+# Atajo «Pulso Salud» (Apple Salud → Pulso)
 
-Lo arma una vez el dueño del proyecto en su iPhone, en la app **Atajos**, y lo comparte con un enlace de iCloud. Ese enlace va en `CONFIG.ATAJO_SALUD` (`src/config.js`). Cada persona lo instala desde Perfil › Apple Salud y pega su código personal.
+El atajo se genera desde la Mac, no se arma a mano:
 
-Los nombres de las acciones pueden variar un poco según la versión de iOS.
+```
+python3 atajo/generar.py "/tmp/Pulso Salud.shortcut"
+shortcuts sign --mode anyone --input "/tmp/Pulso Salud.shortcut" --output atajo/Pulso-Salud.shortcut
+```
 
-## Acciones, en orden
+`atajo/generar.py` escribe el plist con estas acciones:
 
-1. **Texto** → escribí `CODIGO`. (Es el código personal; ver «Pregunta al importar», más abajo).
-2. **Buscar muestras de salud** → Tipo: *Pasos*; filtro: *Fecha de inicio* es *hoy*.
-3. **Calcular estadísticas** → *Suma* de las muestras de salud. Renombrá el resultado: `Pasos`.
-4. **Buscar muestras de salud** → Tipo: *Entrenamientos*; filtro: *Fecha de inicio* es *hoy*.
-5. **Repetir con cada elemento** (de los entrenamientos) → adentro, un **Diccionario** con:
-   - `tipo` (texto): *Tipo* del elemento.
-   - `inicio` (texto): *Fecha de inicio* del elemento, con formato ISO 8601.
-   - `min` (número): *Duración* del elemento, en minutos.
-   - `kcal` (número): *Energía activa* del elemento (si no aparece, dejalo afuera).
-   Al salir del bloque queda la lista *Resultados de Repetir*.
-6. **Buscar muestras de salud** → Tipo: *Menstruación* (Flujo menstrual); ordenar por *Fecha de inicio*, *más reciente primero*; límite: 1.
-7. **Formatear fecha** → la *Fecha de inicio* del paso 6, formato personalizado `yyyy-MM-dd`. Renombrá: `Periodo`.
-8. **Fecha actual** + **Formatear fecha** → formato personalizado `yyyy-MM-dd`. Renombrá: `Hoy`.
-9. **Obtener contenido de URL**:
-   - URL: `https://aihixquihhpirxmjhumg.supabase.co/rest/v1/rpc/salud_importar`
-   - Método: **POST**
-   - Encabezados: `apikey` = la clave publicable de `src/config.js` (`sb_publishable_…`); `Authorization` = `Bearer ` + la misma clave; `Content-Type` = `application/json`.
-   - Cuerpo: **JSON**, con estos campos:
-     - `p_codigo` (texto) → *Texto* del paso 1
-     - `p_fecha` (texto) → `Hoy`
-     - `p_pasos` (texto) → `Pasos`
-     - `p_entrenos` (lista) → *Resultados de Repetir*
-     - `p_periodo` (texto) → `Periodo`
+1. Si recibe un texto (el código que le pasa Pulso al tocar «Conectar», con `shortcuts://run-shortcut?name=Pulso%20Salud&input=text&text=CODIGO`), lo guarda en `Atajos/pulso-codigo.txt`.
+2. Lee ese archivo (así la automatización diaria, que no recibe nada, también tiene el código).
+3. Busca en Salud los **pasos** y los **minutos de ejercicio** de hoy y los suma, y el inicio del último registro de **flujo menstrual**.
+4. Los manda a `rpc/salud_importar` con la clave publicable (`p_codigo`, `p_fecha`, `p_pasos`, `p_minutos`, `p_periodo`) y muestra la respuesta (`true` si se guardó).
 
-La respuesta es `true` si se guardó. Si dice `false`, el código no es válido: generá uno nuevo en Perfil.
+El formato de las acciones de Salud sigue la referencia de exportaciones reales de iOS del proyecto `viticci/shortcuts-playground-plugin` (licencia MIT).
 
-## Pregunta al importar
+## Publicación
 
-En los detalles del atajo (ⓘ) › **Configurar el atajo** › **Pregunta al importar**: agregá una para el *Texto* del paso 1 con el texto «Pegá el código que te dio Pulso (Perfil › Apple Salud)».
+- `CONFIG.ATAJO_SALUD` apunta al archivo firmado (`atajo/Pulso-Salud.shortcut` en GitHub Pages). Para que instalarlo sea un solo toque, conviene reemplazarlo por un enlace de iCloud: en el iPhone, Atajos › mantener apretado «Pulso Salud» › Compartir › Copiar enlace de iCloud.
+- El nombre del atajo tiene que seguir siendo **Pulso Salud**: «Conectar» lo abre por nombre.
 
-## Compartir
+## Lo que hace cada persona (lo explica Perfil › Apple Salud)
 
-Nombre: **Pulso · Salud**. Compartir › **Copiar enlace de iCloud**. Ese enlace va en `CONFIG.ATAJO_SALUD`.
-
-## Lo que hace cada persona (está explicado en la app)
-
-1. Instala el atajo desde el enlace y le permite leer Salud.
-2. Pega su código.
-3. En Atajos › Automatización: una automatización **Hora del día** a las 23:00 que ejecute «Pulso · Salud» sin preguntar. Con Apple Watch, otra **Al terminar un entrenamiento**.
+1. «Instalar el atajo» › «Agregar atajo».
+2. «Conectar» › permitir que lea Salud › volver a Pulso.
+3. En Atajos › Automatización › «+» › «Hora del día» › 23:00, «Diariamente», «Ejecutar inmediatamente» › «Pulso Salud».

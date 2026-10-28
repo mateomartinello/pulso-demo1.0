@@ -278,21 +278,23 @@ function renderBaja(box){
 }
 window.addEventListener("hashchange",()=>render());
 
-// ---- Apple Salud: un atajo de iPhone manda pasos, entrenamientos y el inicio del último período (si lo hay) ----
-// La app genera un código personal para pegar en el atajo y lee lo que llegó con «mi_salud».
+// ---- Apple Salud: el atajo «Pulso Salud» (atajo/) manda pasos, minutos de ejercicio y el inicio del último período (si lo hay) ----
+// «Conectar» genera un código personal y abre el atajo pasándoselo (lo guarda en Atajos); la app lee lo que llegó con «mi_salud».
+const ATAJO_NOMBRE="Pulso Salud";
 let saludLeyendo=false;
 async function leerSalud(){
   if(saludLeyendo || !DB.auth || !DB.salud?.activo || !navigator.onLine) return;
   saludLeyendo=true;
   try{ const filas=await rpcCuenta("mi_salud",{p_desde:keyShift(S.today,-14)});
     const dias={}; let periodo=null;
-    for(const f of filas||[]){ dias[f.fecha]={pasos:f.pasos, entrenos:(Array.isArray(f.entrenos)?f.entrenos:[]).map(e=>({tipo:String(e.tipo||"Entrenamiento").slice(0,40), inicio:e.inicio||null, min:Math.round(+e.min||0), kcal:Math.round(+e.kcal||0)}))};
+    const peso=+DB.perfil?.resp?.cuerpo?.peso||70;   // sin energía informada: se estima como actividad moderada (MET 5), igual que el registro manual
+    for(const f of filas||[]){ dias[f.fecha]={pasos:f.pasos, entrenos:(Array.isArray(f.entrenos)?f.entrenos:[]).map(e=>{ const min=Math.round(+e.min||0); return {tipo:String(e.tipo||"Ejercicio").slice(0,40), inicio:e.inicio||null, min, kcal:Math.round(+e.kcal||0) || Math.round(4*peso*min/60)}; })};
       if(f.periodo && (!periodo || f.periodo>periodo)) periodo=f.periodo; }
     DB.salud={...DB.salud, dias, leido:Date.now()};
     const R=DB.perfil?.resp;   // ciclo: si la app de ciclo escribe en Salud, se toma el último inicio
     if(periodo && R?.sexo==="m" && ["salud","clue"].includes(R.cicloApp) && (!R.ciclo?.ultimo || periodo>R.ciclo.ultimo)){ R.ciclo={...(R.ciclo||{duracion:28}), ultimo:periodo}; }
     const hoy=dias[S.today]; const d=day();   // entrenamiento de hoy que llegó de Salud: se ofrece el «Después de entrenar»
-    if(hoy?.entrenos?.length && !d.postHora){ const fin=new Date(hoy.entrenos[0].inicio||Date.now()); fin.setMinutes(fin.getMinutes()+(hoy.entrenos[0].min||0)); d.postHora=fin.getHours()+":"+pad(fin.getMinutes()); }
+    if(hoy?.entrenos?.[0]?.inicio && !d.postHora){ const fin=new Date(hoy.entrenos[0].inicio||Date.now()); fin.setMinutes(fin.getMinutes()+(hoy.entrenos[0].min||0)); d.postHora=fin.getHours()+":"+pad(fin.getMinutes()); }
     persist(); if(DB.perfil?.completo) render();
   }catch(e){}
   saludLeyendo=false;
@@ -302,20 +304,26 @@ function saludDia(k){ return DB.salud?.dias?.[k] || null; }
 function seccionSalud(){
   const card=el("section",{class:"card"}, el("h3",{},"Apple Salud"));
   const msg=el("p",{class:"note",role:"status",style:"margin:8px 0 0"});
-  const nuevoCodigo=async()=>{ msg.textContent="Generando…";
-    try{ const c=await rpcCuenta("salud_codigo_nuevo"); if(!c) throw 0; DB.salud={...(DB.salud||{}), activo:true}; persist();
-      msg.replaceChildren("Tu código: ", el("b",{class:"codigo"},c), " ");
-      try{ await navigator.clipboard.writeText(c); msg.append("(ya está copiado). Pegalo en el atajo cuando te lo pida."); }catch(e){ msg.append("Copialo y pegalo en el atajo cuando te lo pida."); }
-    }catch(e){ msg.textContent="No se pudo generar el código. Revisá la conexión y probá de nuevo."; } };
   if(!ES_IOS && !DB.admin){ agregar(card, el("p",{style:"margin:0"},"La conexión con Apple Salud funciona en iPhone. En Android, el movimiento se registra a mano.")); return card; }
-  agregar(card, el("p",{style:"margin:0 0 8px"},"Pulso puede leer tus pasos y tus entrenamientos de Salud (y, si tu app de ciclo los guarda ahí, el inicio de tu período), así no los cargás a mano. Usa un atajo de la app Atajos de tu iPhone."),
+  // «Conectar»: genera el código y abre el atajo pasándoselo; el atajo lo guarda y manda los datos de hoy.
+  const conectar=async ev=>{ const b=ev.currentTarget; b.disabled=true; msg.textContent="Conectando…";
+    try{ const c=await rpcCuenta("salud_codigo_nuevo"); if(!c) throw 0; DB.salud={...(DB.salud||{}), activo:true}; persist();
+      msg.textContent="Se abre Atajos: permití que lea Salud. Después volvé a Pulso.";
+      location.href="shortcuts://run-shortcut?name="+encodeURIComponent(ATAJO_NOMBRE)+"&input=text&text="+encodeURIComponent(c);
+    }catch(e){ msg.textContent="No se pudo conectar. Revisá la conexión y probá de nuevo."; }
+    b.disabled=false; };
+  const paso=(titulo,...cuerpo)=>el("li",{}, el("b",{},titulo), ...cuerpo);
+  agregar(card, el("p",{style:"margin:0 0 8px"},"Pulso puede leer de Salud tus pasos y tus minutos de ejercicio de cada día (y, si tu app de ciclo los guarda ahí, el inicio de tu período), así no los cargás a mano. Son tres pasos, una sola vez."),
     el("ol",{class:"pasos-inst"},
-      el("li",{}, CONFIG.ATAJO_SALUD? el("a",{href:CONFIG.ATAJO_SALUD,target:"_blank",rel:"noopener"},"Instalá el atajo «Pulso · Salud»") : "Instalá el atajo «Pulso · Salud» (el enlace va a estar acá muy pronto)", ", y permitile leer Salud."),
-      el("li",{}, "Tocá «Generar mi código» y pegalo cuando el atajo te lo pida."),
-      el("li",{}, "En Atajos › Automatización, creá una automatización «Hora del día» a las 23:00 que ejecute «Pulso · Salud» sin preguntar. Si tenés Apple Watch, sumá otra «Al terminar un entrenamiento».")),
-    el("div",{class:"row",style:"margin-top:10px"}, el("button",{class:"btn small",type:"button",onclick:nuevoCodigo}, DB.salud?.activo? "Generar un código nuevo" : "Generar mi código"),
-      DB.salud?.activo? el("button",{class:"btn small ghost",type:"button",onclick:()=>{ DB.salud={...DB.salud, activo:false}; persist(); render(); }},"Dejar de leer Salud") : null),
+      paso("Instalá el atajo. ", "Tocá el botón y después «Agregar atajo».",
+        el("div",{style:"margin-top:6px"}, el("a",{class:"btn small",href:CONFIG.ATAJO_SALUD,target:"_blank",rel:"noopener"},"Instalar el atajo"))),
+      paso("Conectá Pulso. ", "Se abre Atajos: tocá «Permitir» cuando pida leer Salud y volvé a Pulso.",
+        el("div",{style:"margin-top:6px"}, el("button",{class:"btn small primary",type:"button",onclick:conectar}, DB.salud?.activo? "Conectar de nuevo" : "Conectar"))),
+      paso("Programalo para todos los días. ", "En la app Atajos:",
+        el("ol",{class:"subpasos"}, ["Tocá «Automatización», abajo.","Tocá «+» (o «Nueva automatización»).","Elegí «Hora del día».","Poné 23:00, dejá «Diariamente» y marcá «Ejecutar inmediatamente». Tocá «Siguiente».","Elegí «Pulso Salud»."].map(t=>el("li",{},t))))),
+    DB.salud?.activo? el("div",{class:"row",style:"margin-top:10px"}, el("button",{class:"btn small ghost",type:"button",onclick:()=>{ DB.salud={...DB.salud, activo:false}; persist(); render(); }},"Dejar de leer Salud")) : null,
     DB.salud?.leido? el("p",{class:"note",style:"margin:8px 0 0"},`Última lectura: ${new Date(DB.salud.leido).toLocaleString("es-AR",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}.`) : null,
     msg);
   return card;
 }
+

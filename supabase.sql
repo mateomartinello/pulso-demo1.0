@@ -396,18 +396,22 @@ end; $$;
 -- La llama el atajo (clave pública + código personal). Guarda el día y lo deja también como evento «salud» para el análisis.
 drop function if exists public.salud_importar(text, date, integer, jsonb);
 drop function if exists public.salud_importar(text, date, integer, jsonb, date);
--- Pasos y período llegan como texto: el atajo puede mandarlos vacíos (por ejemplo, si no hay registros del período).
-create or replace function public.salud_importar(p_codigo text, p_fecha date, p_pasos text default null, p_entrenos jsonb default '[]'::jsonb, p_periodo text default null)
+drop function if exists public.salud_importar(text, date, text, jsonb, text);
+-- Pasos, minutos y período llegan como texto: el atajo puede mandarlos vacíos (por ejemplo, si no hay registros del período).
+-- p_minutos: minutos de ejercicio del día (anillo verde de Salud); si no vienen entrenamientos, se guardan como uno solo.
+create or replace function public.salud_importar(p_codigo text, p_fecha date, p_pasos text default null, p_entrenos jsonb default '[]'::jsonb, p_periodo text default null, p_minutos text default null)
 returns boolean language plpgsql security definer set search_path = public, extensions as $$
-declare uid uuid; aid text; ent jsonb := coalesce(p_entrenos, '[]'::jsonb); pasos integer; periodo date;
+declare uid uuid; aid text; ent jsonb := coalesce(p_entrenos, '[]'::jsonb); pasos integer; periodo date; minutos integer;
 begin
-  select s.user_id into uid from salud_tokens s where s.token_hash = encode(digest(coalesce(p_codigo,''), 'sha256'), 'hex');
+  select s.user_id into uid from salud_tokens s where s.token_hash = encode(digest(trim(both E' \n\r\t' from coalesce(p_codigo,'')), 'sha256'), 'hex');
   if uid is null or p_fecha not between current_date - 7 and current_date + 1 then return false; end if;
   if jsonb_typeof(ent) = 'object' then ent := jsonb_build_array(ent); end if;   -- un solo entrenamiento
   if jsonb_typeof(ent) <> 'array' or jsonb_array_length(ent) > 20 or pg_column_size(ent) > 20000 then return false; end if;
   if trim(coalesce(p_pasos,'')) ~ '^\d{1,6}([.,]\d+)?$' then pasos := round(replace(trim(p_pasos), ',', '.')::numeric); end if;
   if pasos > 150000 then return false; end if;
   if trim(coalesce(p_periodo,'')) ~ '^\d{4}-\d{2}-\d{2}$' then periodo := trim(p_periodo)::date; end if;
+  if trim(coalesce(p_minutos,'')) ~ '^\d{1,4}([.,]\d+)?$' then minutos := round(replace(trim(p_minutos), ',', '.')::numeric); end if;
+  if jsonb_array_length(ent) = 0 and minutos > 0 then ent := jsonb_build_array(jsonb_build_object('tipo', 'Ejercicio', 'min', minutos)); end if;
   if periodo is not null and periodo not between current_date - 120 and current_date + 1 then periodo := null; end if;
   insert into salud_dia (user_id, fecha, pasos, entrenos, periodo) values (uid, p_fecha, pasos, ent, periodo)
   on conflict (user_id, fecha) do update set pasos = excluded.pasos, entrenos = excluded.entrenos, periodo = excluded.periodo, actualizado = now();
@@ -425,10 +429,10 @@ language sql stable security definer set search_path = public, extensions as $$
 $$;
 
 revoke all on function public.salud_codigo_nuevo() from public;
-revoke all on function public.salud_importar(text, date, text, jsonb, text) from public;
+revoke all on function public.salud_importar(text, date, text, jsonb, text, text) from public;
 revoke all on function public.mi_salud(date) from public;
 grant execute on function public.salud_codigo_nuevo() to authenticated;
-grant execute on function public.salud_importar(text, date, text, jsonb, text) to anon;
+grant execute on function public.salud_importar(text, date, text, jsonb, text, text) to anon;
 grant execute on function public.mi_salud(date) to authenticated;
 
 -- ======================= VISTAS DE ANÁLISIS (sin la cuenta de administrador) =======================
