@@ -64,6 +64,7 @@ async function alIngresar(j, op={}){
     if(u.anon_id) DB.anonId=u.anon_id;
     if(r.secret){ DB.secret=r.secret; secretHash=null; }
     if(r.marcas) DB.marcas={...r.marcas, ...(DB.marcas||{})};
+    recalcularRegistros();   // la copia de la cuenta puede traer registros calculados con un estimador anterior
   }
   // Nombre y apellido: los de la cuenta si ya los tenía; si no, los que escribió al ingresar. El mail es siempre el de la cuenta.
   const escritos={nombre:INGRESO.nombre, apellido:INGRESO.apellido};

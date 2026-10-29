@@ -336,10 +336,10 @@ function prodDe(nombre){ return Object.keys(MARCAS).find(k=>MARCAS[k].alimentos.
 function marcasPendientes(r, txt){ return [...new Set(r.items.map(it=>prodDe(it.n)).filter(k=>k && !DB.marcas?.[k] && !marcaEnTexto(k,txt)))]; }
 function guardarMarcas(m){ const x=Object.entries(m||{}).filter(([,v])=>v); if(!x.length) return; DB.marcas={...(DB.marcas||{}), ...Object.fromEntries(x)}; persist(); }
 // Rehace la cuenta de una comida escrita con los valores de la marca de cada producto («otra» = valores generales).
-function conMarcas(r, txt){
+function conMarcas(r, txt, fijas){   // fijas: las marcas ya guardadas en un registro (al recalcularlo)
   const out={kcal:r.kcal, prot:r.prot, carb:r.carb, grasa:r.grasa, fibra:r.fibra, items:[], marcas:{}};
   for(const it of r.items){
-    const k=prodDe(it.n), m=k && (marcaEnTexto(k,txt) || DB.marcas?.[k]), o=m && MARCAS[k].opts[m], gen=ESTIMADOR.alimento(it.n);
+    const k=prodDe(it.n), m=k && (fijas? fijas[k] : (marcaEnTexto(k,txt) || DB.marcas?.[k])), o=m && MARCAS[k].opts[m], gen=ESTIMADOR.alimento(it.n);
     if(!o || !gen){ out.items.push(ESTIMADOR.describir(it)); continue; }
     out.marcas[k]=m;
     let g=it.g; if(o.u && gen.u && it.g%gen.u===0) g=it.g/gen.u*o.u;   // por unidades: el tamaño de la unidad de esa marca
@@ -349,6 +349,59 @@ function conMarcas(r, txt){
   }
   for(const c of ["kcal","prot","carb","grasa","fibra"]) out[c]=Math.max(0,Math.round(out[c]));
   return out;
+}
+// ==== RECÁLCULO DE REGISTROS ESCRITOS CON UN ESTIMADOR ANTERIOR ====
+// Cada comida escrita guarda con qué versión del estimador se calculó (est). Las que no la tienen se recalculan una vez
+// desde el texto. Las anteriores a la 0.6.0 no tuvieron preguntas de porción: se recalculan completas. Las de la 0.6.0 y
+// la 0.6.1 conservan la cantidad guardada de cada alimento (ahí quedó la respuesta) y, si el plato tuvo la pregunta de
+// ingredientes, quedan como estaban.
+const EST_VER="0.7", INICIO_PREGUNTAS="2026-10-29T18:39:22Z";
+function cantidadesGuardadas(items){
+  const m=new Map();
+  for(let s of items||[]){
+    s=String(s); let x=s.match(/^(.+) \(([^)\d][^)]*)\)$/); if(x && !ESTIMADOR.alimento(s)) s=x[1];   // sin la marca: «Alfajor (Havanna)»
+    let n=null, g=null;
+    if((x=s.match(/^(.+) (\d+(?:\.\d+)?) (?:g|ml)$/))){ n=x[1]; g=+x[2]; }
+    else if((x=s.match(/^(.+) ×(\d+(?:\.\d+)?)$/))) { n=x[1]; g=+x[2]; }
+    else if((x=s.match(/^(.+) \((\d+(?:\.\d+)?) [^)]*\)$/))) { n=x[1]; g=+x[2]; }
+    else { n=s; g=1; }
+    const f=ESTIMADOR.alimento(n); if(!f) continue;
+    if(!/ (g|ml)$/.test(s)) g=g*(f.u||f.por);   // unidades → gramos
+    if(!m.has(n)) m.set(n, []); m.get(n).push(g);   // cada vez que aparece, con su cantidad
+  }
+  return m;
+}
+function conPreguntaDeIngredientes(it){
+  return it.relleno || (it.n==="Ensalada mixta" && !it.alias) || it.n==="Picada" || (it.n==="Hamburguesa con pan" && it.alias==="hamburguesa") || (VARIANTES[it.n] && VARIANTES[it.n].al.includes(it.alias));
+}
+function recalcularRegistros(){
+  let cambiados=0;
+  for(const d of Object.values(DB.dias||{})) for(const c of (d.comidas||[])){
+    if(c.est || c.recetaId || !c.texto) continue;
+    const r=ESTIMADOR.analizar(c.texto); c.est=EST_VER;
+    if(!r.items.length) continue;
+    let its=r.items.map(x=>({...x}));
+    if(String(c.hora||"")>=INICIO_PREGUNTAS){
+      if(its.some(conPreguntaDeIngredientes)) continue;
+      const viejas=cantidadesGuardadas(c.items);
+      const tomar = n => { const l=viejas.get(n); return l && l.length? Math.max(1, Math.round(l.shift())) : null; };
+      its=its.map(it=>{
+        if(it.n==="Yogur bebible" && viejas.get("Yogur firme")?.length) return {...nuevoItem("Yogur firme",1), g:tomar("Yogur firme")};
+        const g=tomar(it.n); return g!=null? {...it, g} : it; });
+    }
+    const t=ESTIMADOR.totales(its), a=conMarcas(t, c.texto, c.marcas||{});
+    const nuevo={kcal:a.kcal, prot:a.prot, carb:a.carb, grasa:a.grasa, fibra:a.fibra, verduras:t.verduras, frutas:t.frutas, integrales:t.integrales,
+      nueces:t.nueces, vitC:t.vitC, vitCDe:t.vitCDe||undefined, roja:t.roja, atun:t.atun, items:a.items, marcas:a.marcas, noRec:r.sobras};
+    const antes=JSON.stringify([c.kcal,c.prot,c.carb,c.grasa,c.items]);
+    Object.assign(c, nuevo);
+    if(JSON.stringify([c.kcal,c.prot,c.carb,c.grasa,c.items])!==antes) cambiados++;
+  }
+  if(cambiados){ DB.avisoRecalculo=true; persist(); }
+  return cambiados;
+}
+function cardRecalculo(){
+  return el("section",{class:"card"}, el("p",{style:"margin:0 0 10px"},"Mejoramos cómo se calculan las comidas escritas y actualizamos tus registros anteriores."),
+    el("button",{class:"btn small primary",type:"button",onclick:()=>{ delete DB.avisoRecalculo; persist(); render(); }},"Entendido"));
 }
 function grupoMarca(prod, sel){
   const P=MARCAS[prod], box=el("div",{class:"opts"});
@@ -569,6 +622,7 @@ function scaleN(n,a){ const o={...n}; for(const k of ["kcal","prot","carb","gras
 function renderHoy(){
   const box=$("#v-hoy"); box.replaceChildren();
   const d=day();
+  if(DB.avisoRecalculo) box.append(cardRecalculo());
   if(!d.sueno && new Date().getHours()<16) box.append(cardSueno());
   if(d.ejercicio.length){ if(DB.movResumenOculto!==S.today) box.append(movHoyResumen(d.ejercicio)); }   // ya anotó movimiento hoy: se muestra (sin volver a preguntar) hasta que lo desliza
   else if(!movAunNo()) box.append(cardMovRapido());
@@ -599,7 +653,7 @@ function renderHoy(){
     if(!r.items.length){ msg.textContent="No reconocí ningún alimento. Probá nombrarlo de otra forma."; return; }
     const nombre=cap(txt).replace(/[.\s]+$/,"");
     flujoPreguntas(pasosRegistro(r, txt), resp=>{ guardarMarcas(marcasDe(resp)); const its=aplicarRespuestas(r, resp), t=ESTIMADOR.totales(its), a=conMarcas(t, txt), emo=emoDe(resp);
-      addComida({slot:sel.value, recetaId:null, nombre:nombre.length>140?nombre.slice(0,137)+"…":nombre, kcal:a.kcal, prot:a.prot, carb:a.carb, grasa:a.grasa, fibra:a.fibra,
+      addComida({slot:sel.value, recetaId:null, est:EST_VER, nombre:nombre.length>140?nombre.slice(0,137)+"…":nombre, kcal:a.kcal, prot:a.prot, carb:a.carb, grasa:a.grasa, fibra:a.fibra,
       verduras:t.verduras, frutas:t.frutas, integrales:t.integrales, nueces:t.nueces, vitC:t.vitC, vitCDe:t.vitCDe||undefined, roja:t.roja, atun:t.atun, fuera:true, texto:txt,
       items:a.items, marcas:a.marcas, noRec:r.sobras, ...emo}); }); };
   otro.addEventListener("keydown",e=>{ if(e.key==="Enter"&&!e.shiftKey){ e.preventDefault(); registrar(); } });
@@ -911,7 +965,7 @@ function seccionCiclo(){
 function seccionPrivacidad(){
   const msg=el("p",{class:"note",id:"privMsg",style:"margin:8px 0 0"});
   const file=el("input",{type:"file",id:"impFile",accept:"application/json",hidden:true});
-  file.addEventListener("change",async()=>{ try{ const t=await file.files[0].text(); const x=JSON.parse(t); if(!x||!x.dias||!x.perfil) throw 0; const {avisos, auth, cuentaId, consent}=DB; DB=x; Object.assign(DB,{avisos, auth, cuentaId, consent}); persist(); msg.textContent="Copia restaurada."; render(); }catch(e){ msg.textContent="El archivo no es una copia válida de la app."; } });
+  file.addEventListener("change",async()=>{ try{ const t=await file.files[0].text(); const x=JSON.parse(t); if(!x||!x.dias||!x.perfil) throw 0; const {avisos, auth, cuentaId, consent}=DB; DB=x; Object.assign(DB,{avisos, auth, cuentaId, consent}); recalcularRegistros(); persist(); msg.textContent="Copia restaurada."; render(); }catch(e){ msg.textContent="El archivo no es una copia válida de la app."; } });
   return el("section",{class:"card"}, el("h3",{},"Tus datos"),
     el("p",{style:"margin:0 0 8px"}, `Aceptaste los términos y condiciones el ${new Date(DB.consent.fecha).toLocaleDateString("es-AR",{day:"numeric",month:"long",year:"numeric"})}. Tus registros se guardan en tu cuenta y en la base de datos de Pulso, como explican los términos.`),
     el("div",{class:"row"},
@@ -1069,6 +1123,7 @@ function finalizarCuestionario(){
 { const m=new URLSearchParams(location.search).get("momento"); if(m && SLOTDEF[m]){ S.slot=m; S.view="hoy"; } if(location.search) history.replaceState(null,"",location.pathname+location.hash); }
 sesionIniciar();
 movAlVolver(); delete DB.cerradaDesde; persist();
+recalcularRegistros();
 render();
 ingresoPorEnlace();
 flushSoon();
