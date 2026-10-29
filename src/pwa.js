@@ -39,11 +39,13 @@ const SVG = {
   instalar:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M12 7v6M9 10l3 3 3-3M8 21h8"/></svg>',
   atras:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg>',
   adelante:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg>',
+  lineas:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>',
   libro:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h6a2 2 0 0 1 2 2v12a2 2 0 0 0-2-2H4zM20 5h-6a2 2 0 0 0-2 2v12a2 2 0 0 1 2-2h6z"/></svg>',
 };
 const ico=(n,cls)=>{ const e=el("span",{class:"ico"+(cls?" "+cls:""),"aria-hidden":"true"}); e.innerHTML=SVG[n]; return e; };
 // Dibujos: la barra de Safari con «Compartir» resaltado, una fila de menú y el ícono de Pulso en la pantalla de inicio.
-const barraSafari = () => el("div",{class:"mock barra"}, ico("atras"), ico("adelante"), ico("compartir","resalta"), ico("libro"), ico("puntosH"));
+// Safari actual (iOS 26): barra de abajo con el menú a la izquierda de la dirección; adentro, «Compartir».
+const barraSafari = () => el("div",{class:"mock barra"}, ico("lineas","resalta"), el("span",{class:"mock-url"},"mateomartinello.github.io"), ico("puntosH"));
 const barraSafariArriba = () => el("div",{class:"mock barra"}, el("span",{class:"mock-url"},"mateomartinello.github.io"), ico("compartir","resalta"));
 const filaMenu = (icono, texto) => el("div",{class:"mock menu"}, el("span",{},texto), ico(icono,"resalta"));
 const botonMock = texto => el("div",{class:"mock boton"}, el("span",{class:"resalta-txt"},texto));
@@ -64,10 +66,12 @@ function renderInstalar(box){
       msg);
   } else if(ES_IOS){
     agregar(card, pasos(
-        pasoVis(1, ES_IOS_OTRO? "Tocá el botón Compartir, arriba, junto a la dirección." : "Tocá el botón Compartir, en la barra de abajo de Safari (si no la ves, tocá «⋯»).", ES_IOS_OTRO? barraSafariArriba() : barraSafari()),
-        pasoVis(2, "Bajá un poco y tocá «Agregar a inicio». Si no aparece, tocá «Ver más».", filaMenu("agregar","Agregar a inicio")),
-        pasoVis(3, "Si aparece «Abrir como app web», dejalo activado. Tocá «Agregar», arriba a la derecha.", botonMock("Agregar")),
-        pasoVis(4, "Listo: cerrá Safari y abrí Pulso desde su ícono.", iconoInicio())),
+        ES_IOS_OTRO? pasoVis(1, "Tocá el botón Compartir, arriba, junto a la dirección.", barraSafariArriba())
+          : pasoVis(1, "En la barra de abajo de Safari, tocá el menú (las tres líneas, a la izquierda de la dirección).", barraSafari()),
+        ES_IOS_OTRO? null : pasoVis(2, "Tocá «Compartir». (Si en tu Safari el botón Compartir ya está a la vista, tocalo directamente.)", filaMenu("compartir","Compartir")),
+        pasoVis(ES_IOS_OTRO? 2 : 3, "Bajá y tocá «Agregar a inicio». Si no aparece, tocá «Ver más».", filaMenu("agregar","Agregar a inicio")),
+        pasoVis(ES_IOS_OTRO? 3 : 4, "Dejá activado «Abrir como app web» y tocá «Agregar», arriba a la derecha.", botonMock("Agregar")),
+        pasoVis(ES_IOS_OTRO? 4 : 5, "Listo: cerrá Safari y abrí Pulso desde su ícono.", iconoInicio())),
       IOS_VIEJO? el("p",{class:"note"},`Tu iPhone tiene iOS ${IOS_VER.join(".")}. Los recordatorios necesitan iOS 16.4 o posterior (Configuración › General › Actualización de software).`) : null);
   } else if(ONB.instalada){
     agregar(card, el("p",{class:"aviso-inst"},"Listo: Pulso quedó descargada. Abrila desde su ícono y entrá con tu mail."), iconoInicio());
@@ -185,8 +189,10 @@ function renderOfertaAvisos(box, alSalir){
   box.append(el("div",{class:"onb-card"}, el("div",{class:"eyebrow"},"Recordatorios"), el("h2",{},"¿Te avisamos a la hora de cada comida?"),
     el("p",{},`Te llega un aviso a la hora de tu ${listaHorarios()}. Si ya registraste esa comida, no te llega.`),
     el("p",{class:"note"},TXT_DATOS_AVISOS),
-    el("button",{class:"btn primary big",type:"button",onclick:async ev=>{ const b=ev.currentTarget; b.disabled=true; msg.textContent="Activando…"; const err=await activarAvisos(); if(err){ msg.textContent=err; b.disabled=false; } else salir(); }},"Activar recordatorios"),
-    msg, el("button",{class:"btn link",type:"button",onclick:salir},"Ahora no")));
+    el("button",{class:"btn primary big",type:"button",onclick:async ev=>{ const b=ev.currentTarget; b.disabled=true; msg.textContent="Activando…"; const err=await activarAvisos();
+      if(!err) return salir();
+      msg.textContent=err; b.textContent="Seguir"; b.disabled=false; b.onclick=salir; }},"Activar recordatorios"),   // única opción; si el teléfono lo rechaza, se explica y se sigue
+    msg));
 }
 function seccionAvisos(){
   const st=estadoAvisos(), msg=el("p",{class:"note",style:"margin:8px 0 0",role:"status"});

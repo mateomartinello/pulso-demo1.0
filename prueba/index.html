@@ -38,8 +38,9 @@ body{background:var(--bg);color:var(--body);font-family:var(--sans);font-size:15
 .eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
 h1{font-family:var(--serif);font-weight:700;color:var(--ink);font-size:clamp(26px,6vw,34px);line-height:1.1;margin:.2em 0 0;text-wrap:balance}
 .date{font-size:13.5px;color:var(--muted)}
-.tabs{overflow-x:auto;position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;gap:4px;margin:16px 0 18px;border-bottom:1px solid var(--gold)}
-.tab{font:inherit;font-size:14px;font-weight:600;color:var(--muted);background:none;border:0;border-bottom:2px solid transparent;padding:10px 12px;cursor:pointer;margin-bottom:-1px}
+.tabs{overflow-x:auto;overflow-y:hidden;touch-action:pan-x;overscroll-behavior:contain;scrollbar-width:none;position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;gap:4px;margin:16px 0 18px;border-bottom:1px solid var(--gold)}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;font:inherit;font-size:14px;font-weight:600;color:var(--muted);background:none;border:0;border-bottom:2px solid transparent;padding:10px 12px;cursor:pointer;margin-bottom:-1px}
 .tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--green)}
 .tab:focus-visible,.btn:focus-visible,.chip:focus-visible,.slot:focus-visible{outline:2px solid var(--green);outline-offset:2px}
 .stack{display:flex;flex-direction:column;gap:16px}
@@ -1296,11 +1297,13 @@ const SVG = {
   instalar:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M12 7v6M9 10l3 3 3-3M8 21h8"/></svg>',
   atras:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg>',
   adelante:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg>',
+  lineas:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>',
   libro:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h6a2 2 0 0 1 2 2v12a2 2 0 0 0-2-2H4zM20 5h-6a2 2 0 0 0-2 2v12a2 2 0 0 1 2-2h6z"/></svg>',
 };
 const ico=(n,cls)=>{ const e=el("span",{class:"ico"+(cls?" "+cls:""),"aria-hidden":"true"}); e.innerHTML=SVG[n]; return e; };
 // Dibujos: la barra de Safari con «Compartir» resaltado, una fila de menú y el ícono de Pulso en la pantalla de inicio.
-const barraSafari = () => el("div",{class:"mock barra"}, ico("atras"), ico("adelante"), ico("compartir","resalta"), ico("libro"), ico("puntosH"));
+// Safari actual (iOS 26): barra de abajo con el menú a la izquierda de la dirección; adentro, «Compartir».
+const barraSafari = () => el("div",{class:"mock barra"}, ico("lineas","resalta"), el("span",{class:"mock-url"},"mateomartinello.github.io"), ico("puntosH"));
 const barraSafariArriba = () => el("div",{class:"mock barra"}, el("span",{class:"mock-url"},"mateomartinello.github.io"), ico("compartir","resalta"));
 const filaMenu = (icono, texto) => el("div",{class:"mock menu"}, el("span",{},texto), ico(icono,"resalta"));
 const botonMock = texto => el("div",{class:"mock boton"}, el("span",{class:"resalta-txt"},texto));
@@ -1321,10 +1324,12 @@ function renderInstalar(box){
       msg);
   } else if(ES_IOS){
     agregar(card, pasos(
-        pasoVis(1, ES_IOS_OTRO? "Tocá el botón Compartir, arriba, junto a la dirección." : "Tocá el botón Compartir, en la barra de abajo de Safari (si no la ves, tocá «⋯»).", ES_IOS_OTRO? barraSafariArriba() : barraSafari()),
-        pasoVis(2, "Bajá un poco y tocá «Agregar a inicio». Si no aparece, tocá «Ver más».", filaMenu("agregar","Agregar a inicio")),
-        pasoVis(3, "Si aparece «Abrir como app web», dejalo activado. Tocá «Agregar», arriba a la derecha.", botonMock("Agregar")),
-        pasoVis(4, "Listo: cerrá Safari y abrí Pulso desde su ícono.", iconoInicio())),
+        ES_IOS_OTRO? pasoVis(1, "Tocá el botón Compartir, arriba, junto a la dirección.", barraSafariArriba())
+          : pasoVis(1, "En la barra de abajo de Safari, tocá el menú (las tres líneas, a la izquierda de la dirección).", barraSafari()),
+        ES_IOS_OTRO? null : pasoVis(2, "Tocá «Compartir». (Si en tu Safari el botón Compartir ya está a la vista, tocalo directamente.)", filaMenu("compartir","Compartir")),
+        pasoVis(ES_IOS_OTRO? 2 : 3, "Bajá y tocá «Agregar a inicio». Si no aparece, tocá «Ver más».", filaMenu("agregar","Agregar a inicio")),
+        pasoVis(ES_IOS_OTRO? 3 : 4, "Dejá activado «Abrir como app web» y tocá «Agregar», arriba a la derecha.", botonMock("Agregar")),
+        pasoVis(ES_IOS_OTRO? 4 : 5, "Listo: cerrá Safari y abrí Pulso desde su ícono.", iconoInicio())),
       IOS_VIEJO? el("p",{class:"note"},`Tu iPhone tiene iOS ${IOS_VER.join(".")}. Los recordatorios necesitan iOS 16.4 o posterior (Configuración › General › Actualización de software).`) : null);
   } else if(ONB.instalada){
     agregar(card, el("p",{class:"aviso-inst"},"Listo: Pulso quedó descargada. Abrila desde su ícono y entrá con tu mail."), iconoInicio());
@@ -1442,8 +1447,10 @@ function renderOfertaAvisos(box, alSalir){
   box.append(el("div",{class:"onb-card"}, el("div",{class:"eyebrow"},"Recordatorios"), el("h2",{},"¿Te avisamos a la hora de cada comida?"),
     el("p",{},`Te llega un aviso a la hora de tu ${listaHorarios()}. Si ya registraste esa comida, no te llega.`),
     el("p",{class:"note"},TXT_DATOS_AVISOS),
-    el("button",{class:"btn primary big",type:"button",onclick:async ev=>{ const b=ev.currentTarget; b.disabled=true; msg.textContent="Activando…"; const err=await activarAvisos(); if(err){ msg.textContent=err; b.disabled=false; } else salir(); }},"Activar recordatorios"),
-    msg, el("button",{class:"btn link",type:"button",onclick:salir},"Ahora no")));
+    el("button",{class:"btn primary big",type:"button",onclick:async ev=>{ const b=ev.currentTarget; b.disabled=true; msg.textContent="Activando…"; const err=await activarAvisos();
+      if(!err) return salir();
+      msg.textContent=err; b.textContent="Seguir"; b.disabled=false; b.onclick=salir; }},"Activar recordatorios"),   // única opción; si el teléfono lo rechaza, se explica y se sigue
+    msg));
 }
 function seccionAvisos(){
   const st=estadoAvisos(), msg=el("p",{class:"note",style:"margin:8px 0 0",role:"status"});
@@ -2350,7 +2357,8 @@ function renderHoy(){
   const box=$("#v-hoy"); box.replaceChildren();
   const d=day();
   if(!d.sueno && new Date().getHours()<16) box.append(cardSueno());
-  if(!movAunNo() && !d.ejercicio.length) box.append(cardMovRapido(true));   // con movimiento ya anotado hoy, no se vuelve a preguntar
+  if(d.ejercicio.length) box.append(movHoyResumen(d.ejercicio));   // ya anotó movimiento hoy: se muestra, sin volver a preguntar
+  else if(!movAunNo()) box.append(cardMovRapido(true));
   if(cicloInfo()?.antojos && !d.antojo) box.append(cardAntojo());
   // momentos del día
   const hechos=new Set(d.comidas.map(c=>c.slot));
@@ -2500,6 +2508,11 @@ const ACT_MET=Object.fromEntries(ACT.map(a=>[a[0],a[2]])); const ACT_TXT=Object.
 const MOV_VUELVE=30*60000;
 function movAunNo(){ return !!DB.movAunNo && dayKey(new Date(DB.movAunNo))===S.today; }
 function movAlVolver(){ if(DB.cerradaDesde && Date.now()-DB.cerradaDesde>=MOV_VUELVE && DB.movAunNo){ delete DB.movAunNo; persist(); return true; } return false; }
+function movHoyResumen(lista){
+  return el("section",{class:"card mov-hoy"}, el("h3",{},"Tu movimiento de hoy"),
+    el("p",{style:"margin:0"}, "✓ "+lista.map(e=>`${ACT_TXT[e.tipo]||e.otro||"Actividad"} · ${e.min} min`).join(" · ")),
+    el("button",{class:"btn link",type:"button",onclick:()=>{ S.view="mov"; render(); window.scrollTo(0,0); }},"Anotar otra actividad en Movimiento"));
+}
 function cardMovRapido(conAunNo){
   const st={tipo:null, min:null, abierto:!conAunNo};
   const box=el("section",{class:"card"});

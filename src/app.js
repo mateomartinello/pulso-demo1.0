@@ -555,7 +555,8 @@ function renderHoy(){
   const box=$("#v-hoy"); box.replaceChildren();
   const d=day();
   if(!d.sueno && new Date().getHours()<16) box.append(cardSueno());
-  if(!movAunNo() && !d.ejercicio.length) box.append(cardMovRapido(true));   // con movimiento ya anotado hoy, no se vuelve a preguntar
+  if(d.ejercicio.length) box.append(movHoyResumen(d.ejercicio));   // ya anotó movimiento hoy: se muestra, sin volver a preguntar
+  else if(!movAunNo()) box.append(cardMovRapido(true));
   if(cicloInfo()?.antojos && !d.antojo) box.append(cardAntojo());
   // momentos del día
   const hechos=new Set(d.comidas.map(c=>c.slot));
@@ -705,6 +706,11 @@ const ACT_MET=Object.fromEntries(ACT.map(a=>[a[0],a[2]])); const ACT_TXT=Object.
 const MOV_VUELVE=30*60000;
 function movAunNo(){ return !!DB.movAunNo && dayKey(new Date(DB.movAunNo))===S.today; }
 function movAlVolver(){ if(DB.cerradaDesde && Date.now()-DB.cerradaDesde>=MOV_VUELVE && DB.movAunNo){ delete DB.movAunNo; persist(); return true; } return false; }
+function movHoyResumen(lista){
+  return el("section",{class:"card mov-hoy"}, el("h3",{},"Tu movimiento de hoy"),
+    el("p",{style:"margin:0"}, "✓ "+lista.map(e=>`${ACT_TXT[e.tipo]||e.otro||"Actividad"} · ${e.min} min`).join(" · ")),
+    el("button",{class:"btn link",type:"button",onclick:()=>{ S.view="mov"; render(); window.scrollTo(0,0); }},"Anotar otra actividad en Movimiento"));
+}
 function cardMovRapido(conAunNo){
   const st={tipo:null, min:null, abierto:!conAunNo};
   const box=el("section",{class:"card"});

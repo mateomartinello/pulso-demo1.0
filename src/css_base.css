@@ -16,8 +16,9 @@ body{background:var(--bg);color:var(--body);font-family:var(--sans);font-size:15
 .eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
 h1{font-family:var(--serif);font-weight:700;color:var(--ink);font-size:clamp(26px,6vw,34px);line-height:1.1;margin:.2em 0 0;text-wrap:balance}
 .date{font-size:13.5px;color:var(--muted)}
-.tabs{overflow-x:auto;position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;gap:4px;margin:16px 0 18px;border-bottom:1px solid var(--gold)}
-.tab{font:inherit;font-size:14px;font-weight:600;color:var(--muted);background:none;border:0;border-bottom:2px solid transparent;padding:10px 12px;cursor:pointer;margin-bottom:-1px}
+.tabs{overflow-x:auto;overflow-y:hidden;touch-action:pan-x;overscroll-behavior:contain;scrollbar-width:none;position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;gap:4px;margin:16px 0 18px;border-bottom:1px solid var(--gold)}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;font:inherit;font-size:14px;font-weight:600;color:var(--muted);background:none;border:0;border-bottom:2px solid transparent;padding:10px 12px;cursor:pointer;margin-bottom:-1px}
 .tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--green)}
 .tab:focus-visible,.btn:focus-visible,.chip:focus-visible,.slot:focus-visible{outline:2px solid var(--green);outline-offset:2px}
 .stack{display:flex;flex-direction:column;gap:16px}
