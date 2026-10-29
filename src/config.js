@@ -6,7 +6,7 @@ const CONFIG = {
   SUPABASE_ANON_KEY: "sb_publishable_4rprl49Z0iCw1uuv0Bk6Tw_7-bdMaTb",
   // Recordatorios (Web Push): clave pública VAPID. La privada vive solo en los secretos de la función de Supabase.
   VAPID_PUBLICA: "BPbi0hFzII-GcGYVX2Y_ulYxwdQc9rpX-vS5ejgFcRfzqGNYFvNvC_zX2cBmvJ9jSuYVHAFvCbnUs60_1TXyYZA",
-  APP_VERSION: "0.5.1",
+  APP_VERSION: "0.6.0",
   DEMO: "demo 1.0",   // versión de la demo: la pantalla de inicio dice «Bienvenido a la demo 1.0»
   CONTACTO: "verificacionpulso@gmail.com",
   // Apple Salud por el atajo «Pulso Salud»: apagado hasta que el atajo funcione en el iPhone (en la prueba del 28/10/2026 daba «No samples found»).

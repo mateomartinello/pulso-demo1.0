@@ -1,5 +1,8 @@
 // ==== APP INSTALABLE (agregar a inicio) ====
 // Como append(), pero sin agregar los hijos vacíos (null o false), que append() mostraría como texto.
+// Sin zoom con dos dedos (Safari ignora user-scalable=no; estos eventos lo frenan).
+for(const ev of ["gesturestart","gesturechange","gestureend"]) document.addEventListener(ev, e=>e.preventDefault(), {passive:false});
+document.addEventListener("touchmove", e=>{ if(e.touches.length>1) e.preventDefault(); }, {passive:false});
 const agregar=(nodo,...hijos)=>nodo.append(...hijos.filter(h=>h!=null && h!==false));
 // «‹ Atrás» arriba a la izquierda, en las pantallas previas al cuestionario.
 const volver=alTocar=>el("button",{class:"volver",type:"button",onclick:alTocar},"‹ Atrás");
@@ -26,44 +29,70 @@ window.addEventListener("appinstalled", ()=>{ BIP=null; ONB.instalada=true; if(O
 // Si la persona instala Pulso y la abre desde el ícono mientras esta pestaña sigue abierta, al volver acá no cambia nada: sigue la pantalla de instalar.
 if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
 
+// ---- Guía visual para descargar Pulso (agregarla a la pantalla de inicio o instalarla en la compu) ----
+// Cada paso lleva un dibujo del botón real que hay que tocar.
+const SVG = {
+  compartir:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M7 10H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-1"/></svg>',
+  agregar:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8v8M8 12h8"/></svg>',
+  puntosV:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>',
+  puntosH:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>',
+  instalar:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M12 7v6M9 10l3 3 3-3M8 21h8"/></svg>',
+  atras:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg>',
+  adelante:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg>',
+  libro:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h6a2 2 0 0 1 2 2v12a2 2 0 0 0-2-2H4zM20 5h-6a2 2 0 0 0-2 2v12a2 2 0 0 1 2-2h6z"/></svg>',
+};
+const ico=(n,cls)=>{ const e=el("span",{class:"ico"+(cls?" "+cls:""),"aria-hidden":"true"}); e.innerHTML=SVG[n]; return e; };
+// Dibujos: la barra de Safari con «Compartir» resaltado, una fila de menú y el ícono de Pulso en la pantalla de inicio.
+const barraSafari = () => el("div",{class:"mock barra"}, ico("atras"), ico("adelante"), ico("compartir","resalta"), ico("libro"), ico("puntosH"));
+const barraSafariArriba = () => el("div",{class:"mock barra"}, el("span",{class:"mock-url"},"mateomartinello.github.io"), ico("compartir","resalta"));
+const filaMenu = (icono, texto) => el("div",{class:"mock menu"}, el("span",{},texto), ico(icono,"resalta"));
+const botonMock = texto => el("div",{class:"mock boton"}, el("span",{class:"resalta-txt"},texto));
+const iconoInicio = () => el("div",{class:"mock inicio"}, el("img",{src:"iconos/icon-192.png",alt:"",width:"56",height:"56"}), el("span",{},"Pulso"));
+const pasoVis = (n, texto, dibujo) => el("li",{class:"paso-vis"}, el("span",{class:"paso-n"},n), el("div",{}, el("p",{},texto), dibujo||null));
+
 function renderInstalar(box){
   const card = el("div",{class:"onb-card"}, barraSup(()=>{ ONB.paso=null; renderOnb(); window.scrollTo(0,0); }, "instalar"),
-    el("div",{class:"eyebrow"},"Antes de empezar"), el("h2",{},"Agregá Pulso a tu pantalla de inicio"));
-  const pasos = list => el("ol",{class:"pasos-inst"}, list.map(t=>el("li",{},t)));
-  const abrir = el("p",{class:"aviso-inst"},"Pulso se usa desde el ícono, como una app más. Desde el navegador no se puede usar.");
+    el("div",{class:"eyebrow"},"Antes de empezar"), el("h2",{},"Descargá Pulso en tu celular"),
+    el("p",{},"Se descarga desde acá, sin pasar por la tienda de apps, y queda en tu pantalla de inicio como cualquier otra app. Lleva menos de un minuto."));
+  const pasos = (...xs) => el("ol",{class:"pasos-vis"}, xs);
   if(EN_OTRA_APP){
     const msg=el("p",{class:"note",role:"status"});
-    agregar(card, el("p",{},"Estás viendo Pulso dentro de otra app (por ejemplo, WhatsApp o Instagram). Desde ahí no se puede agregar a la pantalla de inicio."),
-      pasos([ES_IOS? "Tocá el menú de la app (⋯) y elegí «Abrir en Safari» o «Abrir en el navegador»." : "Tocá el menú de la app (⋮) y elegí «Abrir en Chrome» o «Abrir en el navegador».",
-        "Ahí vas a ver de nuevo esta pantalla, con los pasos para agregarla."]),
+    agregar(card, el("p",{class:"aviso-inst"},"Estás viendo Pulso dentro de otra app (por ejemplo, WhatsApp o Instagram). Desde ahí no se puede descargar."),
+      pasos(pasoVis(1, ES_IOS? "Tocá el menú de la app y elegí «Abrir en Safari»." : "Tocá el menú de la app y elegí «Abrir en Chrome».", ico(ES_IOS? "puntosH" : "puntosV","grande")),
+        pasoVis(2, "Ahí vas a ver de nuevo esta pantalla, con los pasos para descargarla.")),
       el("button",{class:"btn",type:"button",onclick:async()=>{ try{ await navigator.clipboard.writeText(location.origin+location.pathname); msg.textContent="Enlace copiado: pegalo en "+(ES_IOS?"Safari.":"Chrome."); }catch(e){ msg.textContent="No se pudo copiar. La dirección es "+location.origin+location.pathname; } }},"Copiar el enlace"),
       msg);
   } else if(ES_IOS){
-    agregar(card, el("p",{},"Así se abre como una app, a pantalla completa, y puede avisarte a la hora de cada comida."), abrir,
-      pasos([ES_IOS_OTRO? "Tocá el botón Compartir (el cuadrado con una flecha hacia arriba), arriba a la derecha, junto a la barra de direcciones."
-                        : "Tocá el botón Compartir (el cuadrado con una flecha hacia arriba). Si no lo ves, tocá primero «⋯», abajo a la derecha.",
-        "Bajá y tocá «Agregar a inicio». Si no aparece, tocá «Ver más».",
-        "Si aparece la opción «Abrir como app web», dejala activada. Tocá «Agregar».",
-        "Cerrá el navegador y abrí Pulso desde el ícono nuevo en tu pantalla de inicio."]),
-      IOS_VIEJO? el("p",{class:"note"},`Tu iPhone tiene iOS ${IOS_VER.join(".")}. Los recordatorios necesitan iOS 16.4 o posterior (Configuración › General › Actualización de software). Igual podés agregar Pulso a inicio.`) : null);
+    agregar(card, pasos(
+        pasoVis(1, ES_IOS_OTRO? "Tocá el botón Compartir, arriba, junto a la dirección." : "Tocá el botón Compartir, en la barra de abajo de Safari (si no la ves, tocá «⋯»).", ES_IOS_OTRO? barraSafariArriba() : barraSafari()),
+        pasoVis(2, "Bajá un poco y tocá «Agregar a inicio». Si no aparece, tocá «Ver más».", filaMenu("agregar","Agregar a inicio")),
+        pasoVis(3, "Si aparece «Abrir como app web», dejalo activado. Tocá «Agregar», arriba a la derecha.", botonMock("Agregar")),
+        pasoVis(4, "Listo: cerrá Safari y abrí Pulso desde su ícono.", iconoInicio())),
+      IOS_VIEJO? el("p",{class:"note"},`Tu iPhone tiene iOS ${IOS_VER.join(".")}. Los recordatorios necesitan iOS 16.4 o posterior (Configuración › General › Actualización de software).`) : null);
   } else if(ONB.instalada){
-    agregar(card, el("p",{class:"aviso-inst"},"Listo: Pulso quedó instalada. Abrila desde su ícono (en la pantalla de inicio o entre tus apps) y entrá con tu mail."));
+    agregar(card, el("p",{class:"aviso-inst"},"Listo: Pulso quedó descargada. Abrila desde su ícono y entrá con tu mail."), iconoInicio());
   } else if(BIP){
-    agregar(card, el("p",{},"Así se abre como una app, a pantalla completa, y la encontrás junto a tus otras apps."), abrir,
-      el("button",{class:"btn primary big",type:"button",onclick:async()=>{ const b=BIP; b.prompt(); const r=await b.userChoice; BIP=null; if(r.outcome==="accepted") ONB.instalada=true; renderOnb(); }},"Instalar Pulso"));
+    agregar(card, pasos(pasoVis(1, "Tocá «Descargar Pulso» y confirmá con «Instalar».", el("button",{class:"btn primary big",type:"button",onclick:async()=>{ const b=BIP; b.prompt(); const r=await b.userChoice; BIP=null; if(r.outcome==="accepted") ONB.instalada=true; renderOnb(); }},"Descargar Pulso")),
+      pasoVis(2, "Abrí Pulso desde su ícono.", iconoInicio())));
   } else if(ES_ANDROID){
-    agregar(card, el("p",{},"Así se abre como una app, a pantalla completa, y la encontrás junto a tus otras apps."), abrir,
-      pasos(["Tocá el menú ⋮, arriba a la derecha.","Elegí «Instalar app» o «Agregar a la pantalla principal».","Confirmá con «Instalar» o «Agregar».","Abrí Pulso desde el ícono nuevo."]));
+    agregar(card, pasos(
+      pasoVis(1, "Tocá el menú de Chrome, arriba a la derecha.", el("div",{class:"mock barra"}, el("span",{class:"mock-url"},"mateomartinello.github.io"), ico("puntosV","resalta"))),
+      pasoVis(2, "Elegí «Instalar app» o «Agregar a la pantalla principal».", filaMenu("instalar","Instalar app")),
+      pasoVis(3, "Confirmá con «Instalar».", botonMock("Instalar")),
+      pasoVis(4, "Abrí Pulso desde su ícono.", iconoInicio())));
   } else if(ES_SAFARI_MAC){
-    agregar(card, el("p",{},"En la computadora, Pulso también se usa como app."), abrir,
-      pasos(["En la barra de menús, elegí Archivo › «Agregar al Dock».","Tocá «Agregar».","Abrí Pulso desde el Dock."]),
+    agregar(card, el("p",{},"En la computadora también se usa como app."), pasos(
+      pasoVis(1, "En la barra de menús, elegí Archivo › «Agregar al Dock».", filaMenu("agregar","Agregar al Dock…")),
+      pasoVis(2, "Tocá «Agregar».", botonMock("Agregar")),
+      pasoVis(3, "Abrí Pulso desde el Dock.", iconoInicio())),
       el("p",{class:"note"},"Necesita macOS Sonoma (14) o posterior. Si no ves la opción, usá Chrome o Edge."));
   } else if(ES_FIREFOX){
-    agregar(card, el("p",{},"Firefox no permite instalar Pulso. Abrí esta dirección en Chrome, Edge o Safari para instalarla:"),
-      el("p",{},el("b",{},location.origin+location.pathname)));
+    agregar(card, el("p",{},"Firefox no permite descargar Pulso. Abrí esta dirección en Chrome, Edge o Safari:"), el("p",{},el("b",{},location.origin+location.pathname)));
   } else {
-    agregar(card, el("p",{},"En la computadora, Pulso también se usa como app."), abrir,
-      pasos(["En la barra de direcciones, tocá el ícono de instalar (una pantalla con una flecha), a la derecha.","Si no lo ves: menú ⋮ › «Transmitir, guardar y compartir» › «Instalar página como app».","Abrí Pulso desde el ícono nuevo."]));
+    agregar(card, el("p",{},"En la computadora también se usa como app."), pasos(
+      pasoVis(1, "En la barra de direcciones, tocá el ícono de instalar, a la derecha.", el("div",{class:"mock barra"}, el("span",{class:"mock-url"},"mateomartinello.github.io"), ico("instalar","resalta"))),
+      pasoVis(2, "Confirmá con «Instalar». Si no ves el ícono: menú ⋮ › «Transmitir, guardar y compartir» › «Instalar página como app».", botonMock("Instalar")),
+      pasoVis(3, "Abrí Pulso desde su ícono.", iconoInicio())));
   }
   box.append(card);
 }
@@ -86,9 +115,11 @@ async function rpc(fn, body){
   if(!res.ok) throw new Error(fn+" "+res.status);
   return res.json();
 }
-function horariosAvisos(){ const P=PLAN||calcPlan(DB.perfil); return Object.fromEntries(ESTRUCTURAS[P.est].slots.map(([k])=>[k, P.horas[k].padStart(5,"0")])); }
+// Recordatorios: solo los momentos que acepta el servidor (des, col, alm, mer, cen); la segunda colación y el entreno no avisan.
+const MOMENTOS_AVISO=["des","col","alm","mer","cen"];
+function horariosAvisos(){ const P=PLAN||calcPlan(DB.perfil); return Object.fromEntries(P.slots.filter(([k])=>MOMENTOS_AVISO.includes(k)).map(([k])=>[k, P.horas[k].padStart(5,"0")])); }
 function zonaAvisos(){ try{ return Intl.DateTimeFormat().resolvedOptions().timeZone || "America/Argentina/Buenos_Aires"; }catch(e){ return "America/Argentina/Buenos_Aires"; } }
-function listaHorarios(){ const P=PLAN||calcPlan(DB.perfil); const xs=ESTRUCTURAS[P.est].slots.map(([k])=>`${SLOTDEF[k].n.toLowerCase()} (${P.horas[k]} h)`); return xs.length>1? xs.slice(0,-1).join(", ")+" y "+xs[xs.length-1] : xs[0]; }
+function listaHorarios(){ const P=PLAN||calcPlan(DB.perfil); const xs=P.slots.filter(([k])=>MOMENTOS_AVISO.includes(k)).map(([k])=>`${SLOTDEF[k].n.toLowerCase()} (${P.horas[k]} h)`); return xs.length>1? xs.slice(0,-1).join(", ")+" y "+xs[xs.length-1] : xs[0]; }
 
 async function guardarSuscripcion(sub){
   const j=sub.toJSON(), horarios=horariosAvisos(), zona=zonaAvisos();

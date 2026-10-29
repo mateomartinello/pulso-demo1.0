@@ -75,6 +75,7 @@ Leche|leche;leche entera;leche descremada;leche parcialmente descremada;vaso de 
 Chocolatada|chocolatada;leche chocolatada;cindor;chocolate caliente;submarino;leche con chocolate;leche con cacao;nesquik;toddy;cola cao;colacao|80|3.2|1|250||vaso|l M gr=2 hc=12
 Yogur bebible|yogur;yogurt;yogur bebible;yogurt bebible;yogur entero;yogur de vainilla;yogur de frutilla;yogur descremado;yogurt descremado;yogur light;yogurisimo|80|3|0|200|200|pote|gr=2 hc=12.5 S
 Yogur natural|yogur natural;yogurt natural;yogur sin azucar;yogurt sin azucar;yogur natural sin azucar|65|4|0|190|190|pote|gr=3 hc=5.5
+Yogur firme|yogur firme;yogurt firme;yogur entero firme;yogur de pote firme;yogur cremoso|95|3.3|0|190|190|pote|S gr=2.6 hc=15
 Yogur griego|yogur griego;yogurt griego;griego;yogur proteico;yogurt proteico;yogur alto en proteina|110|8|0|170|170|pote|gr=7 hc=3.8
 Yogur con cereales|yogur con cereales;yogurt con cereales;yogur con granola;yogurt con granola;yogur con copos;yogurisimo con cereales|120|4|0.8|200|200|pote|gr=3 hc=19
 Postrecito|postrecito;postre de leche;serenito;danette;postre de chocolate;postre de vainilla;mousse;mousse de chocolate|130|3|0.5|100|100|pote|gr=3.5 hc=21.5 S
@@ -338,8 +339,9 @@ const ESTIMADOR = (function(){
   const FRACC = {"¼":" 1/4 ","½":" 1/2 ","¾":" 3/4 ","⅓":" 1/3 ","⅔":" 2/3 ","×":" x "};
   const norm = s => s.replace(/[¼½¾⅓⅔×]/g,c=>FRACC[c]).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"")
     .replace(/([a-z])\/([a-z])/g,"$1 $2")   // «natural/común» → dos palabras
+    .replace(/[,;](?!\d)|\.(?!\d)/g," | ")      // comas y puntos separan partes de la frase («un sándwich, una ensalada»)
     .replace(/(\d),(\d)/g,"$1.$2").replace(/(\d)\s*%/g,"$1").replace(/(\d)([a-z])/g,(m,a,b)=> a+" "+b)
-    .replace(/[^a-z0-9.\/\s]+/g," ").replace(/\.(?!\d)/g," ").replace(/\s+/g," ").trim();
+    .replace(/[^a-z0-9.\/|\s]+/g," ").replace(/\.(?!\d)/g," ").replace(/\s+/g," ").trim();
   // "x2" se separa en "x 2" y "7up"/"3d"/"h2o" se rearman abajo.
   const GLUE = {"7 up":"7up","3 d":"3d","h2 o":"h2o","h 2 o":"h2o","9 de oro":"9 de oro"};
   function sing(t){
@@ -475,7 +477,7 @@ const ESTIMADOR = (function(){
     // 1) buscar alimentos (la coincidencia más larga primero)
     for(let i=0;i<T.length;i++){
       if(used[i]) continue;
-      if(T[i].t==="sopa" && i>0 && /^cuchar/.test(T[i-1].t)){ used[i]=true; T[i].puente=true; continue; }   // «tres cucharas sopas» (dictado de «cucharadas soperas»)
+      if(T[i].t==="sopa" && i>0 && (/^cuchar/.test(T[i-1].t) || (T[i-1].raw==="|" && i>1 && /^cuchar/.test(T[i-2].t)))){ used[i]=true; T[i].puente=true; continue; }   // «tres cucharas sopas» (dictado de «cucharadas soperas»)
       const prev=items[items.length-1];
       if(prev && ADJ.has(T[i].t)){ let k=i-1; while(k>=prev.e && (STOP.has(T[k].t)||STOP.has(T[k].raw)) && !["con","y","e","o","mas"].includes(T[k].raw)) k--;
         if(k+1===prev.e) continue; }   // «arroz (Gallo) tostado»: adjetivo, no el sándwich «tostado»
@@ -497,7 +499,7 @@ const ESTIMADOR = (function(){
       let end=hitEnd; for(let j=i;j<end;j++) used[j]=true;
       if(hit.food.S && end<T.length && SABORES.has(T[end].t)){   // sabores: «de chocolate y naranja»
         while(end<T.length && !used[end] && (SABORES.has(T[end].t) || (T[end].raw==="y" && end+1<T.length && SABORES.has(T[end+1].t)))){ used[end]=true; end++; } }
-      items.push({food:hit.food, s:i, e:end, head:hit.tk[0], al:hit.tk.length, sz0:talla}); i=end-1;
+      items.push({food:hit.food, s:i, e:end, head:hit.tk[0], al:hit.tk.length, tk:hit.tk, sz0:talla}); i=end-1;
     }
     // 2) cantidades alrededor de cada alimento
     const free = k => k>=0 && k<T.length && !used[k];
@@ -508,6 +510,7 @@ const ESTIMADOR = (function(){
       let j=it.s-1, guard=0; const nums=[];
       while((free(j) || (j>=0 && T[j].puente)) && guard++<6){
         const o=T[j]; if(o.puente){ j--; continue; }
+        if(o.raw==="|" && j>0 && isNum(T[j-1])){ used[j]=true; j--; continue; }   // «Tres. Croquetas» (dictado): el número sigue valiendo
         if(o.raw==="sin"){ it.neg=true; used[j]=true; break; }
         if(SIZE[o.raw]!==undefined && !UNIT[o.t]){ it.size*=SIZE[o.raw]; used[j]=true; j--; continue; }
         if(UNIT[o.t] && it.unit==null && !isNum(o)){ it.unit=UNIT[o.t]; it.unitW=o.t; used[j]=true; j--; continue; }
@@ -583,7 +586,7 @@ const ESTIMADOR = (function(){
     // relleno de sándwiches, tostados, wraps y tacos: porción de relleno, no de plato
     for(const c of out.filter(i=>i.food.B)){
       const fx = Math.min(Math.max(c.g/80, 0.75), 1.2);
-      for(const i of out){ if(i===c || i.food.b || i.food.l || i.s<=c.s || i.s-c.e>6 || i.num!=null || i.gExp!=null) continue;
+      for(const i of out){ if(i===c || i.food.b || i.food.l || i.s<=c.s || i.s-c.e>6 || i.num!=null || i.gExp!=null || T.slice(c.e,i.s).some(o=>o.raw==="|")) continue;
         if(i.food.u && i.food.u===i.food.por) continue;
         i.g = Math.max(5, Math.round(Math.min(i.g,80)*fx)); }
     }
@@ -597,7 +600,7 @@ const ESTIMADOR = (function(){
     // panes que se rellenan (sándwich, tostado, wrap) sin relleno nombrado: relleno típico
     const extra=[];
     for(const c of out.filter(i=>i.food.B)){
-      const relleno = out.some(i=> i!==c && !i.food.b && i.s>c.s && i.s-c.e<=6 && !i.food.l);
+      const relleno = out.some(i=> i!==c && !i.food.b && i.s>c.s && i.s-c.e<=6 && !i.food.l && !T.slice(c.e,i.s).some(o=>o.raw==="|"));
       if(!relleno){
         const k = c.g / (c.food.u||c.g);
         extra.push({food:BYNAME["Jamón cocido"], g:Math.round(40*k), s:c.s, auto:true});
@@ -613,24 +616,42 @@ const ESTIMADOR = (function(){
       else extra.push({food:BYNAME["Ensalada mixta"], g:200, s:i});
     }
     out = out.concat(extra).sort((a,b)=>a.s-b.s);
+    // el mismo relleno nombrado dos veces cerca de un plato armado («sándwich de jamón y queso con jamón»): cuenta una vez
+    for(const c of out.filter(i=>i.food.B||i.food.P)){
+      const vistos=new Set();
+      out = out.filter(i=>{ if(i===c || i.s<=c.s || i.s-c.e>12 || i.auto) return true;
+        if(vistos.has(i.food) && i.num==null && i.gExp==null) return false; vistos.add(i.food); return true; });
+    }
     // 4) no reconocido
     const sobras=[];
     for(let i=0;i<T.length;i++){ if(used[i]) continue; const o=T[i];
       if(STOP.has(o.t)||STOP.has(o.raw)||ADJ.has(o.t)||FRITO.has(o.raw)||UNIT[o.t]||SIZE[o.raw]!==undefined||isNum(o)||o.raw.length<=2) continue;
       sobras.push(o.raw); }
     // 5) totales
+    const t=calcular(out);
+    t.items = out.map(it=>({n:it.food.n, g:it.g, l:it.food.l, u:it.food.u, uN:it.food.uN, por:it.food.por, k:it.food.k, auto:!!it.auto, nota:it.nota||"",
+      frito:!!it.frito, integral:!!it.integral, alias:(it.tk||[]).join(" "),
+      explicita: it.num!=null || it.gExp!=null || it.unit!=null || (it.size||1)!==1,
+      relleno: !!(it.food.B && out.some(x=>x.auto && x.s===it.s))}));   // sándwich, tostado o wrap sin relleno nombrado
+    t.sobras=sobras;
+    return t;
+  }
+  function calcular(out){
     let kcal=0,prot=0,carb=0,grasa=0,fibra=0,veg=0,fru=0,integ=0,nuez=0,vitC=false,roja=false,atun=false;
     for(const it of out){ const f=it.food, g=it.g;
       kcal+=f.k*g/100 + (it.frito? g*0.5 : 0); prot+=f.p*g/100; fibra+=f.f*g/100;
       carb+=f.hc*g/100; grasa+=f.gr*g/100 + (it.frito? g*0.5/9 : 0);   // frito: el aceite absorbido suma grasa
       veg+=g*f.v; fru+=g*f.fr; integ+=g*(it.integral && f.b ? Math.max(f.ig,1) : f.ig); if(f.nz) nuez+=g; if(f.c && g>=60) vitC=true; if(f.r) roja=true; if(f.a) atun=true; }
     return {
-      items: out.map(it=>({n:it.food.n, g:it.g, l:it.food.l, u:it.food.u, uN:it.food.uN, auto:!!it.auto, nota:it.nota||""})),
-      sobras,
       kcal:Math.round(kcal), prot:Math.round(prot), carb:Math.round(carb), grasa:Math.round(grasa), fibra:Math.round(fibra),
       verduras:Math.round(veg/80*2)/2, frutas:Math.round(fru/150*2)/2, integrales:Math.round(integ/30*2)/2,
       nueces: nuez>=15?1:0, vitC, roja, atun
     };
+  }
+  // Recalcula una comida a partir de ítems [{n, g, frito, integral}] (después de las preguntas de porción e ingredientes).
+  function totales(items){
+    const out=items.filter(it=>BYNAME[it.n]).map(it=>({...it, food:BYNAME[it.n]}));
+    const t=calcular(out); t.items=items; return t;
   }
   function describir(it){
     const unidad = it.l? "ml":"g";
@@ -641,6 +662,6 @@ const ESTIMADOR = (function(){
     return `${it.n} ${it.g} ${unidad}`;
   }
   function plural(w){ if(/[aeiouáéí]$/.test(w)) return w+"s"; if(w.endsWith("z")) return w.slice(0,-1)+"ces"; if(w.endsWith("ón")) return w.slice(0,-2)+"ones"; if(w.endsWith("án")) return w.slice(0,-2)+"anes"; return w+"es"; }
-  return {init, analizar, describir, alimento:n=>BYNAME[n], norm, _toks:toks};
+  return {init, analizar, totales, describir, alimento:n=>BYNAME[n], norm, _toks:toks};
 })();
 ESTIMADOR.init(ALIMENTOS);

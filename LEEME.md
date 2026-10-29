@@ -62,6 +62,15 @@ La app es instalable (PWA: `manifest.webmanifest`, `sw.js`, `iconos/`) y puede m
 - **Macros:** las recetas y la tabla de alimentos tienen carbohidratos (`hc`) y grasas (`gr`) por 100 g; en la tabla del estimador, `hc` sale por diferencia con la energía salvo frutos secos y bebidas con alcohol.
 - **Modo cuidado (menores de 18 o relación difícil con la comida):** solo oculta las calorías.
 
+## 2c ter. Novedades de la versión 0.6.0 (base de datos: `supabase/migracion-0.6.sql`)
+
+- **Después de registrar**, las preguntas van de a una (formato del cuestionario, máximo 6, siempre «Saltear»): ingredientes de platos armables sin detalle (sándwich, wrap, tostado, ensalada, hamburguesa, tarta, empanada, pizza), porción de lo que no tiene cantidad (Poco · Normal · Mucho · No sé, con medida casera), yogur bebible o firme, marcas, hambre y motivo. El estimador devuelve el detalle de cada alimento y `ESTIMADOR.totales()` recalcula con las respuestas.
+- **Cuestionario:** comidas del día con selección múltiple (colaciones según los huecos si marca «snacks»), objetivos combinables, «Ninguna»/«Nada» excluyentes y destacadas, cocina (nivel 1–3 contra `DIFICULTAD` de cada receta) y variedad (cada cuántos días se repite una receta). Las respuestas viejas (`estructura`, `objetivo`) se siguen leyendo.
+- **Recetas:** cantidades en medidas caseras (`CASERA` en `src/data.js`), porciones de referencia revisadas, fruta «de postre» y 6 recetas nuevas. Las sugerencias suben las recetas parecidas a lo que más registra cada persona (`FAMILIAS` en `src/app.js`).
+- **Recetas nuevas cada semana:** la vista `comidas_mas_registradas` (últimos 30 días, sin el administrador) muestra qué comen más los usuarios; a partir de eso se suman recetas al recetario.
+- **Perfil por secciones** (Plan, Marcas, Notificaciones, Privacidad, Cuenta). Ya no muestra las respuestas del cuestionario; solo se editan edad, altura y peso. El ciclo se activa o desactiva en Privacidad.
+- **Sin zoom** (pinch y doble toque) y guía visual para «descargar» Pulso.
+
 ## 2d. Pruebas del estimador de comidas
 
 `sh pruebas/correr.sh` corre 51 frases de comidas comunes (con rangos de energía, proteína, carbohidratos, grasas y porciones) («dos porciones de pizza de muzzarella», «pollo con arroz», «un cortado»…) y avisa si alguna estimación sale del rango esperado. Correrlo después de cada cambio en la tabla de alimentos (`src/estimador.js`). Para ver el detalle de una frase: `sh pruebas/estimar.sh "frase"`.

@@ -5,30 +5,37 @@ const PREGUNTAS = [
    opts:[["h","Hombre"],["m","Mujer"],["pnd","Prefiero no decirlo"]], sinOtro:true, viejas:[["nb","No binario"]]},
   {id:"cuerpo", sec:"Vos", t:"Tus datos físicos", sub:"Con esto se calcula tu energía diaria. Quedan guardados en tu dispositivo.", type:"numbers",
    fields:[["edad","Edad","años",14,100],["altura","Altura","cm",120,220],["peso","Peso","kg",35,250]]},
-  {id:"objetivo", sec:"Objetivo", t:"¿Qué querés lograr?", type:"single",
+  {id:"objetivos", sec:"Objetivo", t:"¿Qué querés lograr?", sub:"Podés marcar varias.", type:"multi", sinNinguna:true,
    opts:[["salud","Mejorar mi salud en general"],["bajar","Bajar grasa"],["ganar","Ganar músculo"],["energia","Tener más energía en el día"]]},
   {id:"actividad", sec:"Objetivo", t:"¿Cuánto te movés hoy?", type:"single",
    opts:[["sed","Casi nada: paso sentado la mayor parte del día"],["lig","Poco: camino o entreno 1 o 2 días"],["mod","Bastante: entreno 3 o 4 días"],["alt","Mucho: entreno 5 días o más"]]},
   {id:"patron", sec:"Alimentación", t:"¿Cómo comés?", type:"single",
    opts:[["omni","Como de todo"],["flex","Mayormente vegetal, con algo de carne"],["veg","Vegetariano"],["vegano","Vegano"]]},
   {id:"restric", sec:"Alimentación", t:"¿Tenés alguna restricción por salud?", sub:"Podés marcar varias.", type:"multi",
+   ninguna:["ninguna","Ninguna"], sinNinguna:true,
    opts:[["gluten","Celiaquía o sin gluten"],["lactosa","Intolerancia a la lactosa"],["mani","Alergia al maní"],["nuez","Alergia a frutos secos"],["huevo","Alergia al huevo"],["pescado","Alergia al pescado"],["marisco","Alergia a los mariscos"]]},
   {id:"nocome", sec:"Alimentación", t:"¿Qué no comés porque no te gusta?", sub:"Podés marcar varias.", type:"multi",
    opts:[["pescado","Pescado"],["cerdo","Carne de cerdo"],["legumbre","Legumbres"],["lacteo","Lácteos"],["pan","Pan"]]},
-  {id:"estructura", sec:"Tu día", t:"¿Cuántas comidas hacés por día?", type:"single",
-   opts:[["dac","Desayuno, almuerzo y cena"],["amc","Almuerzo, merienda y cena"],["damc","Desayuno, almuerzo, merienda y cena"],["dcamc","Cuatro comidas y colaciones"]]},
-  {id:"hAlm", sec:"Tu día", t:"¿A qué hora solés almorzar?", type:"single",
+  {id:"comidas", sec:"Tu día", t:"¿Qué comidas hacés en el día?", sub:"Marcá todas las que hacés.", type:"multi", sinOtro:true, sinNinguna:true, minPrincipal:true,
+   opts:[["des","Desayuno"],["alm","Almuerzo"],["mer","Merienda"],["cen","Cena"],["snacks","Snacks entre comidas"]]},
+  {id:"hAlm", sec:"Tu día", t:"¿A qué hora solés almorzar?", type:"single", si:R=>comidasDe(R).includes("alm"),
    opts:[["12","12 h"],["13","13 h"],["14","14 h"],["15","15 h"]]},
-  {id:"hCen", sec:"Tu día", t:"¿A qué hora solés cenar?", type:"single",
+  {id:"hCen", sec:"Tu día", t:"¿A qué hora solés cenar?", type:"single", si:R=>comidasDe(R).includes("cen"),
    opts:[["20","20 h"],["21","21 h"],["22","22 h"],["23","23 h"]]},
   {id:"platos", sec:"Tus gustos", t:"¿Qué platos comés más seguido?", sub:"Podés marcar varios.", type:"multi",
    opts:[["milanesas","Milanesas"],["pastas","Pastas"],["bowls","Arroz o bowls"],["ensaladas","Ensaladas"]]},
   {id:"snacks", sec:"Tus gustos", t:"Entre comidas, ¿qué solés comer?", sub:"Podés marcar varios.", type:"multi",
-   opts:[["galletitas","Galletitas o alfajores"],["fruta","Fruta"],["frutos","Frutos secos"],["salados","Snacks salados"]]},
+   ninguna:["nada","Nada"], sinNinguna:true,
+   opts:[["galletitas","Galletitas o alfajores"],["fruta","Fruta"],["yogur","Yogur"],["frutos","Frutos secos"],["salados","Snacks salados"]]},
   {id:"bebida", sec:"Tus gustos", t:"¿Qué tomás con las comidas?", type:"single",
    opts:[["agua","Agua"],["gaseosa","Gaseosa común"],["zero","Gaseosa sin azúcar"],["jugo","Jugos"]]},
   {id:"equipo", sec:"Tu cocina", t:"¿Con qué cocinás?", sub:"Podés marcar varios.", type:"multi",
    opts:[["hornalla","Hornallas"],["horno","Horno"],["freidora","Freidora de aire"],["microondas","Microondas"]]},
+  {id:"cocina", sec:"Tu cocina", t:"¿Cuáles de estas cosas te salen bien sin mirar una receta?", sub:"Podés marcar varias.", type:"multi", sinOtro:true,
+   ninguna:["ninguna","Ninguna todavía"], sinNinguna:true,
+   opts:[["hervir","Hervir fideos o arroz"],["huevos","Hacer huevos"],["plancha","Carne o pollo a la plancha"],["salsa","Una salsa, un guiso o un salteado"],["hornear","Hornear algo"]]},
+  {id:"variedad", sec:"Tu cocina", t:"Encontraste una comida que te encanta. ¿Qué hacés?", type:"single", sinOtro:true,
+   opts:[["repito","La como seguido: si me gusta, ¿para qué cambiar?"],["roto","La repito de vez en cuando, me gusta ir rotando"],["nuevo","Me aburro rápido: busco algo nuevo"]]},
   {id:"tiempo", sec:"Tu cocina", t:"¿Cuánto tiempo querés dedicarle a cocinar por comida?", type:"single",
    opts:[["15","Menos de 15 minutos"],["30","Entre 15 y 30 minutos"],["60","Entre 30 y 60 minutos"],["tandas","Cocino por tandas, una o dos veces por semana"]]},
   {id:"presupuesto", sec:"Tu cocina", t:"¿Cómo es tu presupuesto para comida?", type:"single",
@@ -36,12 +43,12 @@ const PREGUNTAS = [
   {id:"mov", sec:"Movimiento", t:"¿Qué tipo de actividad te gusta?", sub:"Podés marcar varias.", type:"multi",
    opts:[["caminar","Caminar"],["correr","Correr"],["fuerza","Gimnasio o fuerza"],["deporte","Deportes en equipo"]]},
   {id:"entreno", sec:"Movimiento", t:"¿Entrenás en un horario fijo?", sub:"Con esto te sugerimos qué comer antes y después de entrenar.", type:"single", sinOtro:true,
-   opts:[["manana","Sí, a la mañana"],["mediodia","Sí, al mediodía"],["tarde","Sí, a la tarde"],["noche","Sí, a la noche"],["variable","Entreno, pero sin horario fijo"],["no","No entreno"]]},
+   opts:[["manana","A la mañana"],["mediodia","Al mediodía"],["tarde","A la tarde"],["noche","A la noche"],["variable","Entreno, pero sin horario fijo"],["no","No entreno"]]},
   {id:"entrenoDias", sec:"Movimiento", t:"¿Qué días entrenás?", sub:"Podés marcar varios.", type:"multi", sinOtro:true, sinNinguna:true, si:R=>!!HORA_ENTRENO[R.entreno],
    opts:[["1","Lunes"],["2","Martes"],["3","Miércoles"],["4","Jueves"],["5","Viernes"],["6","Sábado"],["0","Domingo"]]},
   {id:"sueno", sec:"Descanso", t:"¿Cuánto dormís en una noche normal?", type:"single",
    opts:[["5","Menos de 6 horas"],["6.5","Entre 6 y 7 horas"],["7.5","Entre 7 y 8 horas"],["8.5","Más de 8 horas"]]},
-  {id:"cicloApp", sec:"Tu ciclo", t:"¿Usás alguna app para seguir tu ciclo menstrual?", sub:"Es opcional. Sirve para acompañarte en los días previos a tu período, cuando son más comunes los antojos. Lo podés cambiar en Perfil.", type:"single", sinOtro:true, si:R=>R.sexo==="m",
+  {id:"cicloApp", sec:"Tu ciclo", t:"¿Usás alguna app para seguir tu ciclo menstrual?", sub:"Es opcional. Sirve para acompañarte en los días previos a tu período, cuando son más comunes los antojos. Lo podés desactivar en Perfil › Privacidad.", type:"single", sinOtro:true, si:R=>R.sexo==="m",
    opts:[["flo","Flo"],["clue","Clue"],["salud","Salud de Apple"],["otra","Otra app"],["ninguna","No uso ninguna"],["off","Prefiero no usar esta función"]]},
   {id:"ciclo", sec:"Tu ciclo", t:"¿Cuándo empezó tu último período?", sub:"Con esto estimamos las fechas siguientes. Si tus ciclos son irregulares, igual sirve como referencia.", type:"ciclo", si:R=>R.sexo==="m" && R.cicloApp && R.cicloApp!=="off"},
   {id:"relacion", sec:"Bienestar", t:"¿Cómo describirías tu relación con la comida?", sub:"Nos ayuda a cuidarte. Si marcás alguna de las dos últimas opciones, o escribís en «Otro», eso no se usa para el análisis: solo se guarda en la copia de tu cuenta, para que recuperes tu plan.", type:"single",
@@ -49,6 +56,10 @@ const PREGUNTAS = [
 ];
 
 const HORA_ENTRENO = {manana:8, mediodia:13, tarde:18, noche:20};   // hora de inicio supuesta de cada franja
+// Respuestas de versiones anteriores: «estructura» (paquetes de comidas) y «objetivo» (una sola opción).
+const EST_VIEJA = {dac:["des","alm","cen"], amc:["alm","mer","cen"], damc:["des","alm","mer","cen"], dcamc:["des","alm","mer","cen","snacks"]};
+const comidasDe = R => R.comidas || EST_VIEJA[R.estructura] || EST_VIEJA.damc;
+const objetivosDe = R => R.objetivos || (R.objetivo? [R.objetivo] : []);
 const visible = (q,R) => !q.si || q.si(R);
 
 // ==== UTILIDADES ====
@@ -88,11 +99,12 @@ function calcPlan(p){
   const bmr = 10*peso + 6.25*alt - 5*edad + s;
   const fa = {sed:1.2, lig:1.375, mod:1.55, alt:1.725}[r.actividad] || 1.375;
   let kcal = bmr*fa;
-  const obj = r.objetivo;
-  if(obj==="bajar") kcal = Math.max(kcal*0.85, bmr*1.1);
-  if(obj==="ganar") kcal *= 1.10;
+  // Objetivos combinables: bajar −15 %, ganar +10 %; los dos juntos = recomposición (mantenimiento con proteína alta).
+  const objs = objetivosDe(r), bajar=objs.includes("bajar"), ganar=objs.includes("ganar");
+  if(bajar && !ganar) kcal = Math.max(kcal*0.85, bmr*1.1);
+  if(ganar && !bajar) kcal *= 1.10;
   kcal = Math.round(kcal/50)*50;
-  const protKg = (obj==="bajar"||obj==="ganar") ? 1.6 : 1.0;
+  const protKg = (bajar||ganar) ? 1.6 : 1.0;
   const excl = new Set();
   const pat=r.patron;
   if(pat==="veg"||pat==="vegano") ["vacuna","cerdo","pollo","pescado"].forEach(g=>excl.add(g));
@@ -102,17 +114,39 @@ function calcPlan(p){
   if(r.pan==="no" || (r.nocome||[]).includes("pan")) excl.add("pan");   // r.pan: pregunta de marcas de versiones anteriores
   let eq = new Set((r.equipo||[]).filter(x=>x!=="otro")); if(!eq.size) eq=new Set(["hornalla"]);
   const tmax = r.tiempo==="15"?15 : r.tiempo==="30"?30 : r.tiempo==="60"?60 : r.tiempo==="tandas"?60 : 40;
-  const est = ESTRUCTURAS[r.estructura] ? r.estructura : "damc";
-  const hAlm = +r.hAlm || 13, hCen = +r.hCen || 21;
-  const horas = {des:"8:30", col:"10:30", alm:hAlm+":00", mer:Math.round((hAlm+hCen)/2)+":00", cen:hCen+":00"};
-  const hE=HORA_ENTRENO[r.entreno]; const hm=h=>Math.floor(h)+":"+pad(Math.round((h%1)*60));
+  const hm=h=>Math.floor(h)+":"+pad(Math.round((h%1)*60));
+  const {slots, horas} = armarComidas(comidasDe(r), +r.hAlm || 13, +r.hCen || 21, hm);
+  const hE=HORA_ENTRENO[r.entreno];
   if(hE){ horas.pre=hm(hE-1.5); horas.post=hm(hE+1.5); }   // antes: 1 h 30 min antes; después: al terminar (se supone 1 h de entreno)
-  return { care, edad, peso, kcal, prot:Math.round(peso*protKg), excl, eq, tmax, est, horas, entrenoDias: hE? (r.entrenoDias||[]) : [],
+  const habil=(r.cocina||[]).filter(x=>x!=="ninguna").length;
+  const nivel = !r.cocina ? 3 : habil<=1 ? 1 : habil<=3 ? 2 : 3;   // recetas: 1 básicas · 2 intermedias · 3 todas
+  const repetir = {repito:1, roto:3, nuevo:6}[r.variedad] || 3;     // días antes de volver a sugerir una receta
+  return { care, edad, peso, kcal, prot:Math.round(peso*protKg), excl, eq, tmax, slots, horas, nivel, repetir, entrenoDias: hE? (r.entrenoDias||[]) : [],
     pan: PANES[DB.marcas?.pan] || PANES[r.pan] || PANES.generico, sinLactosa:(r.restric||[]).includes("lactosa"),
     metas:{grasaMin:Math.round(kcal*0.2/9), frutas:2, verduras:3, integrales:excl.has("gluten")?2:3, nueces:excl.has("nuez")?0:1, rojaSem:2, movMin:150, fuerza:2, sueno:7},
     flex: pat==="flex", budget:r.presupuesto, platos:r.platos||[], prefMov:(r.mov||[]).filter(x=>x!=="otro") };
 }
 let PLAN = null;
+// Momentos del día a partir de las comidas marcadas. Si marcó «snacks»: colaciones en los huecos de más de 4 h (máx. 2, las de más espacio)
+// o, si no hay huecos así, una en el hueco más largo. Reparto de energía proporcional a estos pesos.
+const PESO_COMIDA = {des:.20, alm:.35, mer:.15, cen:.30, col:.08, col2:.08};
+function armarComidas(lista, hAlm, hCen, hm){
+  const horaDe = {des:8.5, alm:hAlm, cen:hCen, mer: lista.includes("alm")&&lista.includes("cen")? Math.round((hAlm+hCen)/2) : 17};
+  let principales = ["des","alm","mer","cen"].filter(k=>lista.includes(k));
+  if(!principales.length) principales=["des","alm","mer","cen"];
+  principales.sort((a,b)=>horaDe[a]-horaDe[b]);
+  const huecos=[]; for(let i=1;i<principales.length;i++){ const a=horaDe[principales[i-1]], b=horaDe[principales[i]]; huecos.push({ini:a, fin:b, len:b-a}); }
+  huecos.sort((x,y)=>y.len-x.len);
+  let cols = [];   // colaciones solo si marcó «Snacks entre comidas»
+  if(lista.includes("snacks")){ cols = huecos.filter(h=>h.len>4).slice(0,2);
+    if(!cols.length && huecos.length) cols=[huecos[0]];
+    if(!huecos.length) cols=[{ini:horaDe[principales[0]], fin:horaDe[principales[0]]+5}]; }
+  const horas={}; for(const k of principales) horas[k]=hm(horaDe[k]);
+  cols.sort((x,y)=>x.ini-y.ini).forEach((h,i)=>{ horas[i? "col2":"col"]=hm(Math.round((h.ini+h.fin))/2); });
+  const ks=Object.keys(horas).sort((a,b)=>{ const t=k=>{ const [x,y]=horas[k].split(":").map(Number); return x+y/60; }; return t(a)-t(b); });
+  const total=ks.reduce((s,k)=>s+PESO_COMIDA[k],0);
+  return {slots: ks.map(k=>[k, PESO_COMIDA[k]/total]), horas};
+}
 
 // ==== RECETAS: aplicar el pan elegido y filtrar por perfil ====
 function ingOf(id){
@@ -138,6 +172,7 @@ function usable(rec){
   for(const [id] of rec.i){ const x=ING[id]; if(id==="pan" && PLAN.excl.has("pan")) return false; for(const g of (x.g||[])) if(PLAN.excl.has(g)) return false; }
   for(const req of rec.eq){ if(!req.split("|").some(e=>PLAN.eq.has(e))) return false; }
   if(rec.t>PLAN.tmax) return false;
+  if((rec.dif||1)>PLAN.nivel) return false;   // según lo que le sale bien cocinar
   return true;
 }
 function recetasDe(pool){ const all=RECETAS.filter(r=>r.s===pool); const u=all.filter(usable); return u.length? u : all.filter(r=>{ for(const [id] of r.i){ for(const g of (ING[id].g||[])) if(PLAN && PLAN.excl.has(g)) return false; } return true; }); }
@@ -147,7 +182,7 @@ const S = { today: dayKey(new Date()), slot:null, offsets:{}, adj:{}, view:"hoy"
 function day(k){ k=k||S.today; if(!DB.dias[k]) DB.dias[k]={comidas:[], ejercicio:[], sueno:null}; const d=DB.dias[k]; d.comidas=d.comidas||[]; d.ejercicio=d.ejercicio||[]; return d; }
 // Momentos del día: los de la estructura elegida y, los días de entreno (o después de registrar movimiento), antes y después de entrenar.
 function slotsHoy(){
-  const base=ESTRUCTURAS[PLAN.est].slots.slice(), d=DB.dias[S.today];
+  const base=PLAN.slots.slice(), d=DB.dias[S.today];
   const entrena = PLAN.entrenoDias.includes(String(keyDate(S.today).getDay()));
   if(entrena) base.push(["pre",.08]);
   if(entrena || d?.postHora) base.push(["post",.10]);
@@ -177,14 +212,33 @@ function slotShare(slot){ return (slotsHoy().find(s=>s[0]===slot)||[0,.25])[1]; 
 function candidatos(slot){
   const pool=SLOTDEF[slot].pool; let base=recetasDe(pool);
   const rojaOk = weekCount("roja") < PLAN.metas.rojaSem, atunOk = weekCount("atun") < 3;
-  const recientes=new Set(); for(const k of [keyShift(S.today,-2),keyShift(S.today,-1),S.today]) for(const c of (DB.dias[k]?.comidas||[])) if(c.recetaId) recientes.add(c.recetaId);
+  const recientes=new Set(); for(let d=0; d<PLAN.repetir; d++) for(const c of (DB.dias[keyShift(S.today,-d)]?.comidas||[])) if(c.recetaId) recientes.add(c.recetaId);   // variedad: cada cuántos días se puede repetir
   let f = base.filter(r=>{ const n=nutr(r); return !(n.roja&&!rojaOk) && !(n.atun&&!atunOk) && !recientes.has(r.id); });
   if(!f.length) f = base.filter(r=>{ const n=nutr(r); return !(n.roja&&!rojaOk) && !(n.atun&&!atunOk); });
   if(!f.length) f = base;
-  const score = r => (PLAN.platos.includes(r.tipo)?2:0) + (PLAN.budget==="ajustado" && r.cost<=1 ? 1:0) - (PLAN.flex && nutr(r).roja ? 1:0)
+  const gusto=gustosRegistrados();
+  const score = r => (PLAN.platos.includes(r.tipo)?2:0) + (PLAN.budget==="ajustado" && r.cost<=1 ? 1:0) - (PLAN.flex && nutr(r).roja ? 1:0) + afinidad(r, gusto)
     + (!totals(day().comidas).vitC && pool!=="p" && nutr(r).vitC ? 2:0);
   return f.slice().sort((a,b)=> score(b)-score(a) || a.id.localeCompare(b.id));
 }
+// Lo que más registró en los últimos 30 días, por familia de alimento: sube en las sugerencias las recetas parecidas.
+const FAMILIAS = {pollo:/pollo|pechuga|suprema/, vacuna:/carne|bife|asado|nalga|peceto|vacio|matambre/, cerdo:/cerdo|bondiola|solomillo/,
+  pescado:/merluza|pescado|atun|salmon/, huevo:/huevo|clara|omelette|revuelto|tortilla/, legumbre:/garbanzo|lenteja|poroto|hummus/, tofu:/tofu|soja/,
+  pasta:/fideo|pasta|raviol|noqui|tallarin|tirabuzon/, arroz:/arroz|risotto/, batata:/batata|boniato/, papa:/papa|pure/, palta:/palta/,
+  yogur:/yogur/, avena:/avena|granola/, ricota:/ricota/, ensalada:/ensalada|lechuga|rucula/, milanesa:/milanesa/};
+const FAM_ING = {pollo:"pollo", vacuna:"vacuna", cerdo:"cerdo", merluza:"pescado", atun:"pescado", huevo:"huevo", clara:"huevo", garbanzos:"legumbre",
+  lentejas:"legumbre", hummus:"legumbre", tofu:"tofu", milaSoja:"tofu", fideosInt:"pasta", arrozInt:"arroz", batata:"batata", papa:"papa", palta:"palta",
+  yogNat:"yogur", yogGriego:"yogur", avena:"avena", ricota:"ricota", lechuga:"ensalada", rucula:"ensalada", panRallado:"milanesa"};
+let gustoCache=null;
+function gustosRegistrados(){
+  const clave=S.today+"|"+Object.keys(DB.dias).length; if(gustoCache?.clave===clave) return gustoCache.cuenta;
+  const cuenta={};
+  for(let d=0; d<30; d++) for(const c of (DB.dias[keyShift(S.today,-d)]?.comidas||[])){
+    const txt=ESTIMADOR.norm(c.nombre+" "+(c.items||[]).join(" "));
+    for(const [f,re] of Object.entries(FAMILIAS)) if(re.test(txt)) cuenta[f]=(cuenta[f]||0)+1; }
+  gustoCache={clave, cuenta}; return cuenta;
+}
+function afinidad(r, cuenta){ const fams=new Set(r.i.map(([id])=>FAM_ING[id]).filter(Boolean)); let p=0; for(const f of fams) p+=Math.min(cuenta[f]||0,4)*0.5; return p; }
 function elegir(slot){
   const f=candidatos(slot); if(!f.length) return {rec:null, count:0};
   const top=f.filter((r,i)=>i<Math.max(3,Math.ceil(f.length/2)));
@@ -300,37 +354,130 @@ function grupoMarca(prod, sel){
   draw(); return el("div",{class:"stack",style:"gap:8px"}, el("div",{class:"label"},`¿Qué marca de ${P.n} usaste?`), box);
 }
 // Perfil › Mis marcas
+// Marcas: primero las guardadas; «Editar» abre otra pantalla con Guardar (verde, izquierda) y Cancelar (rojo, derecha).
 function seccionMarcas(){
+  const elegidas=Object.entries(MARCAS).filter(([k])=>DB.marcas?.[k]);
+  return [el("section",{class:"card"},
+    elegidas.length? el("ul",{class:"marcas"}, elegidas.map(([k,P])=>el("li",{}, el("span",{},cap(P.n)), el("b",{}, DB.marcas[k]==="otra"? "Otra o no sé" : P.opts[DB.marcas[k]]?.n||"—"))))
+      : el("p",{style:"margin:0"},"Todavía no elegiste marcas. Pulso te pregunta la primera vez que registrás cada producto."),
+    el("button",{class:"btn small",type:"button",style:"margin-top:12px",onclick:()=>{ S.perfilSec="marcasEditar"; render(); }},"Editar"))];
+}
+function editarMarcas(){
+  const borrador={...(DB.marcas||{})};
   const filas=Object.entries(MARCAS).map(([k,P])=>{ const s=el("select",{id:"marca-"+k,"aria-label":"Marca de "+P.n},
       el("option",{value:""},"Sin elegir"), ...Object.entries(P.opts).map(([v,o])=>el("option",{value:v},o.n)), el("option",{value:"otra"},"Otra o no sé"));
-    s.value=DB.marcas?.[k]||""; s.addEventListener("change",()=>{ const m={...(DB.marcas||{})}; if(s.value) m[k]=s.value; else delete m[k]; DB.marcas=m; persist(); });
+    s.value=borrador[k]||""; s.addEventListener("change",()=>{ if(s.value) borrador[k]=s.value; else delete borrador[k]; });
     return el("li",{}, el("label",{for:"marca-"+k},cap(P.n)), s); });
-  return el("section",{class:"card"}, el("h3",{},"Mis marcas"),
-    el("p",{class:"note",style:"margin:0 0 8px"},"Pulso usa los valores de la marca que elegiste. Te la pregunta la primera vez que registrás cada producto."),
-    el("ul",{class:"marcas"}, filas));
+  return [el("section",{class:"card"}, el("ul",{class:"marcas"}, filas)),
+    el("div",{class:"row botones-marcas"},
+      el("button",{class:"btn guardar",type:"button",onclick:()=>{ DB.marcas=borrador; persist(); respaldoPronto(); S.perfilSec="marcas"; render(); }},"Guardar"),
+      el("button",{class:"btn cancelar",type:"button",onclick:()=>{ S.perfilSec="marcas"; render(); }},"Cancelar"))];
+}
+
+
+// ==== REGISTRO ESCRITO: preguntas de ingredientes, porción y tipo de yogur ====
+// Platos armables sin detalle: qué tenían (relleno típico en gramos). Platos genéricos: qué variedad.
+const RELLENOS=[["Jamón cocido","Jamón",40],["Queso","Queso",30],["Tomate","Tomate",40],["Lechuga","Lechuga",15],["Huevo","Huevo",50],
+  ["Pollo (pechuga)","Pollo",80],["Carne vacuna","Carne",80],["Atún al natural","Atún",60],["Palta","Palta",30],["Mayonesa","Mayonesa",10]];
+const ENSALADA=[["Lechuga","Lechuga",40],["Tomate","Tomate",80],["Zanahoria","Zanahoria",40],["Cebolla","Cebolla",30],["Huevo","Huevo",50],
+  ["Atún al natural","Atún",60],["Pollo (pechuga)","Pollo",80],["Queso","Queso",30],["Palta","Palta",40],["Aceite","Aceite o aderezo",8]];
+const HAMBURGUESA=[["Cheddar","Queso",20],["Panceta","Panceta",20],["Huevo frito","Huevo frito",50],["Lechuga","Lechuga y tomate",10],["Cebolla","Cebolla",15]];
+const VARIANTES={
+  Tarta:{al:["tarta"], t:"¿De qué era la tarta?", o:[["Tarta","Jamón y queso"],["Tarta de verdura","Verdura"],["Tarta de choclo","Choclo"],["Tarta de atún","Atún"]]},
+  Empanada:{al:["empanada","empanadita"], t:"¿De qué era la empanada?", o:[["Empanada de carne","Carne"],["Empanada de jamón y queso","Jamón y queso"],["Empanada de pollo","Pollo"],
+    ["Empanada de humita","Humita"],["Empanada de verdura","Verdura"],["Empanada de caprese","Caprese"],["Empanada de cebolla","Cebolla"],["Empanada de atún","Atún"]]},
+  Pizza:{al:["pizza"], t:"¿De qué era la pizza?", o:[["Pizza","Muzzarella"],["Pizza napolitana","Napolitana"],["Pizza de jamón","Jamón"],["Fugazzeta","Fugazzeta"],
+    ["Pizza con fiambre","Con fiambre"],["Pizza de rúcula","Rúcula"],["Pizza de verdura","Verdura"]]},
+};
+const PORCION={poco:.6, normal:1, mucho:1.5, nose:1};
+const minus = t => t.charAt(0).toLowerCase()+t.slice(1);
+function nuevoItem(n,g){ const f=ESTIMADOR.alimento(n)||{}; return {n, g, l:f.l, u:f.u, uN:f.uN, por:f.por, k:f.k, auto:false}; }
+// Medida casera aproximada para una cantidad en gramos: unidades del alimento, vasos o cucharadas, puñados y platos.
+function medidaCasera(g, f){
+  if(f.u && f.uN && g/f.u>=0.5 && g/f.u<=6){ const n=Math.round(g/f.u*2)/2; return frac(n)+" "+f.uN+(n>1.25 && !f.uN.endsWith(".")? "s":""); }
+  if(f.l) return g<=150? "½ vaso" : g<=300? "1 vaso" : frac(Math.round(g/250*2)/2)+" vasos";
+  return g<=8? "1 cucharadita" : g<=20? "1 cucharada" : g<=35? "2 cucharadas" : g<=55? "1 puñado" : g<=130? "½ plato" : g<=280? "1 plato" : "1 plato grande";
+}
+function pasosRegistro(r, txt){
+  const seg=[], yog=[], por=[];
+  r.items.forEach((it,i)=>{
+    if(it.relleno) seg.push({id:"seg_"+i, titulo:`¿Qué tenía el ${minus(it.n)}?`, sub:"Podés marcar varias.", tipo:"multi", opts:RELLENOS.map(([n,t])=>[n,t])});
+    else if(it.n==="Ensalada mixta" && !it.alias) seg.push({id:"seg_"+i, titulo:"¿Qué tenía la ensalada?", sub:"Podés marcar varias.", tipo:"multi", opts:ENSALADA.map(([n,t])=>[n,t])});
+    else if(it.n==="Hamburguesa con pan" && it.alias==="hamburguesa") seg.push({id:"seg_"+i, titulo:"¿Qué más tenía la hamburguesa?", sub:"Podés marcar varias, o ninguna.", tipo:"multi", opts:HAMBURGUESA.map(([n,t])=>[n,t])});
+    else if(VARIANTES[it.n] && VARIANTES[it.n].al.includes(it.alias)) seg.push({id:"seg_"+i, titulo:VARIANTES[it.n].t, tipo:"single", opts:VARIANTES[it.n].o});
+    if(it.n==="Yogur bebible" && ["yogur","yogurt"].includes(it.alias)) yog.push({id:"yog_"+i, titulo:"¿El yogur era bebible o firme?", tipo:"single", opts:[["bebible","Bebible"],["firme","Firme (de cuchara)"]]});
+    if(!it.explicita && !it.auto && !(it.n==="Ensalada mixta" && !it.alias)) por.push([i, it]);
+  });
+  por.sort((a,b)=>b[1].g*(b[1].k||0)-a[1].g*(a[1].k||0));   // primero lo que más energía aporta
+  const pPor=por.map(([i,it])=>({id:"por_"+i, titulo:`¿Qué porción de ${minus(it.n)} comiste?`, tipo:"single",
+    opts:[["poco","Poco"],["normal","Normal",medidaCasera(it.g, it)],["mucho","Mucho"],["nose","No sé"]]}));
+  const pMarcas={dyn: resp=>pasosMarcas(marcasPendientes({items:aplicarRespuestas(r, resp)}, txt))};
+  return [...seg, ...yog, ...pPor, pMarcas, pasoHambre, pasoMotivo];
+}
+function aplicarRespuestas(r, resp){
+  const its=r.items.map(x=>({...x})), extra=[], fuera=new Set();
+  its.forEach((it,i)=>{
+    const sg=resp["seg_"+i];
+    if(Array.isArray(sg) && sg.length){
+      const tabla = it.relleno? RELLENOS : it.n==="Ensalada mixta"? ENSALADA : HAMBURGUESA;
+      if(it.relleno) for(let j=i+1;j<its.length && its[j].auto;j++) fuera.add(j);   // el relleno típico se reemplaza por lo elegido
+      if(it.n==="Ensalada mixta") fuera.add(i);
+      for(const n of sg){ const x=tabla.find(t=>t[0]===n); if(x) extra.push(nuevoItem(n,x[2])); if(it.n==="Hamburguesa con pan" && n==="Lechuga") extra.push(nuevoItem("Tomate",25)); }
+    } else if(typeof sg==="string" && sg){ Object.assign(it, nuevoItem(sg, it.g)); }
+    if(resp["yog_"+i]==="firme"){ const potes=it.g/(it.u||it.por||200); Object.assign(it, nuevoItem("Yogur firme", 1)); it.g=Math.round(potes*(it.u||it.por)); }
+    const pr=resp["por_"+i]; if(pr) it.g=Math.max(1, Math.round(it.g*PORCION[pr]));
+  });
+  return its.filter((_,i)=>!fuera.has(i)).concat(extra);
 }
 
 // ==== HAMBRE Y EMOCIONES: pregunta breve antes de guardar ====
 const HAMBRE=[["ninguna","Nada de hambre"],["poca","Poca"],["moderada","Moderada"],["mucha","Mucha"]];
 const MOTIVO=[["hambre","Hambre física"],["horario","Horario o costumbre"],["emocion","Ansiedad o estrés"],["aburrimiento","Aburrimiento"]];
+// Preguntas después de registrar: de a una, con barra de progreso y opciones en columna (formato del cuestionario).
+// Máximo 6, siempre con «Saltear». Hambre y motivo van siempre al final; el resto se recorta si no entra.
+const MAX_PREGUNTAS=6;
+function flujoPreguntas(pasos, alTerminar){
+  const resp={}, cola=pasos.slice(); let hechas=0;
+  const reservadas = () => cola.filter(p=>p.fija).length;
+  const sheet=$("#sheet");
+  const siguiente=()=>{
+    while(cola.length && cola[0].dyn){ const d=cola.shift(); cola.unshift(...d.dyn(resp)); }   // pasos que dependen de respuestas anteriores
+    while(cola.length && !cola[0].fija && hechas+reservadas()>=MAX_PREGUNTAS) cola.shift();
+    if(!cola.length){ cerrarSheet(); alTerminar(resp); return; }
+    const p=cola.shift(); hechas++; dibujar(p);
+  };
+  const dibujar=p=>{
+    const total=Math.min(MAX_PREGUNTAS, hechas+cola.filter(x=>!x.dyn).length);
+    let sel = p.tipo==="multi"? [] : null; let otro="";
+    const opts=el("div",{class:"choices"});
+    const otroIn=el("input",{type:"text",id:"preg-otro",placeholder:"Contalo en pocas palabras",hidden:true});
+    otroIn.addEventListener("input",()=>{ otro=otroIn.value; });
+    const listo=v=>{ resp[p.id]= p.tipo==="multi"? v : v; if(v==="otro") resp[p.id+"Otro"]=otro||undefined; siguiente(); };
+    const sig=el("button",{class:"btn primary",type:"button",onclick:()=>listo(sel)},"Siguiente");
+    const draw=()=>{ opts.replaceChildren(...p.opts.concat(p.otro? [["otro","Otro"]] : []).map(([v,t,d])=>{ const on = p.tipo==="multi"? sel.includes(v) : sel===v;
+      return el("button",{type:"button",class:"choice"+(on?" on":""),"aria-pressed":String(on),onclick:()=>{
+        if(p.tipo==="multi"){ sel = on? sel.filter(x=>x!==v) : sel.concat(v); draw(); return; }
+        sel=v; draw(); if(v==="otro"){ otroIn.hidden=false; otroIn.focus(); sig.hidden=false; return; } setTimeout(()=>listo(v),160); }},
+        t, d? el("span",{class:"choice-det"},d) : null); })); };
+    draw(); sig.hidden = p.tipo!=="multi";
+    sheet.replaceChildren(el("div",{class:"sheet-card preguntas"},
+      el("div",{class:"onb-prog"}, el("i",{style:`width:${hechas/Math.max(total,1)*100}%`})),
+      el("div",{class:"eyebrow"},"Antes de guardar"), el("h2",{},p.titulo), p.sub? el("p",{class:"note"},p.sub) : null,
+      opts, otroIn,
+      el("div",{class:"row onb-nav"}, el("button",{class:"btn ghost",type:"button",onclick:()=>siguiente()},"Saltear"), sig)));
+    sheet.hidden=false;
+  };
+  siguiente();
+}
+const pasoHambre = {id:"hambre", fija:true, titulo:"¿Cuánta hambre tenías?", sub:"Sirve para que veas tus patrones, no para juzgarte.", tipo:"single", otro:true, opts:HAMBRE};
+const pasoMotivo = {id:"motivo", fija:true, titulo:"¿Qué te llevó a comer?", tipo:"single", otro:true, opts:MOTIVO};
+const pasosMarcas = prods => prods.map(k=>({id:"marca_"+k, titulo:`¿Qué marca de ${MARCAS[k].n} era?`, sub:"Te lo preguntamos una sola vez.", tipo:"single",
+  opts:Object.entries(MARCAS[k].opts).map(([v,o])=>[v,o.n]).concat([["otra","Otra o no sé"]])}));
+const emoDe = resp => ({hambre:resp.hambre&&resp.hambre!=="otro"? resp.hambre : resp.hambre, motivo:resp.motivo, emoOtro:resp.hambreOtro||resp.motivoOtro||undefined});
+const marcasDe = resp => Object.fromEntries(Object.entries(resp).filter(([k])=>k.startsWith("marca_")).map(([k,v])=>[k.slice(6),v]));
+// «Lo comí» de una receta: marcas que falten, hambre y motivo.
 function preguntarEmocion(onDone, marcasPend=[]){
-  const st={hambre:null, motivo:null, otro:"", marcas:{}};
-  const sheet=$("#sheet"); sheet.replaceChildren();
-  const grupo=(titulo, opts, key)=>{ const box=el("div",{class:"opts"});
-    const draw=()=>{ box.replaceChildren(...opts.concat([["otro","Otro"]]).map(([v,t])=>el("button",{type:"button",class:"opt"+(st[key]===v?" on":""),onclick:()=>{st[key]=v; draw(); otroIn.hidden = !(st.hambre==="otro"||st.motivo==="otro");}},t))); };
-    draw(); return el("div",{class:"stack",style:"gap:8px"}, el("div",{class:"label"},titulo), box); };
-  const otroIn=el("input",{type:"text",id:"emoOtro",placeholder:"Contalo en pocas palabras",hidden:true}); otroIn.addEventListener("input",()=>st.otro=otroIn.value);
-  sheet.append(el("div",{class:"sheet-card"},
-    el("h2",{},"Antes de guardar"),
-    el("p",{class:"note"},"Dos toques. Sirve para que veas tus patrones, no para juzgarte."),
-    grupo("¿Cuánta hambre tenías?", HAMBRE, "hambre"),
-    grupo("¿Qué te llevó a comer?", MOTIVO, "motivo"),
-    otroIn,
-    ...marcasPend.map(prod=>grupoMarca(prod, st.marcas)),
-    el("div",{class:"row",style:"margin-top:6px"},
-      el("button",{class:"btn primary",type:"button",onclick:()=>{ cerrarSheet(); guardarMarcas(st.marcas); onDone({hambre:st.hambre, motivo:st.motivo, emoOtro:st.otro||undefined}); }},"Guardar"),
-      el("button",{class:"btn ghost",type:"button",onclick:()=>{ cerrarSheet(); guardarMarcas(st.marcas); onDone({}); }},"Saltear"))));
-  sheet.hidden=false;
+  flujoPreguntas([...pasosMarcas(marcasPend), pasoHambre, pasoMotivo], resp=>{ guardarMarcas(marcasDe(resp)); onDone(emoDe(resp)); });
 }
 function cerrarSheet(){ $("#sheet").hidden=true; $("#sheet").replaceChildren(); }
 
@@ -353,7 +500,7 @@ function render(){
   guiaMostrar();
 }
 document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{ S.view=b.dataset.v; render(); window.scrollTo(0,0); }));
-$("#btnPerfil").addEventListener("click",()=>{ S.view="perfil"; render(); window.scrollTo(0,0); });
+$("#btnPerfil").addEventListener("click",()=>{ S.view="perfil"; S.perfilSec=null; render(); window.scrollTo(0,0); });
 
 // ==== GUÍA: consejos en contexto, de a uno, la primera vez que se ve cada parte ====
 // Cada consejo aparece justo arriba de lo que explica, con «Entendido». En Perfil, «Ver la guía de nuevo» los vuelve a mostrar.
@@ -376,10 +523,17 @@ function guiaMostrar(){
 }
 
 // ==== HOY ====
+// Cantidades en medidas caseras («1 puñado», «2 cucharadas», «½ lata»); los gramos solo se usan para calcular.
+function medidaIng(id, g){
+  const x=ingOf(id), c = CASERA[id] || (x.u? [x.u, x.uN||"unidad", (x.uN||"unidad")+"s"] : null);
+  if(!c) return "1 porción";
+  const entero = !CASERA[id] || CASERA[id][3];   // huevos, frutas, rebanadas, latas de atún: unidades enteras
+  const n = entero? Math.max(1, Math.round(g/c[0])) : Math.max(0.5, Math.round(g/c[0]*2)/2);
+  return `${frac(n)} ${n>1? c[2] : c[1]}`;
+}
 function ingRows(rec, f){
-  return el("ul",{class:"ing"}, rec.i.map(([id,g,esc])=>{ const x=ingOf(id); let gg=esc? g*escala(x,f) : g; gg = Math.max(5, Math.round(gg/5)*5);
-    const unit = x.u ? ` · ${frac(gg/x.u)} ${x.uN||"unidad"}${gg/x.u>1.25 && !(x.uN||"").endsWith(".")?"s":""}` : "";
-    return el("li",{}, el("span",{},x.n), el("span",{}, `${gg} g`, el("small",{},unit))); }));
+  return el("ul",{class:"ing"}, rec.i.map(([id,g,esc])=>{ const x=ingOf(id); const gg=esc? g*escala(x,f) : g;
+    return el("li",{}, el("span",{},x.n), el("span",{}, medidaIng(id, gg))); }));
 }
 function nutrLine(n, completa){
   const care=PLAN.care, g=(v,t)=>el("span",{},el("b",{},nf(v)),` g ${t}`);
@@ -401,7 +555,7 @@ function renderHoy(){
   const box=$("#v-hoy"); box.replaceChildren();
   const d=day();
   if(!d.sueno && new Date().getHours()<16) box.append(cardSueno());
-  if(!movAunNo()) box.append(cardMovRapido(true));
+  if(!movAunNo() && !d.ejercicio.length) box.append(cardMovRapido(true));   // con movimiento ya anotado hoy, no se vuelve a preguntar
   if(cicloInfo()?.antojos && !d.antojo) box.append(cardAntojo());
   // momentos del día
   const hechos=new Set(d.comidas.map(c=>c.slot));
@@ -414,24 +568,24 @@ function renderHoy(){
   if(!rec) box.append(el("article",{class:"card hero"}, el("div",{class:"label"},`${SLOTDEF[slot].n} · ${PLAN.horas[slot]} h`),
     el("p",{},"Todavía no tenemos recetas que se ajusten a todo tu perfil para este momento del día. Registrá lo que comas más abajo.")));
   else { const {f,why}=factorFor(slot,rec); const n=nutr(rec,f);
-    if(!tarjetaOculta(slot)) box.append(tarjetaReceta(slot, rec, n, count, ya));
+    if(!tarjetaOculta(slot)) box.append(tarjetaReceta(slot, rec, n, ya));
     completa=el("article",{class:"card"},
       el("div",{class:"label"},`Receta · ${SLOTDEF[slot].n}`), el("h2",{},rec.n),
       el("div",{class:"meta"}, rec.t? el("span",{},el("b",{},rec.t)," min"):el("span",{},"Sin cocción"), el("span",{},"1 porción"), PLAN.sinLactosa && rec.i.some(([id])=>(ING[id].g||[]).includes("lacteo"))? el("span",{},"Usá lácteos sin lactosa"):null),
       why? el("div",{class:"factor"},why):null,
-      ingRows(rec,f), nutrLine(n, true), el("ol",{class:"steps"}, rec.pasos.map(p=>el("li",{},p)))); }
+      ingRows(rec,f), nutrLine(n, true), el("ol",{class:"steps"}, rec.pasos.map(p=>el("li",{},p))), accionesReceta(slot, rec, n, count)); }
   // registro
-  const otro=el("textarea",{id:"otroTxt",placeholder:"Escribilo como lo dirías. Por ejemplo: dos porciones de pizza de muzzarella y una gaseosa sin azúcar."});
+  const otro=el("textarea",{id:"otroTxt",placeholder:"Ej.: milanesa de carne con ensalada"});
   const sel=el("select",{id:"otroSlot","aria-label":"Momento del día"}, slotsHoy().map(([k])=>el("option",{value:k},SLOTDEF[k].n))); sel.value=slot;
   const msg=el("span",{class:"note",id:"otroMsg"});
   const registrar=()=>{ const txt=otro.value.trim(); if(!txt){ otro.focus(); return; }
     const r=ESTIMADOR.analizar(txt);
     if(!r.items.length){ msg.textContent="No reconocí ningún alimento. Probá nombrarlo de otra forma."; return; }
     const nombre=cap(txt).replace(/[.\s]+$/,"");
-    preguntarEmocion(emo=>{ const a=conMarcas(r, txt);
+    flujoPreguntas(pasosRegistro(r, txt), resp=>{ guardarMarcas(marcasDe(resp)); const its=aplicarRespuestas(r, resp), t=ESTIMADOR.totales(its), a=conMarcas(t, txt), emo=emoDe(resp);
       addComida({slot:sel.value, recetaId:null, nombre:nombre.length>140?nombre.slice(0,137)+"…":nombre, kcal:a.kcal, prot:a.prot, carb:a.carb, grasa:a.grasa, fibra:a.fibra,
-      verduras:r.verduras, frutas:r.frutas, integrales:r.integrales, nueces:r.nueces, vitC:r.vitC, roja:r.roja, atun:r.atun, fuera:true, texto:txt,
-      items:a.items, marcas:a.marcas, noRec:r.sobras, ...emo}); }, marcasPendientes(r, txt)); };
+      verduras:t.verduras, frutas:t.frutas, integrales:t.integrales, nueces:t.nueces, vitC:t.vitC, roja:t.roja, atun:t.atun, fuera:true, texto:txt,
+      items:a.items, marcas:a.marcas, noRec:r.sobras, ...emo}); }); };
   otro.addEventListener("keydown",e=>{ if(e.key==="Enter"&&!e.shiftKey){ e.preventDefault(); registrar(); } });
   box.append(el("section",{class:"card"}, el("h3",{},"Registro de hoy"),
     el("ul",{class:"log"}, d.comidas.length? ordenar(d.comidas).map(c=>logItem(c,true)) : el("li",{class:"note"},"Todavía no registraste nada hoy.")),
@@ -442,21 +596,24 @@ function renderHoy(){
   box.append(el("section",{class:"stack","aria-label":"Datos nutricionales de hoy"}, el("h3",{},"Hoy vas así"), progreso(d.comidas)));
   if(completa) box.append(completa);
 }
-// Tarjeta corta de la sugerencia: nombre y macros principales. Deslizarla hacia un costado la oculta (la receta completa queda abajo).
-function tarjetaReceta(slot, rec, n, count, ya){
+// Tarjeta corta de la sugerencia: solo el nombre y los macros principales. Deslizarla hacia un costado la oculta;
+// los botones («Lo comí», porción, «Otra opción») están en la receta completa, más abajo.
+function tarjetaReceta(slot, rec, n, ya){
   const card=el("article",{class:"card hero tarjeta"},
     el("div",{class:"label"}, `${SLOTDEF[slot].n} · ${PLAN.horas[slot]} h${slot===slotNow()?" · ahora":""}`),
     ya.length? el("div",{class:"note",style:"margin-top:4px"},`Ya registraste: ${ya.map(c=>c.nombre).join(", ")}.`):null,
-    el("h2",{},rec.n), nutrLine(n),
-    el("div",{class:"actions"},
-      el("div",{class:"row"}, adjSeg(rec.id),
-        el("button",{class:"btn primary",type:"button",onclick:()=>{ const a=S.adj[rec.id]||1; const m=scaleN(n,a);
-          const pend=Object.keys(MARCAS).filter(k=>!DB.marcas?.[k] && MARCAS[k].ing.some(id=>rec.i.some(([x])=>x===id)));
-          preguntarEmocion(emo=>{ const {f}=factorFor(slot,rec); const m2=scaleN(nutr(rec,f),a);   // con las marcas recién elegidas
-            addComida({slot, recetaId:rec.id, nombre:rec.n+(a!==1?(a<1?" (menos)":" (más)"):""), ...m2, ...emo}); S.adj[rec.id]=1; }, pend); }},"Lo comí")),
-      count>1? el("div",{class:"row"}, el("button",{class:"btn small",type:"button",onclick:()=>{ S.offsets[slot]=(S.offsets[slot]||0)+1; render(); }},`Otra opción (${count})`)):null));
+    el("h2",{},rec.n), nutrLine(n));
   deslizable(card, ()=>{ ocultarTarjeta(slot); render(); });
   return card;
+}
+function accionesReceta(slot, rec, n, count){
+  return el("div",{class:"actions"},
+    el("div",{class:"row"}, adjSeg(rec.id),
+      el("button",{class:"btn primary",type:"button",onclick:()=>{ const a=S.adj[rec.id]||1;
+        const pend=Object.keys(MARCAS).filter(k=>!DB.marcas?.[k] && MARCAS[k].ing.some(id=>rec.i.some(([x])=>x===id)));
+        preguntarEmocion(emo=>{ const {f}=factorFor(slot,rec); const m2=scaleN(nutr(rec,f),a);   // con las marcas recién elegidas
+          addComida({slot, recetaId:rec.id, nombre:rec.n+(a!==1?(a<1?" (menos)":" (más)"):""), ...m2, ...emo}); S.adj[rec.id]=1; }, pend); }},"Lo comí")),
+    count>1? el("div",{class:"row"}, el("button",{class:"btn small",type:"button",onclick:()=>{ S.offsets[slot]=(S.offsets[slot]||0)+1; render(); }},`Otra opción (${count})`)):null);
 }
 function tarjetaOculta(slot){ return !!(DB.ocultas||{})[S.today+"|"+slot]; }
 function ocultarTarjeta(slot){ const o={}; for(const [k,v] of Object.entries(DB.ocultas||{})) if(k.slice(0,10)>=keyShift(S.today,-2)) o[k]=v; o[S.today+"|"+slot]=1; DB.ocultas=o; persist(); }
@@ -549,16 +706,20 @@ const MOV_VUELVE=30*60000;
 function movAunNo(){ return !!DB.movAunNo && dayKey(new Date(DB.movAunNo))===S.today; }
 function movAlVolver(){ if(DB.cerradaDesde && Date.now()-DB.cerradaDesde>=MOV_VUELVE && DB.movAunNo){ delete DB.movAunNo; persist(); return true; } return false; }
 function cardMovRapido(conAunNo){
-  const st={tipo:null, min:null};
+  const st={tipo:null, min:null, abierto:!conAunNo};
   const box=el("section",{class:"card"});
   const draw=()=>{ const hoy=day().ejercicio;
+    if(!st.abierto){   // en Hoy: primero la pregunta, con «Sí, anotar» o «Aún no»
+      box.replaceChildren(el("h3",{},"¿Te moviste hoy?"), el("div",{class:"row"},
+        el("button",{class:"btn small primary",type:"button",onclick:()=>{ st.abierto=true; draw(); }},"Sí, anotar"),
+        el("button",{class:"btn small ghost",type:"button",onclick:()=>{ DB.movAunNo=Date.now(); persist(); render(); }},"Aún no")));
+      return; }
     box.replaceChildren(...[el("h3",{},"¿Te moviste hoy?"),
       hoy.length? el("ul",{class:"log"}, hoy.map(e=>el("li",{}, el("div",{}, el("div",{},`${ACT_TXT[e.tipo]||e.otro||"Actividad"} · ${e.min} min`), PLAN.care?null:el("div",{class:"note"},`≈ ${nf(e.kcal)} kcal`)),
         el("button",{class:"x",type:"button","aria-label":"Borrar actividad",onclick:()=>delEjercicio(e.id)},"×")))):null,
       el("div",{class:"opts"}, ACT.map(([v,t])=>el("button",{type:"button",class:"opt"+(st.tipo===v?" on":""),onclick:()=>{st.tipo=v; draw();}},t)), el("button",{type:"button",class:"opt"+(st.tipo==="otro"?" on":""),onclick:()=>{st.tipo="otro"; draw();}},"Otro")),
       st.tipo? el("div",{class:"opts",style:"margin-top:8px"}, [15,30,45,60].map(m=>el("button",{type:"button",class:"opt"+(st.min===m?" on":""),onclick:()=>{st.min=m; draw();}},m+" min"))) : null,
-      st.tipo && st.min? el("button",{class:"btn small primary",type:"button",style:"margin-top:10px",onclick:()=>{ const met=ACT_MET[st.tipo]||5; addEjercicio({tipo:st.tipo, min:st.min, kcal:Math.round((met-1)*PLAN.peso*st.min/60)}); }},"Guardar") : null,
-      conAunNo && !hoy.length && !st.tipo? el("button",{class:"btn small ghost",type:"button",style:"margin-top:10px",onclick:()=>{ DB.movAunNo=Date.now(); persist(); render(); }},"Aún no") : null].filter(Boolean));
+      st.tipo && st.min? el("button",{class:"btn small primary",type:"button",style:"margin-top:10px",onclick:()=>{ const met=ACT_MET[st.tipo]||5; addEjercicio({tipo:st.tipo, min:st.min, kcal:Math.round((met-1)*PLAN.peso*st.min/60)}); }},"Guardar") : null].filter(Boolean));
   };
   draw(); return box;
 }
@@ -648,34 +809,62 @@ function renderRecetario(){
 }
 
 // ==== PERFIL Y PRIVACIDAD ====
+// Perfil por secciones: un menú y cada sección en su propia pantalla, con «‹ Perfil» arriba a la izquierda.
+const SECCIONES=[["plan","Plan"],["marcas","Marcas"],["notif","Notificaciones"],["privacidad","Privacidad"],["cuenta","Cuenta"]];
 function renderPerfil(){
-  const box=$("#v-perfil"); box.replaceChildren(); const P=PLAN;
-  const resumen=[];
-  for(const q of PREGUNTAS){ if(!q.opts || q.id==="relacion" || !visible(q,DB.perfil.resp)) continue; const v=ans(q.id); if(v==null) continue;
-    const lab=x=> x==="otro"? (DB.perfil.resp[q.id+"_otro"]||"Otro") : (q.opts.concat(q.viejas||[]).find(o=>o[0]===x)||[,x])[1];
-    resumen.push(el("li",{}, el("div",{}, el("div",{class:"s"},q.t), el("div",{}, Array.isArray(v)? (v.length? v.map(lab).join(", "):"Nada") : lab(v))))); }
-  const c=DB.perfil.resp.cuerpo||{}, dp=DB.perfil.resp.datos||{};
-  agregar(box,
+  const box=$("#v-perfil"); box.replaceChildren();
+  const sec=S.perfilSec;
+  if(!sec){
+    const dp=DB.perfil.resp.datos||{};
+    agregar(box, (dp.nombre||dp.email)? el("p",{class:"note",style:"margin:0"},[dp.nombre,dp.apellido].filter(Boolean).join(" ")+(dp.email?` · ${dp.email}`:"")) : null,
+      el("nav",{class:"menu-perfil","aria-label":"Secciones del perfil"}, SECCIONES.map(([k,t])=>el("button",{type:"button",onclick:()=>{ S.perfilSec=k; render(); window.scrollTo(0,0); }}, el("span",{},t), el("span",{"aria-hidden":"true"},"›")))));
+    return;
+  }
+  const titulo = sec==="marcasEditar"? "Editar marcas" : (SECCIONES.find(x=>x[0]===sec)||[,""])[1];
+  const atras = sec==="marcasEditar"? ()=>{ S.perfilSec="marcas"; render(); } : ()=>{ S.perfilSec=null; render(); window.scrollTo(0,0); };
+  agregar(box, el("div",{class:"barra-sup"}, el("button",{class:"volver",type:"button",onclick:atras}, sec==="marcasEditar"? "‹ Marcas" : "‹ Perfil"), el("span")),
+    el("h2",{style:"margin:0"},titulo),
+    ...({plan:seccionPlan, marcas:seccionMarcas, marcasEditar:editarMarcas, notif:()=>[seccionAvisos(), CONFIG.SALUD? seccionSalud() : null],
+         privacidad:()=>[seccionPrivacidad(), seccionCiclo()], cuenta:()=>[tarjetaCuenta(), el("section",{class:"card"},
+           el("button",{class:"btn small ghost",type:"button",onclick:()=>{ DB.guia={}; persist(); S.view="hoy"; S.perfilSec=null; render(); window.scrollTo(0,0); }},"Ver la guía de nuevo")),
+           el("p",{class:"enlace-baja"}, el("a",{href:"#eliminar-cuenta"},"Eliminar mi cuenta"))]}[sec]||(()=>[]))().flat());
+}
+// Plan: energía, proteína y horarios; solo se pueden editar los datos físicos (las respuestas del cuestionario no se muestran).
+function seccionPlan(){
+  const P=PLAN, c=DB.perfil.resp.cuerpo||{}, msg=el("p",{class:"note",role:"status",style:"margin:8px 0 0"});
+  const campos=[["edad","Edad","años",14,100],["altura","Altura","cm",120,220],["peso","Peso","kg",35,250]].map(([k,lab,un,mn,mx])=>{
+    const inp=el("input",{type:"number",id:"plan-"+k,inputmode:"decimal",min:String(mn),max:String(mx),value:c[k]??""});
+    return [k,mn,mx,inp, el("label",{class:"num",for:"plan-"+k}, el("span",{},lab), el("span",{class:"numrow"}, inp, el("small",{},un)))]; });
+  const guardar=()=>{ const nuevo={...c}; for(const [k,mn,mx,inp] of campos){ const v=+inp.value; if(!(v>=mn && v<=mx)){ msg.textContent="Revisá los valores: alguno está fuera de rango."; inp.focus(); return; } nuevo[k]=inp.value; }
+    DB.perfil.resp.cuerpo=nuevo; DB.perfil.actualizado=new Date().toISOString(); persist(); enviar("perfil", perfilCompartible()); respaldoPronto(true); render(); };
+  return [
     el("section",{class:"card hero"}, el("div",{class:"label"},"Tu plan"),
       el("div",{class:"meta",style:"margin-top:8px"}, P.care? null : el("span",{},el("b",{},nf(P.kcal))," kcal por día de referencia"), el("span",{},el("b",{},nf(P.prot))," g de proteína como mínimo")),
-      el("div",{class:"meta",style:"margin-top:8px"}, el("span",{},ESTRUCTURAS[P.est].n), ...slotsHoy().map(([k])=>el("span",{},`${SLOTDEF[k].n} ${P.horas[k]} h`))),
-      el("p",{class:"note",style:"margin:10px 0 0"},"La energía se estima con la ecuación de Mifflin-St Jeor y tu nivel de actividad. Es una referencia: si tu peso cambia sin que lo busques, actualizá tus datos.")),
-    el("section",{class:"card"}, el("h3",{},"Tus respuestas"),
-      (dp.nombre||dp.email)? el("p",{style:"margin:0 0 4px"},[dp.nombre,dp.apellido].filter(Boolean).join(" ")+(dp.email?` · ${dp.email}`:"")) : null,
-      el("p",{class:"note",style:"margin:0 0 6px"},`${c.edad||"—"} años · ${c.altura||"—"} cm · ${c.peso||"—"} kg`),
-      cicloInfo()? el("p",{class:"note",style:"margin:0 0 6px"},`Tu ciclo: próximo período estimado el ${keyDate(cicloInfo().proximo).toLocaleDateString("es-AR",{day:"numeric",month:"long"})}.`) : null,
-      el("ul",{class:"log"}, resumen),
-      el("div",{class:"row",style:"margin-top:12px"}, el("button",{class:"btn small",type:"button",onclick:()=>{ DB.perfil.completo=false; ONB.i=0; persist(); render(); }},"Editar respuestas"),
-        el("button",{class:"btn small ghost",type:"button",onclick:()=>{ DB.guia={}; persist(); S.view="hoy"; render(); window.scrollTo(0,0); }},"Ver la guía de nuevo"))),
-    seccionMarcas(), CONFIG.SALUD? seccionSalud() : null, seccionAvisos(), seccionPrivacidad(),
-    tarjetaCuenta(),
-    el("p",{class:"enlace-baja"}, el("a",{href:"#eliminar-cuenta"},"Eliminar mi cuenta")));
+      el("div",{class:"meta",style:"margin-top:8px"}, ...slotsHoy().map(([k])=>el("span",{},`${SLOTDEF[k].n} ${P.horas[k]} h`))),
+      cicloInfo()? el("p",{class:"note",style:"margin:10px 0 0"},`Tu ciclo: próximo período estimado el ${keyDate(cicloInfo().proximo).toLocaleDateString("es-AR",{day:"numeric",month:"long"})}.`) : null,
+      el("p",{class:"note",style:"margin:10px 0 0"},"La energía se estima con la ecuación de Mifflin-St Jeor y tu nivel de actividad. Es una referencia: si tu peso cambia, actualizá tus datos.")),
+    el("section",{class:"card"}, el("h3",{},"Tus datos físicos"), el("div",{class:"nums"}, campos.map(x=>x[4])),
+      el("button",{class:"btn small primary",type:"button",style:"margin-top:12px",onclick:guardar},"Guardar"), msg)];
+}
+// Ciclo menstrual (opcional): activar o desactivar desde Privacidad.
+function seccionCiclo(){
+  const R=DB.perfil.resp; if(R.sexo!=="m") return null;
+  const activo = R.cicloApp && R.cicloApp!=="off" && R.ciclo?.ultimo;
+  const card=el("section",{class:"card"}, el("h3",{},"Seguimiento del ciclo"));
+  if(activo) agregar(card, el("p",{style:"margin:0 0 8px"},"Está activo: Pulso usa la fecha de tu último período para acompañarte en los días previos."),
+    el("button",{class:"btn small ghost",type:"button",onclick:()=>{ R.cicloApp="off"; persist(); enviar("perfil", perfilCompartible()); respaldoPronto(true); render(); }},"Desactivar"));
+  else { const f=el("input",{type:"date",id:"ciclo-ultimo",max:S.today,min:keyShift(S.today,-90)});
+    agregar(card, el("p",{style:"margin:0 0 8px"},"Está desactivado. Para activarlo, poné cuándo empezó tu último período."),
+      el("label",{class:"num",for:"ciclo-ultimo"}, el("span",{},"Primer día"), f),
+      el("button",{class:"btn small primary",type:"button",style:"margin-top:10px",onclick:()=>{ if(!f.value) return f.focus();
+        R.cicloApp = R.cicloApp && R.cicloApp!=="off"? R.cicloApp : "ninguna"; R.ciclo={duracion:R.ciclo?.duracion||28, ultimo:f.value}; persist(); enviar("perfil", perfilCompartible()); respaldoPronto(true); render(); }},"Activar")); }
+  return card;
 }
 function seccionPrivacidad(){
   const msg=el("p",{class:"note",id:"privMsg",style:"margin:8px 0 0"});
   const file=el("input",{type:"file",id:"impFile",accept:"application/json",hidden:true});
   file.addEventListener("change",async()=>{ try{ const t=await file.files[0].text(); const x=JSON.parse(t); if(!x||!x.dias||!x.perfil) throw 0; const {avisos, auth, cuentaId, consent}=DB; DB=x; Object.assign(DB,{avisos, auth, cuentaId, consent}); persist(); msg.textContent="Copia restaurada."; render(); }catch(e){ msg.textContent="El archivo no es una copia válida de la app."; } });
-  return el("section",{class:"card"}, el("h3",{},"Privacidad y datos"),
+  return el("section",{class:"card"}, el("h3",{},"Tus datos"),
     el("p",{style:"margin:0 0 8px"}, `Aceptaste los términos y condiciones el ${new Date(DB.consent.fecha).toLocaleDateString("es-AR",{day:"numeric",month:"long",year:"numeric"})}. Tus registros se guardan en tu cuenta y en la base de datos de Pulso, como explican los términos.`),
     el("div",{class:"row"},
       el("button",{class:"btn small",type:"button",onclick:()=>{ try{ const a=el("a",{href:URL.createObjectURL(new Blob([JSON.stringify(DB,null,1)],{type:"application/json"})),download:"copia-pulso-"+S.today+".json"}); document.body.append(a); a.click(); a.remove(); msg.textContent="Copia descargada."; }catch(e){ msg.textContent="No se pudo descargar la copia en este navegador."; } }},"Descargar copia"),
@@ -689,7 +878,7 @@ function terminos(){
     el("p",{},"Textos libres: lo que escribas en campos de texto —por ejemplo, la descripción de una comida en «Comí otra cosa» o las respuestas «Otro»— se envía tal cual lo escribiste. No incluyas nombres ni datos que te identifiquen. La única excepción es lo que escribas en «Otro» en la pregunta sobre tu relación con la comida: no se envía a esa base de datos y solo se guarda en la copia de tu cuenta."),
     el("p",{},"Tu cuenta guarda tu nombre, tu apellido, tu mail y una copia de tus respuestas y tus registros, para que los recuperes al volver a entrar o desde otro dispositivo. Tu mail también se usa para enviarte el código de ingreso y novedades de Pulso, invitarte a encuestas o estudios y responder tus consultas o pedidos de acceso y borrado."),
     el("p",{},"Si eliminás tu cuenta (Perfil › Eliminar mi cuenta), antes te pedimos que respondas cinco preguntas sobre tu experiencia, que se conservan. Después borramos tu nombre, tu apellido, tu mail y la copia de tu cuenta. Tus registros y tus respuestas se conservan como datos generales, sin nada que los vincule a vos, para mejorar la app. Si querés que también se borren tus registros, pedilo escribiendo a "+CONFIG.CONTACTO+"."),
-    el("p",{},"Seguimiento del ciclo menstrual (opcional): si lo activás, guardamos qué app usás para seguir tu ciclo, la fecha de inicio de tu último período, la duración habitual de tu ciclo y los antojos que registres. Es un dato de salud especialmente sensible. Lo podés desactivar cuando quieras desde Perfil › Editar respuestas."),
+    el("p",{},"Seguimiento del ciclo menstrual (opcional): si lo activás, guardamos qué app usás para seguir tu ciclo, la fecha de inicio de tu último período, la duración habitual de tu ciclo y los antojos que registres. Es un dato de salud especialmente sensible. Lo podés desactivar cuando quieras desde Perfil › Privacidad."),
     CONFIG.SALUD? el("p",{},"Apple Salud (opcional): si conectás el atajo «Pulso Salud», tu iPhone nos envía cada día tus pasos y tus minutos de ejercicio. Para dejar de enviarlos, borrá la automatización en la app Atajos y tocá «Dejar de leer Salud» en Perfil.") : null,
     el("p",{},"Para qué: entender cómo se usa la app y mejorar sus recomendaciones. No se venden ni se ceden a terceros."),
     el("p",{},"Recordatorios (opcionales, independientes de compartir datos): si los activás, guardamos en nuestro servidor la dirección de notificaciones de tu dispositivo, los horarios de tus comidas, tu zona horaria y qué momentos del día ya registraste (no qué comiste), con un código aparte, que no se vincula con tu cuenta. Se usan solo para enviarte los avisos; las marcas diarias se borran a los pocos días y todo se borra al desactivarlos. Para enviarlos se usan los servicios de notificaciones de Apple, Google, Mozilla o Microsoft, según tu dispositivo."),
@@ -752,7 +941,7 @@ function renderOnb(){
     if(q.type==="numbers"){ const c=R.cuerpo||{}; sig.disabled = !q.fields.every(([k,,,mn,mx])=>+c[k]>=mn && +c[k]<=mx); return; }
     const conOtro = Array.isArray(v)? v.includes("otro") : v==="otro";
     otroWrap.hidden=!conOtro;
-    sig.disabled = q.type==="multi" ? !(v&&v.length) || (conOtro && !otroIn.value.trim()) : !v || (conOtro && !otroIn.value.trim());
+    sig.disabled = q.type==="multi" ? !(v&&v.length) || (conOtro && !otroIn.value.trim()) || (q.minPrincipal && !v.some(x=>["des","alm","mer","cen"].includes(x))) : !v || (conOtro && !otroIn.value.trim());
     if(q.type==="multi"){ if(tocado && !sig.disabled && document.activeElement!==otroIn) cuentaIniciar(next); else cuentaParar(); } };
   const otroWrap=el("div",{class:"otro-wrap"}, otroIn);
   const nav=(...extra)=>el("div",{class:"row onb-nav"}, ONB.i>0? el("button",{class:"btn ghost",type:"button",onclick:atras},"Atrás"):null, ...extra, sig);
@@ -784,10 +973,12 @@ function renderOnb(){
     card.append(nav()); box.append(card); ok(); return;
   }
   const opts=el("div",{class:"choices"});
-  const draw=()=>{ opts.replaceChildren(...q.opts.concat(q.sinOtro? [] : [["otro","Otro"]]).map(([v,t])=>{
+  // «Ninguna»/«Nada» (q.ninguna): primera, destacada y excluyente con las demás.
+  const ning=q.ninguna? q.ninguna[0] : null;
+  const draw=()=>{ opts.replaceChildren(...(q.ninguna? [q.ninguna] : []).concat(q.opts, q.sinOtro? [] : [["otro","Otro"]]).map(([v,t])=>{
     const sel = q.type==="multi" ? (R[q.id]||[]).includes(v) : R[q.id]===v;
-    return el("button",{type:"button",class:"choice"+(sel?" on":""),"aria-pressed":String(sel),onclick:()=>{
-      if(q.type==="multi"){ let a=(R[q.id]||[]).slice(); if(a.includes(v)) a=a.filter(x=>x!==v); else a.push(v); R[q.id]=a; tocado=true; draw(); ok(); }
+    return el("button",{type:"button",class:"choice"+(v===ning?" ninguna":"")+(sel?" on":""),"aria-pressed":String(sel),onclick:()=>{
+      if(q.type==="multi"){ let a=(R[q.id]||[]).slice(); if(a.includes(v)) a=a.filter(x=>x!==v); else a = v===ning? [v] : a.filter(x=>x!==ning).concat(v); R[q.id]=a; tocado=true; draw(); ok(); }
       else { R[q.id]=v; draw(); ok(); if(v!=="otro") setTimeout(next,160); else otroIn.focus(); } }}, t); })); };
   draw();
   card.append(opts, otroWrap, nav(q.type==="multi" && !q.sinNinguna ? el("button",{class:"btn ghost",type:"button",onclick:()=>{ R[q.id]=[]; next(); }},"Ninguna") : null));

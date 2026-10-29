@@ -16,7 +16,7 @@ full=f'''<!doctype html>
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#F5F0E8">
 <title>Pulso</title>
 <link rel="manifest" href="manifest.webmanifest">
@@ -31,6 +31,8 @@ full=f'''<!doctype html>
 /* Layout: una columna (máx. 720px); cuestionario inicial de una pregunta por pantalla; luego pestañas Hoy / Movimiento / Semana / Historial / Recetario / Perfil. */
 :root{{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}}
 body{{margin:0}} img{{max-width:100%}} [hidden]{{display:none!important}}
+/* Sin zoom: nada de doble toque; los campos con 16 px para que el iPhone no agrande la página al tocarlos. */
+html{{touch-action:manipulation}} input,textarea,select{{font-size:16px!important}}
 {css}
 {css_extra}
 </style>

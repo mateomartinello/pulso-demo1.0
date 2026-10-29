@@ -52,6 +52,10 @@ const ING = {
   almendras:   {n:"Almendras", k:579, p:21, f:12.5, hc:9.5, gr:50, nuez:true, g:["nuez"]},
   mani:        {n:"Maní tostado sin sal", k:585, p:24, f:8, hc:13, gr:49, nuez:true, g:["mani","nuez"]},
   mantMani:    {n:"Mantequilla de maní", k:590, p:25, f:6, hc:14, gr:50, nuez:true, g:["mani","nuez"]},
+  ricota:      {n:"Ricota", k:140, p:11, f:0, hc:3.8, gr:9, g:["lacteo"]},
+  clara:       {n:"Clara de huevo", k:52, p:11, f:0, hc:0.7, gr:0.2, u:33, uN:"clara", pr:true, g:["huevo"]},
+  hummus:      {n:"Hummus", k:170, p:8, f:6, hc:14, gr:10, g:["legumbre"]},
+  remolacha:   {n:"Remolacha", k:43, p:1.6, f:2.8, hc:7.3, gr:0.2, veg:true},
   miel:        {n:"Miel", k:304, p:0.3, f:0, hc:82, gr:0, u:10, uN:"cdita."},
   choco70:     {n:"Chocolate 70% cacao", k:600, p:7.8, f:11, hc:35, gr:43, choco:true},
 };
@@ -70,11 +74,11 @@ const PANES = {
 const RECETAS = [
   // ---- Desayuno o merienda ----
   {id:"d1", s:"d", n:"Tostadas con queso untable, tomate y una banana", t:5, cost:1, eq:[], tipo:"tostadas",
-   i:[["pan",76,1],["quesoUnt",40,1],["tomate",80],["banana",120]], pasos:["Tostá el pan.","Untá el queso y sumá el tomate en rodajas.","Una banana al lado."]},
+   i:[["pan",76,1],["quesoUnt",40,1],["tomate",80],["banana",120]], pasos:["Tostá el pan.","Untá el queso y sumá el tomate en rodajas.","De postre, una banana."]},
   {id:"d2", s:"d", n:"Yogur con avena, banana y nueces", t:3, cost:2, eq:[], tipo:"yogur",
    i:[["yogNat",200,1],["avena",40,1],["banana",120],["nueces",15]], pasos:["Mezclá el yogur con la avena.","Sumá la banana en rodajas y las nueces picadas."]},
   {id:"d3", s:"d", n:"Huevos revueltos con tostadas y una naranja", t:10, cost:1, eq:["hornalla"], tipo:"huevos",
-   i:[["huevo",100,1],["pan",76,1],["aceite",5,1],["naranja",180]], pasos:["Batí los huevos con una pizca de sal.","Cocinalos a fuego bajo con el aceite, revolviendo, 2–3 min.","Acompañá con las tostadas y la naranja."]},
+   i:[["huevo",100,1],["pan",76,1],["aceite",5,1],["naranja",180]], pasos:["Batí los huevos con una pizca de sal.","Cocinalos a fuego bajo con el aceite, revolviendo, 2–3 min.","Acompañá con las tostadas. De postre, la naranja."]},
   {id:"d4", s:"d", n:"Avena cocida con leche y manzana", t:10, cost:1, eq:["hornalla|microondas"], tipo:"avena",
    i:[["avena",50,1],["leche",250,1],["manzana",180]], pasos:["Cociná la avena con la leche 5 min a fuego bajo (o 2 min en microondas), revolviendo.","Sumá la manzana rallada o en cubos y canela."]},
   {id:"d5", s:"d", n:"Tostadas con palta, huevo duro y tomate", t:12, cost:2, eq:["hornalla"], tipo:"tostadas",
@@ -86,18 +90,18 @@ const RECETAS = [
   {id:"d8", s:"d", n:"Avena con bebida vegetal, banana y nueces", t:10, cost:2, eq:["hornalla|microondas"], tipo:"avena",
    i:[["avena",50,1],["bebidaVeg",250,1],["banana",120],["nueces",15]], pasos:["Cociná la avena con la bebida vegetal 5 min (o 2 min en microondas).","Sumá la banana y las nueces."]},
   {id:"d9", s:"d", n:"Tostadas con palta y tomate, y una naranja", t:5, cost:2, eq:[], tipo:"tostadas",
-   i:[["pan",76,1],["palta",80],["tomate",80],["naranja",180]], pasos:["Pisá la palta con sal y limón sobre las tostadas.","Sumá el tomate. Una naranja al lado."]},
+   i:[["pan",76,1],["palta",80],["tomate",80],["naranja",180]], pasos:["Pisá la palta con sal y limón sobre las tostadas.","Sumá el tomate. De postre, una naranja."]},
   {id:"d10", s:"d", n:"Galletas de arroz con queso y tomate, y mandarinas", t:3, cost:1, eq:[], tipo:"tostadas",
-   i:[["galletaArroz",30,1],["quesoCrem",40,1],["tomate",80],["mandarina",200]], pasos:["Queso y tomate sobre las galletas.","Dos mandarinas."]},
+   i:[["galletaArroz",30,1],["quesoCrem",40,1],["tomate",80],["mandarina",200]], pasos:["Queso y tomate sobre las galletas.","De postre, dos mandarinas."]},
   {id:"d11", s:"d", n:"Yogur natural con frutillas y banana", t:3, cost:1, eq:[], tipo:"yogur",
    i:[["yogNat",250,1],["frutillas",150],["banana",120]], pasos:["Fruta cortada sobre el yogur."]},
   {id:"d12", s:"d", n:"Tostadas con mantequilla de maní y banana", t:3, cost:1, eq:[], tipo:"tostadas",
    i:[["pan",76,1],["mantMani",20,1],["banana",120]], pasos:["Untá la mantequilla de maní y sumá la banana en rodajas."]},
 
   {id:"d13", s:"d", n:"Galletas de arroz con palta y tomate, y una naranja", t:3, cost:1, eq:[], tipo:"tostadas",
-   i:[["galletaArroz",30,1],["palta",60,1],["tomate",60],["naranja",180]], pasos:["Pisá la palta con sal y limón sobre las galletas.","Sumá el tomate. Una naranja al lado."]},
+   i:[["galletaArroz",30,1],["palta",60,1],["tomate",60],["naranja",180]], pasos:["Pisá la palta con sal y limón sobre las galletas.","Sumá el tomate. De postre, una naranja."]},
   {id:"d14", s:"d", n:"Tofu revuelto con tomate y una banana", t:10, cost:2, eq:["hornalla"], tipo:"huevos",
-   i:[["tofu",150,1],["tomate",80],["aceite",5,1],["banana",120]], pasos:["Desarmá el tofu con un tenedor y cocinalo con el aceite y una pizca de cúrcuma o pimentón, 5 min.","Sumá el tomate picado. Una banana al lado."]},
+   i:[["tofu",150,1],["tomate",80],["aceite",5,1],["banana",120]], pasos:["Desarmá el tofu con un tenedor y cocinalo con el aceite y una pizca de cúrcuma o pimentón, 5 min.","Sumá el tomate picado. De postre, una banana."]},
 
   // ---- Colaciones ----
   {id:"c1", s:"c", n:"Banana y nueces", t:0, cost:2, eq:[], i:[["banana",120],["nueces",20,1]], pasos:["Fácil de llevar en un recipiente chico."]},
@@ -111,16 +115,16 @@ const RECETAS = [
 
   // ---- Almuerzo o cena ----
   {id:"p1", s:"p", n:"Milanesa de pollo con papas rústicas y ensalada", t:35, cost:2, eq:["horno|freidora"], tipo:"milanesas",
-   i:[["pollo",100,1],["panRallado",35,1],["huevo",25,1],["papa",300,1],["aceite",15,1],["lechuga",60],["tomate",150],["zanahoria",60]],
+   i:[["pollo",140,1],["panRallado",35,1],["huevo",25,1],["papa",200,1],["aceite",15,1],["lechuga",60],["tomate",150],["zanahoria",60]],
    pasos:["Papas en gajos con media cucharada de aceite: freidora de aire o horno a 200 °C, 20–30 min.","Pasá la pechuga fileteada por huevo y pan rallado; freidora de aire o horno a 200 °C, 10–15 min, dándola vuelta.","Ensalada de lechuga, tomate y zanahoria rallada con el resto del aceite y limón."]},
   {id:"p2", s:"p", n:"Fideos integrales con atún, tomate, aceitunas y rúcula", t:20, cost:2, eq:["hornalla"], tipo:"pastas",
    i:[["fideosInt",100,1],["atun",120,1],["tomate",150],["aceitunas",20],["rucula",40],["aceite",15,1]],
    pasos:["Herví los fideos el tiempo del paquete.","Cortá el tomate en cubos y las aceitunas en rodajas.","Mezclá todo con el atún y el aceite; la rúcula al final."]},
   {id:"p3", s:"p", n:"Bowl de arroz integral con pollo, palta, tomate y zanahoria", t:40, cost:2, eq:["hornalla"], tipo:"bowls",
-   i:[["arrozInt",90,1],["pollo",100,1],["palta",80],["tomate",120],["zanahoria",60],["lechuga",40],["aceite",10,1]],
+   i:[["arrozInt",75,1],["pollo",120,1],["palta",80],["tomate",120],["zanahoria",60],["lechuga",40],["aceite",10,1]],
    pasos:["Herví el arroz integral 35–40 min (hacé el doble y guardá la mitad).","Cociná el pollo en cubos con pimentón (plancha, horno o freidora de aire).","Armá el bowl con todo y condimentá con aceite y limón."]},
   {id:"p4", s:"p", n:"Milanesa de soja con puré de papa y zapallo", t:30, cost:1, eq:["hornalla","horno|freidora|hornalla"], tipo:"milanesas",
-   i:[["milaSoja",110,1],["huevo",50,1],["papa",250,1],["zapallo",200],["tomate",150],["aceite",15,1]],
+   i:[["milaSoja",110,1],["huevo",50,1],["papa",200,1],["zapallo",200],["tomate",150],["aceite",15,1]],
    pasos:["Herví papa y zapallo en cubos 15–18 min y pisalos con media cucharada de aceite.","Cociná la milanesa de soja (freidora de aire, horno o plancha), 8–10 min.","Ensalada de tomate con huevo duro y el resto del aceite."]},
   {id:"p5", s:"p", n:"Fideos integrales con salsa de tomate, morrón y pollo", t:30, cost:1, eq:["hornalla"], tipo:"pastas",
    i:[["fideosInt",100,1],["pollo",90,1],["salsaTom",200],["morron",80],["cebolla",60],["aceite",13,1],["quesoRall",10,1]],
@@ -132,7 +136,7 @@ const RECETAS = [
    i:[["merluza",180,1],["papa",300,1],["aceite",15,1],["lechuga",60],["tomate",150]],
    pasos:["Papas en rodajas finas con media cucharada de aceite, al horno 15 min.","Sumá la merluza con limón, sal y pimentón; 12–15 min más.","Ensalada de lechuga y tomate."]},
   {id:"p8", s:"p", n:"Bowl de arroz integral con huevos duros, palta, espinaca y queso", t:40, cost:2, eq:["hornalla"], tipo:"bowls",
-   i:[["arrozInt",90,1],["huevo",100,1],["palta",60],["espinaca",50],["tomate",120],["quesoCrem",25,1],["aceite",10,1]],
+   i:[["arrozInt",75,1],["huevo",100,1],["palta",60],["espinaca",50],["tomate",120],["quesoCrem",25,1],["aceite",10,1]],
    pasos:["Herví el arroz integral (o usá el que guardaste).","Herví dos huevos 10 min.","Armá el bowl con espinaca cruda, tomate, palta, queso y los huevos."]},
   {id:"p9", s:"p", n:"Rapiditas integrales de pollo con palta, tomate y queso", t:20, cost:2, eq:["hornalla|horno|freidora"], tipo:"rapiditas",
    i:[["rapiditaInt",120,1],["pollo",90,1],["palta",60],["lechuga",50],["tomate",120],["morron",60],["quesoCrem",25,1]],
@@ -162,7 +166,7 @@ const RECETAS = [
    i:[["rapiditaInt",120,1],["salsaTom",100],["quesoCrem",50,1],["pollo",60,1],["morron",60],["rucula",30],["tomate",100]],
    pasos:["Pollo en tiras cocido (plancha, horno o freidora de aire).","Sobre cada rapidita: tomate, queso, pollo y morrón; horno o freidora 6–8 min.","Rúcula y tomate por encima."]},
   {id:"p18", s:"p", n:"Arroz integral con atún, tomate y huevo", t:40, cost:1, eq:["hornalla"], tipo:"bowls",
-   i:[["arrozInt",90,1],["atun",120,1],["huevo",50,1],["tomate",150],["aceite",10,1]],
+   i:[["arrozInt",75,1],["atun",120,1],["huevo",50,1],["tomate",150],["aceite",10,1]],
    pasos:["Herví el arroz integral y el huevo.","Mezclá con el atún, el tomate en cubos y el aceite."]},
   {id:"p19", s:"p", n:"Ensalada de garbanzos con tomate, zanahoria y palta", t:10, cost:1, eq:[], tipo:"ensaladas",
    i:[["garbanzos",200,1],["tomate",150],["zanahoria",80],["palta",60,1],["aceite",10,1]],
@@ -172,9 +176,9 @@ const RECETAS = [
    pasos:["Cociná la papa en cubos chicos: 6 min en microondas tapada, o 10 min hervida.","Dorá el tofu en cubos con el aceite y sumá las verduras en tiras, 5–6 min.","Agregá la papa y condimentá con pimentón."]},
   // ---- Antes de entrenar (1 a 2 h antes): carbohidratos fáciles, poca grasa y poca fibra ----
   {id:"pre1", s:"pre", n:"Banana y galletas de arroz con miel", t:0, cost:1, eq:[], tipo:"pre",
-   i:[["banana",120],["galletaArroz",20,1],["miel",10,1]], pasos:["Untá las galletas con la miel.","La banana al lado."]},
+   i:[["banana",120],["galletaArroz",20,1],["miel",10,1]], pasos:["Untá las galletas con la miel.","Y una banana."]},
   {id:"pre2", s:"pre", n:"Tostada con miel y una mandarina", t:3, cost:1, eq:[], tipo:"pre",
-   i:[["pan",38,1],["miel",10,1],["mandarina",100]], pasos:["Tostá el pan y untalo con la miel.","Una mandarina al lado."]},
+   i:[["pan",38,1],["miel",10,1],["mandarina",100]], pasos:["Tostá el pan y untalo con la miel.","Y una mandarina."]},
   {id:"pre3", s:"pre", n:"Yogur con avena y frutillas", t:2, cost:1, eq:[], tipo:"pre",
    i:[["yogNat",150,1],["avena",25,1],["frutillas",100]], pasos:["Mezclá el yogur con la avena.","Sumá las frutillas cortadas."]},
   {id:"pre4", s:"pre", n:"Leche con banana pisada", t:2, cost:1, eq:[], tipo:"pre",
@@ -194,6 +198,23 @@ const RECETAS = [
    i:[["pan",76,1],["mantMani",20,1],["banana",120]], pasos:["Untá la mantequilla de maní y sumá la banana en rodajas."]},
   {id:"post6", s:"post", n:"Garbanzos con arroz y tomate", t:20, cost:1, eq:["hornalla"], tipo:"post",
    i:[["arrozInt",60,1],["garbanzos",120,1],["tomate",80],["aceite",5,1]], pasos:["Cociná el arroz.","Calentá los garbanzos con el tomate picado y el aceite.","Serví todo junto."]},
+  // ---- Nuevas (28/10/2026), a partir de lo que más registran los usuarios ----
+  {id:"n1", s:"p", n:"Bowl de garbanzos, boniato asado y pollo", t:35, cost:2, eq:["horno|freidora"], tipo:"bowls",
+   i:[["garbanzos",120,1],["batata",200,1],["pollo",100,1],["espinaca",40],["aceite",10,1]],
+   pasos:["Boniato en cubos con la mitad del aceite: horno o freidora de aire a 200 °C, 25 min.","Pollo en cubos con pimentón, a la plancha o en la freidora, 10 min.","Armá el bowl con la espinaca cruda, los garbanzos escurridos, el boniato y el pollo; el resto del aceite y limón."]},
+  {id:"n2", s:"p", n:"Milanesa de pollo al horno con boniato y ensalada", t:35, cost:2, eq:["horno|freidora"], tipo:"milanesas",
+   i:[["pollo",140,1],["panRallado",35,1],["huevo",25,1],["batata",200,1],["aceite",10,1],["lechuga",60],["tomate",120]],
+   pasos:["Boniato en bastones con la mitad del aceite: horno o freidora de aire a 200 °C, 25 min.","Pasá la pechuga fileteada por huevo y pan rallado; al horno o en la freidora, 12–15 min, dándola vuelta.","Ensalada de lechuga y tomate con el resto del aceite y limón."]},
+  {id:"n3", s:"d", n:"Revuelto de claras con ricota y tostadas", t:10, cost:1, eq:["hornalla"], tipo:"huevos",
+   i:[["clara",99,1],["huevo",50,1],["ricota",60,1],["pan",76,1],["aceite",5,1],["naranja",180]],
+   pasos:["Batí las claras con el huevo y una pizca de sal.","Cocinalos a fuego bajo con el aceite, revolviendo; al final sumá la ricota.","Con las tostadas. De postre, una naranja."]},
+  {id:"n4", s:"p", n:"Wrap integral de pollo con hummus, remolacha y zanahoria", t:15, cost:2, eq:["hornalla"], tipo:"sandwiches",
+   i:[["rapiditaInt",80,1],["pollo",100,1],["hummus",40,1],["remolacha",60],["zanahoria",60],["lechuga",30]],
+   pasos:["Cociná el pollo en tiras a la plancha con sal y pimentón, 8 min.","Untá las rapiditas con hummus.","Sumá el pollo, la remolacha y la zanahoria ralladas y la lechuga; enrollá."]},
+  {id:"n5", s:"c", n:"Galletas de arroz con ricota y miel", t:0, cost:1, eq:[], i:[["galletaArroz",20,1],["ricota",40,1],["miel",7,1]], pasos:["Untá las galletas con la ricota y un hilo de miel."]},
+  {id:"n6", s:"p", n:"Ensalada de garbanzos con huevo, tomate y zanahoria", t:12, cost:1, eq:["hornalla"], tipo:"ensaladas",
+   i:[["garbanzos",150,1],["huevo",100,1],["tomate",120],["zanahoria",60],["lechuga",40],["aceite",10,1]],
+   pasos:["Herví los huevos 10 min.","Mezclá los garbanzos escurridos con el tomate en cubos, la zanahoria rallada y la lechuga.","Sumá los huevos en cuartos; aceite, limón y sal."]},
 ];
 
 // Energía por momento del día según la estructura elegida (proporción del total)
@@ -203,7 +224,7 @@ const ESTRUCTURAS = {
   damc:  {n:"Desayuno, almuerzo, merienda y cena", slots:[["des",.20],["alm",.35],["mer",.15],["cen",.30]]},
   dcamc: {n:"Cuatro comidas y colaciones", slots:[["des",.18],["col",.10],["alm",.30],["mer",.14],["cen",.28]]},
 };
-const SLOTDEF = { des:{n:"Desayuno", pool:"d"}, col:{n:"Colación", pool:"c"}, alm:{n:"Almuerzo", pool:"p"}, mer:{n:"Merienda", pool:"d"}, cen:{n:"Cena", pool:"p"},
+const SLOTDEF = { des:{n:"Desayuno", pool:"d"}, col:{n:"Colación", pool:"c"}, col2:{n:"Colación", pool:"c"}, alm:{n:"Almuerzo", pool:"p"}, mer:{n:"Merienda", pool:"d"}, cen:{n:"Cena", pool:"p"},
   pre:{n:"Antes de entrenar", pool:"pre"}, post:{n:"Después de entrenar", pool:"post"} };
 
 const VEG_PORCION = 80, FRUTA_PORCION = 150, INT_PORCION = 30;
@@ -227,6 +248,11 @@ const MARCAS = {
     yogurisimo:{n:"Yogurísimo", al:["yogurisimo"], k:82, p:2.8, f:0, hc:13, gr:2.2},
     ser:{n:"Ser", al:["ser"], k:40, p:3, f:0, hc:5.5, gr:0.4},
     sancor:{n:"Sancor", al:["sancor"], k:80, p:2.6, f:0, hc:13, gr:2}}},
+  yogurFirme: {n:"yogur firme", alimentos:["Yogur firme"], ing:[], opts:{
+    lsFirme:{n:"La Serenísima firme", al:["serenisima"], k:95, p:3.3, f:0, hc:15, gr:2.6},
+    yogurisimo:{n:"Yogurísimo firme", al:["yogurisimo"], k:98, p:3.4, f:0, hc:15, gr:2.8},
+    ser:{n:"Ser firme", al:["ser"], k:50, p:4, f:0, hc:6.5, gr:0.4},
+    sancor:{n:"Sancor firme", al:["sancor"], k:95, p:3.2, f:0, hc:15, gr:2.6}}},
   queso:    {n:"queso cremoso", alimentos:["Queso"], ing:["quesoCrem"], opts:{
     ls:{n:"La Serenísima", al:["serenisima"], k:300, p:19, f:0, hc:1, gr:24},
     sancor:{n:"Sancor", al:["sancor"], k:290, p:18, f:0, hc:1, gr:23.5},
@@ -267,4 +293,28 @@ const MARCAS = {
     guaymallen:{n:"Guaymallén", al:["guaymallen"], k:430, p:5, f:1.5, hc:67, gr:16, u:38},
     havanna:{n:"Havanna", al:["havanna"], k:460, p:5.5, f:2, hc:60, gr:22, u:55},
     capitan:{n:"Capitán del Espacio", al:["capitan del espacio","capitan"], k:420, p:5, f:1.5, hc:63, gr:17, u:70}}},
+};
+
+// Dificultad de cada receta: 1 básica (armar o hervir) · 2 intermedia (plancha, horno, salteados) · 3 más elaborada (milanesas, tortilla).
+// Se cruza con el nivel que surge de «¿Qué te sale bien sin mirar una receta?».
+const DIFICULTAD = {d14:2, p1:3, p3:2, p4:2, p5:2, p6:2, p7:2, p9:2, p10:2, p12:2, p13:3, p14:2, p16:2, p17:2, p20:2, n1:2, n2:3, n4:2};
+for(const r of RECETAS) r.dif = DIFICULTAD[r.id] || 1;
+
+// ==== MEDIDAS CASERAS de los ingredientes (las recetas no muestran gramos) ====
+// [gramos de una medida, singular, plural, 1 = solo unidades enteras]. Los que no están acá usan u/uN de ING, en unidades enteras.
+const CASERA = {
+  fideosInt:[100,"taza de fideos secos","tazas de fideos secos"], arrozInt:[190,"taza de arroz crudo","tazas de arroz crudo"],
+  avena:[10,"cucharada","cucharadas"], panRallado:[10,"cucharada","cucharadas"], papa:[150,"papa mediana","papas medianas"],
+  batata:[200,"batata chica","batatas chicas"], pollo:[120,"filete de pechuga","filetes de pechuga"], vacuna:[120,"bife chico","bifes chicos"],
+  cerdo:[120,"medallón","medallones"], merluza:[120,"filet","filets"], tofu:[300,"paquete","paquetes"],
+  lentejas:[240,"lata","latas"], garbanzos:[240,"lata","latas"], quesoCrem:[30,"feta gruesa","fetas gruesas"],
+  quesoUnt:[15,"cucharada","cucharadas"], quesoRall:[5,"cucharada","cucharadas"], ricota:[15,"cucharada","cucharadas"],
+  hummus:[15,"cucharada","cucharadas"], yogGriego:[170,"pote","potes"], yogNat:[190,"pote","potes"],
+  leche:[250,"taza","tazas"], bebidaVeg:[250,"taza","tazas"], tomate:[120,"tomate","tomates"], salsaTom:[200,"taza","tazas"],
+  lechuga:[40,"puñado","puñados"], rucula:[20,"puñado","puñados"], espinaca:[30,"puñado","puñados"], zanahoria:[80,"zanahoria","zanahorias"],
+  remolacha:[100,"remolacha chica","remolachas chicas"], zapallo:[150,"taza en cubos","tazas en cubos"], zucchini:[200,"zucchini","zucchinis"],
+  morron:[150,"morrón","morrones"], cebolla:[120,"cebolla","cebollas"], palta:[140,"palta","paltas"],
+  frutillas:[150,"taza","tazas"], nueces:[30,"puñado","puñados"], almendras:[30,"puñado","puñados"], mani:[30,"puñado","puñados"],
+  mantMani:[15,"cucharada","cucharadas"], choco70:[7,"cuadradito","cuadraditos",1], aceite:[13,"cucharada","cucharadas"],
+  miel:[7,"cucharadita","cucharaditas"], aceitunas:[4,"aceituna","aceitunas",1],
 };

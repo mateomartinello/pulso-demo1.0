@@ -73,6 +73,11 @@ const CASOS = [
   ["arroz tostado",                        {kcal:[220,300]}],
   ["¾ de una milanesa mediana de pollo",   {kcal:[230,310]}],
   ["tomate ½ tomate chico",                {kcal:[5,15], verd:[0.5,0.5]}],
+  // Relleno sin contar dos veces y comas que separan partes de la frase (versión 0.6.0)
+  ["sandwich de jamon y queso con jamon",  {kcal:[380,500]}],
+  ["wrap de pollo, con pollo, remolacha, cebolla", {kcal:[320,420]}],
+  ["un sandwich, una ensalada y un yogur", {kcal:[620,780]}],
+  ["un yogur firme",                       {kcal:[160,200]}],
 ];
 let fallas=0;
 for(const [frase, esp] of CASOS){
