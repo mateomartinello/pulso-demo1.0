@@ -21,7 +21,7 @@ h1{font-family:var(--serif);font-weight:700;color:var(--ink);font-size:clamp(26p
 .tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--green)}
 .tab:focus-visible,.btn:focus-visible,.chip:focus-visible,.slot:focus-visible{outline:2px solid var(--green);outline-offset:2px}
 .stack{display:flex;flex-direction:column;gap:16px}
-.slots{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+.slots{display:flex;flex-wrap:wrap;gap:6px}   /* fijo: los momentos del día pasan de renglón en lugar de deslizarse */
 .slot{flex:0 0 auto;font:inherit;font-size:12.5px;background:var(--card);color:var(--body);border:1px solid var(--gold);border-radius:999px;padding:6px 11px;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
 .slot[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .slot .ck{font-weight:700;color:var(--ok)} .slot[aria-pressed="true"] .ck{color:var(--bg)}

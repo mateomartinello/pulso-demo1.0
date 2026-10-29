@@ -43,7 +43,7 @@ h1{font-family:var(--serif);font-weight:700;color:var(--ink);font-size:clamp(26p
 .tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--green)}
 .tab:focus-visible,.btn:focus-visible,.chip:focus-visible,.slot:focus-visible{outline:2px solid var(--green);outline-offset:2px}
 .stack{display:flex;flex-direction:column;gap:16px}
-.slots{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+.slots{display:flex;flex-wrap:wrap;gap:6px}   /* fijo: los momentos del día pasan de renglón en lugar de deslizarse */
 .slot{flex:0 0 auto;font:inherit;font-size:12.5px;background:var(--card);color:var(--body);border:1px solid var(--gold);border-radius:999px;padding:6px 11px;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
 .slot[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .slot .ck{font-weight:700;color:var(--ok)} .slot[aria-pressed="true"] .ck{color:var(--bg)}
@@ -1374,9 +1374,11 @@ async function rpc(fn, body){
 }
 // Recordatorios: solo los momentos que acepta el servidor (des, col, alm, mer, cen); la segunda colación y el entreno no avisan.
 const MOMENTOS_AVISO=["des","col","alm","mer","cen"];
-function horariosAvisos(){ const P=PLAN||calcPlan(DB.perfil); return Object.fromEntries(P.slots.filter(([k])=>MOMENTOS_AVISO.includes(k)).map(([k])=>[k, P.horas[k].padStart(5,"0")])); }
+// Plan para los avisos: el actual o, durante el registro (antes de los términos), el que surge de las respuestas.
+function planAvisos(){ return PLAN || calcPlan(DB.perfil?.completo? DB.perfil : {resp: ONB.draft || DB.perfil?.resp || {}}); }
+function horariosAvisos(){ const P=planAvisos(); return Object.fromEntries(P.slots.filter(([k])=>MOMENTOS_AVISO.includes(k)).map(([k])=>[k, P.horas[k].padStart(5,"0")])); }
 function zonaAvisos(){ try{ return Intl.DateTimeFormat().resolvedOptions().timeZone || "America/Argentina/Buenos_Aires"; }catch(e){ return "America/Argentina/Buenos_Aires"; } }
-function listaHorarios(){ const P=PLAN||calcPlan(DB.perfil); const xs=P.slots.filter(([k])=>MOMENTOS_AVISO.includes(k)).map(([k])=>`${SLOTDEF[k].n.toLowerCase()} (${P.horas[k]} h)`); return xs.length>1? xs.slice(0,-1).join(", ")+" y "+xs[xs.length-1] : xs[0]; }
+function listaHorarios(){ const P=planAvisos(); const xs=P.slots.filter(([k])=>MOMENTOS_AVISO.includes(k)).map(([k])=>`${SLOTDEF[k].n.toLowerCase()} (${P.horas[k]} h)`); return xs.length>1? xs.slice(0,-1).join(", ")+" y "+xs[xs.length-1] : xs[0]; }
 
 async function guardarSuscripcion(sub){
   const j=sub.toJSON(), horarios=horariosAvisos(), zona=zonaAvisos();
@@ -1431,10 +1433,12 @@ async function enviarMarcas(){
 }
 window.addEventListener("online", ()=>enviarMarcas());
 
-function renderOfertaAvisos(box){
-  DB.avisoOfrecido=true; persist();
+// Se ofrece en el registro (después del cuestionario, antes de los términos) y cada vez que alguien vuelve a entrar
+// a su cuenta en un dispositivo sin recordatorios (por ejemplo, después de desinstalar y volver a instalar Pulso).
+function renderOfertaAvisos(box, alSalir){
+  DB.avisoOfrecido=true; ONB.avisosVisto=true; persist();
   const msg=el("p",{class:"note",role:"status"});
-  const salir=()=>{ ONB.paso=null; render(); window.scrollTo(0,0); };
+  const salir=()=>{ ONB.paso=null; if(alSalir) alSalir(); else render(); window.scrollTo(0,0); };
   box.append(el("div",{class:"onb-card"}, el("div",{class:"eyebrow"},"Recordatorios"), el("h2",{},"¿Te avisamos a la hora de cada comida?"),
     el("p",{},`Te llega un aviso a la hora de tu ${listaHorarios()}. Si ya registraste esa comida, no te llega.`),
     el("p",{class:"note"},TXT_DATOS_AVISOS),
@@ -1530,7 +1534,8 @@ async function alIngresar(j, op={}){
   const datosDe = d => ({nombre:d?.nombre||escritos.nombre, apellido:d?.apellido||escritos.apellido, email:DB.auth.user.email});
   DB.cuentaId=DB.auth.user.id; DB.respaldoFirma=null;
   ONB.draft=null; INGRESO.paso="mail"; INGRESO.msg="";
-  if(DB.perfil?.completo){ DB.perfil.resp.datos=datosDe(DB.perfil.resp.datos); ONB.paso=null; ONB.i=PREGUNTAS.length; }
+  if(DB.perfil?.completo){ DB.perfil.resp.datos=datosDe(DB.perfil.resp.datos); ONB.i=PREGUNTAS.length;
+    ONB.paso = estadoAvisos()==="off"? "avisos" : null; }   // cuenta existente: ingreso → recordatorios → app
   else { ONB.draft={datos:datosDe(null)}; ONB.paso="bienvenida"; ONB.i=-1; }
   persist(); render(); window.scrollTo(0,0); respaldoPronto(true);
 }
@@ -2713,7 +2718,9 @@ function renderOnb(){
   if(ONB.paso==="bienvenida" && DB.auth){ cronoMarcar(null); renderBienvenida(box); return; }
   if(DB.perfil?.completo && !DB.consent?.acepta) ONB.i=total;   // perfil de una versión anterior: falta aceptar los términos
   if(ONB.i<0){ cronoMarcar(null); renderInicio(box); return; }
-  if(ONB.i>=total){ cronoMarcar(null); if(DB.consent?.acepta){ finalizarCuestionario(); return; } renderConsent(box); return; }
+  if(ONB.i>=total){ cronoMarcar(null); if(DB.consent?.acepta){ finalizarCuestionario(); return; }
+    if(!ONB.avisosVisto && estadoAvisos()==="off"){ renderOfertaAvisos(box, ()=>renderOnb()); return; }   // registro: cuestionario → recordatorios → términos
+    renderConsent(box); return; }
   const q=PREGUNTAS[ONB.i];
   if(!visible(q,R)){ ONB.i += ONB.dir<0? -1 : 1; if(ONB.i<0) ONB.i=0; renderOnb(); return; }   // pregunta que no corresponde: se saltea
   cronoMarcar(q.id);
@@ -2801,7 +2808,7 @@ function finalizarCuestionario(){
   ONB.draft=null; ONB.i=-1; ONB.tiempos={}; S.view="hoy"; S.slot=null; persist();
   enviar("perfil", perfilCompartible());
   respaldoPronto(true);
-  if(DB.avisos?.on) sincronizarAvisos(); else if(!DB.avisoOfrecido && estadoAvisos()==="off") ONB.paso="avisos";
+  if(DB.avisos?.on) sincronizarAvisos();
   render(); window.scrollTo(0,0);
 }
 

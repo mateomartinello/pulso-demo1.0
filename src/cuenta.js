@@ -70,7 +70,8 @@ async function alIngresar(j, op={}){
   const datosDe = d => ({nombre:d?.nombre||escritos.nombre, apellido:d?.apellido||escritos.apellido, email:DB.auth.user.email});
   DB.cuentaId=DB.auth.user.id; DB.respaldoFirma=null;
   ONB.draft=null; INGRESO.paso="mail"; INGRESO.msg="";
-  if(DB.perfil?.completo){ DB.perfil.resp.datos=datosDe(DB.perfil.resp.datos); ONB.paso=null; ONB.i=PREGUNTAS.length; }
+  if(DB.perfil?.completo){ DB.perfil.resp.datos=datosDe(DB.perfil.resp.datos); ONB.i=PREGUNTAS.length;
+    ONB.paso = estadoAvisos()==="off"? "avisos" : null; }   // cuenta existente: ingreso → recordatorios → app
   else { ONB.draft={datos:datosDe(null)}; ONB.paso="bienvenida"; ONB.i=-1; }
   persist(); render(); window.scrollTo(0,0); respaldoPronto(true);
 }

@@ -923,7 +923,9 @@ function renderOnb(){
   if(ONB.paso==="bienvenida" && DB.auth){ cronoMarcar(null); renderBienvenida(box); return; }
   if(DB.perfil?.completo && !DB.consent?.acepta) ONB.i=total;   // perfil de una versión anterior: falta aceptar los términos
   if(ONB.i<0){ cronoMarcar(null); renderInicio(box); return; }
-  if(ONB.i>=total){ cronoMarcar(null); if(DB.consent?.acepta){ finalizarCuestionario(); return; } renderConsent(box); return; }
+  if(ONB.i>=total){ cronoMarcar(null); if(DB.consent?.acepta){ finalizarCuestionario(); return; }
+    if(!ONB.avisosVisto && estadoAvisos()==="off"){ renderOfertaAvisos(box, ()=>renderOnb()); return; }   // registro: cuestionario → recordatorios → términos
+    renderConsent(box); return; }
   const q=PREGUNTAS[ONB.i];
   if(!visible(q,R)){ ONB.i += ONB.dir<0? -1 : 1; if(ONB.i<0) ONB.i=0; renderOnb(); return; }   // pregunta que no corresponde: se saltea
   cronoMarcar(q.id);
@@ -1011,7 +1013,7 @@ function finalizarCuestionario(){
   ONB.draft=null; ONB.i=-1; ONB.tiempos={}; S.view="hoy"; S.slot=null; persist();
   enviar("perfil", perfilCompartible());
   respaldoPronto(true);
-  if(DB.avisos?.on) sincronizarAvisos(); else if(!DB.avisoOfrecido && estadoAvisos()==="off") ONB.paso="avisos";
+  if(DB.avisos?.on) sincronizarAvisos();
   render(); window.scrollTo(0,0);
 }
 

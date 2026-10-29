@@ -117,9 +117,11 @@ async function rpc(fn, body){
 }
 // Recordatorios: solo los momentos que acepta el servidor (des, col, alm, mer, cen); la segunda colación y el entreno no avisan.
 const MOMENTOS_AVISO=["des","col","alm","mer","cen"];
-function horariosAvisos(){ const P=PLAN||calcPlan(DB.perfil); return Object.fromEntries(P.slots.filter(([k])=>MOMENTOS_AVISO.includes(k)).map(([k])=>[k, P.horas[k].padStart(5,"0")])); }
+// Plan para los avisos: el actual o, durante el registro (antes de los términos), el que surge de las respuestas.
+function planAvisos(){ return PLAN || calcPlan(DB.perfil?.completo? DB.perfil : {resp: ONB.draft || DB.perfil?.resp || {}}); }
+function horariosAvisos(){ const P=planAvisos(); return Object.fromEntries(P.slots.filter(([k])=>MOMENTOS_AVISO.includes(k)).map(([k])=>[k, P.horas[k].padStart(5,"0")])); }
 function zonaAvisos(){ try{ return Intl.DateTimeFormat().resolvedOptions().timeZone || "America/Argentina/Buenos_Aires"; }catch(e){ return "America/Argentina/Buenos_Aires"; } }
-function listaHorarios(){ const P=PLAN||calcPlan(DB.perfil); const xs=P.slots.filter(([k])=>MOMENTOS_AVISO.includes(k)).map(([k])=>`${SLOTDEF[k].n.toLowerCase()} (${P.horas[k]} h)`); return xs.length>1? xs.slice(0,-1).join(", ")+" y "+xs[xs.length-1] : xs[0]; }
+function listaHorarios(){ const P=planAvisos(); const xs=P.slots.filter(([k])=>MOMENTOS_AVISO.includes(k)).map(([k])=>`${SLOTDEF[k].n.toLowerCase()} (${P.horas[k]} h)`); return xs.length>1? xs.slice(0,-1).join(", ")+" y "+xs[xs.length-1] : xs[0]; }
 
 async function guardarSuscripcion(sub){
   const j=sub.toJSON(), horarios=horariosAvisos(), zona=zonaAvisos();
@@ -174,10 +176,12 @@ async function enviarMarcas(){
 }
 window.addEventListener("online", ()=>enviarMarcas());
 
-function renderOfertaAvisos(box){
-  DB.avisoOfrecido=true; persist();
+// Se ofrece en el registro (después del cuestionario, antes de los términos) y cada vez que alguien vuelve a entrar
+// a su cuenta en un dispositivo sin recordatorios (por ejemplo, después de desinstalar y volver a instalar Pulso).
+function renderOfertaAvisos(box, alSalir){
+  DB.avisoOfrecido=true; ONB.avisosVisto=true; persist();
   const msg=el("p",{class:"note",role:"status"});
-  const salir=()=>{ ONB.paso=null; render(); window.scrollTo(0,0); };
+  const salir=()=>{ ONB.paso=null; if(alSalir) alSalir(); else render(); window.scrollTo(0,0); };
   box.append(el("div",{class:"onb-card"}, el("div",{class:"eyebrow"},"Recordatorios"), el("h2",{},"¿Te avisamos a la hora de cada comida?"),
     el("p",{},`Te llega un aviso a la hora de tu ${listaHorarios()}. Si ya registraste esa comida, no te llega.`),
     el("p",{class:"note"},TXT_DATOS_AVISOS),
