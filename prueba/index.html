@@ -2307,6 +2307,7 @@ $("#btnPerfil").addEventListener("click",()=>{ S.view="perfil"; S.perfilSec=null
 // ==== GUÍA: consejos en contexto, de a uno, la primera vez que se ve cada parte ====
 // Cada consejo aparece justo arriba de lo que explica, con «Entendido». En Perfil, «Ver la guía de nuevo» los vuelve a mostrar.
 const GUIA=[
+  {id:"movHoy", v:"hoy", sel:"#v-hoy .mov-hoy", t:"Acá ves el movimiento que anotaste hoy. Si no querés verlo más, deslizalo hacia un costado."},
   {id:"momentos", v:"hoy", sel:"#v-hoy .slots", t:"Tocá cada momento del día para ver qué te sugerimos comer."},
   {id:"tarjeta", v:"hoy", sel:"#v-hoy .tarjeta", t:"Esta es la sugerencia para este momento. Si no te interesa, deslizala hacia un costado para ocultarla: la receta completa queda más abajo."},
   {id:"registro", v:"hoy", sel:"#otroTxt", t:()=>"Anotá acá lo que comiste, como lo dirías. ¿No querés escribir? "+(ES_IOS? "Tocá el micrófono del teclado (abajo a la derecha) y dictalo." : "Tocá el micrófono del teclado y dictalo.")},
@@ -2357,7 +2358,7 @@ function renderHoy(){
   const box=$("#v-hoy"); box.replaceChildren();
   const d=day();
   if(!d.sueno && new Date().getHours()<16) box.append(cardSueno());
-  if(d.ejercicio.length) box.append(movHoyResumen(d.ejercicio));   // ya anotó movimiento hoy: se muestra, sin volver a preguntar
+  if(d.ejercicio.length){ if(DB.movResumenOculto!==S.today) box.append(movHoyResumen(d.ejercicio)); }   // ya anotó movimiento hoy: se muestra (sin volver a preguntar) hasta que lo desliza
   else if(!movAunNo()) box.append(cardMovRapido(true));
   if(cicloInfo()?.antojos && !d.antojo) box.append(cardAntojo());
   // momentos del día
@@ -2508,10 +2509,13 @@ const ACT_MET=Object.fromEntries(ACT.map(a=>[a[0],a[2]])); const ACT_TXT=Object.
 const MOV_VUELVE=30*60000;
 function movAunNo(){ return !!DB.movAunNo && dayKey(new Date(DB.movAunNo))===S.today; }
 function movAlVolver(){ if(DB.cerradaDesde && Date.now()-DB.cerradaDesde>=MOV_VUELVE && DB.movAunNo){ delete DB.movAunNo; persist(); return true; } return false; }
+// Movimiento ya anotado hoy: lo registrado y el enlace para anotar otra actividad. Deslizarla hacia un costado la saca por el resto del día.
 function movHoyResumen(lista){
-  return el("section",{class:"card mov-hoy"}, el("h3",{},"Tu movimiento de hoy"),
+  const card=el("section",{class:"card tarjeta mov-hoy"}, el("h3",{},"Tu movimiento de hoy"),
     el("p",{style:"margin:0"}, "✓ "+lista.map(e=>`${ACT_TXT[e.tipo]||e.otro||"Actividad"} · ${e.min} min`).join(" · ")),
     el("button",{class:"btn link",type:"button",onclick:()=>{ S.view="mov"; render(); window.scrollTo(0,0); }},"Anotar otra actividad en Movimiento"));
+  deslizable(card, ()=>{ DB.movResumenOculto=S.today; persist(); render(); });
+  return card;
 }
 function cardMovRapido(conAunNo){
   const st={tipo:null, min:null, abierto:!conAunNo};
