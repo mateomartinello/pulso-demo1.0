@@ -123,7 +123,7 @@ function calcPlan(p){
   const repetir = {repito:1, roto:3, nuevo:6}[r.variedad] || 3;     // días antes de volver a sugerir una receta
   return { care, edad, peso, kcal, prot:Math.round(peso*protKg), excl, eq, tmax, slots, horas, nivel, repetir, entrenoDias: hE? (r.entrenoDias||[]) : [],
     pan: PANES[DB.marcas?.pan] || PANES[r.pan] || PANES.generico, sinLactosa:(r.restric||[]).includes("lactosa"),
-    metas:{grasaMin:Math.round(kcal*0.2/9), frutas:2, verduras:3, integrales:excl.has("gluten")?2:3, nueces:excl.has("nuez")?0:1, rojaSem:2, movMin:150, fuerza:2, sueno:7},
+    metas:{grasaMin:Math.round(kcal*0.2/9), frutas:2, verduras:3, integrales:excl.has("gluten")?2:3, nueces:excl.has("nuez")?0:1, movMin:150, fuerza:2, sueno:7},
     flex: pat==="flex", budget:r.presupuesto, platos:r.platos||[], prefMov:(r.mov||[]).filter(x=>x!=="otro") };
 }
 let PLAN = null;
@@ -156,16 +156,16 @@ function ingOf(id){
 function escala(x,f){ if(f>1 && x.fijo) return 1; if(f>1 && x.pr) return Math.min(f,1.15); return f; }
 function nutr(rec, factor){
   factor = factor || 1;
-  let k=0,p=0,hc=0,gr=0,fib=0,veg=0,fruta=0,integ=0,nuez=false,vitC=false,roja=false,atun=false;
+  let k=0,p=0,hc=0,gr=0,fib=0,veg=0,fruta=0,integ=0,nuez=false,vitC=false,vitCDe=null,roja=false,atun=false;
   for(const [id,g,esc] of rec.i){
     const x=ingOf(id); const gg = esc ? g*escala(x,factor) : g;
     k+=x.k*gg/100; p+=x.p*gg/100; hc+=(x.hc||0)*gg/100; gr+=(x.gr||0)*gg/100; fib+=x.f*gg/100;
     if(x.veg) veg+=gg; if(x.fruta) fruta+=gg; if(x.integral) integ+=gg;
-    if(x.nuez && gg>=15) nuez=true; if(x.vitC && gg>=60) vitC=true; if(x.roja) roja=true; if(x.atun) atun=true;
+    if(x.nuez && gg>=15) nuez=true; if(x.vitC && gg>=60){ vitC=true; vitCDe=vitCDe||x.n; } if(x.roja) roja=true; if(x.atun) atun=true;
   }
   return {kcal:Math.round(k), prot:Math.round(p), carb:Math.round(hc), grasa:Math.round(gr), fibra:Math.round(fib),
     verduras:Math.round(veg/VEG_PORCION*2)/2, frutas:Math.round(fruta/FRUTA_PORCION*2)/2, integrales:Math.round(integ/INT_PORCION*2)/2,
-    nueces:nuez?1:0, vitC, roja, atun};
+    nueces:nuez?1:0, vitC, vitCDe, roja, atun};
 }
 function usable(rec){
   if(!PLAN) return true;
@@ -206,15 +206,17 @@ function last7(){ return Array.from({length:7},(_,i)=>keyShift(S.today,i-6)); }
 function weekCount(field){ let n=0; for(const k of last7()) for(const c of (DB.dias[k]?.comidas||[])) if(c[field]) n++; return n; }
 function exKcal(k){ return (day(k).ejercicio||[]).reduce((a,e)=>a+(e.kcal||0),0) + (saludDia(k||S.today)?.entrenos||[]).reduce((a,e)=>a+(e.kcal||0),0); }
 function target(){ return PLAN.kcal + exKcal(); }
+// Meta de carbohidratos: lo que completa las calorías del día después de la proteína y de las grasas al 30 %.
+function metaCarb(){ const k=target(); return Math.max(0, Math.round((k - PLAN.prot*4 - k*0.3)/4)); }
 function slotShare(slot){ return (slotsHoy().find(s=>s[0]===slot)||[0,.25])[1]; }
 
 // ==== ELECCIÓN DE RECETA ====
 function candidatos(slot){
   const pool=SLOTDEF[slot].pool; let base=recetasDe(pool);
-  const rojaOk = weekCount("roja") < PLAN.metas.rojaSem, atunOk = weekCount("atun") < 3;
+  const atunOk = weekCount("atun") < 3;
   const recientes=new Set(); for(let d=0; d<PLAN.repetir; d++) for(const c of (DB.dias[keyShift(S.today,-d)]?.comidas||[])) if(c.recetaId) recientes.add(c.recetaId);   // variedad: cada cuántos días se puede repetir
-  let f = base.filter(r=>{ const n=nutr(r); return !(n.roja&&!rojaOk) && !(n.atun&&!atunOk) && !recientes.has(r.id); });
-  if(!f.length) f = base.filter(r=>{ const n=nutr(r); return !(n.roja&&!rojaOk) && !(n.atun&&!atunOk); });
+  let f = base.filter(r=>!(nutr(r).atun&&!atunOk) && !recientes.has(r.id));
+  if(!f.length) f = base.filter(r=>!(nutr(r).atun&&!atunOk));
   if(!f.length) f = base;
   const gusto=gustosRegistrados();
   const score = r => (PLAN.platos.includes(r.tipo)?2:0) + (PLAN.budget==="ajustado" && r.cost<=1 ? 1:0) - (PLAN.flex && nutr(r).roja ? 1:0) + afinidad(r, gusto)
@@ -393,6 +395,8 @@ const VARIANTES={
     ["Pizza con fiambre","Con fiambre"],["Pizza de rúcula","Rúcula"],["Pizza de verdura","Verdura"]]},
 };
 const PORCION={poco:.6, normal:1, mucho:1.5, nose:1};
+// Queso rallado sobre pastas, arroz, polenta o sopas: en puñados (1 puñado ≈ 15 g).
+const PUNADOS=[["7","Menos de un puñado"],["15","1 puñado"],["30","2 puñados"],["45","3 o más"]];
 const minus = t => t.charAt(0).toLowerCase()+t.slice(1);
 function nuevoItem(n,g){ const f=ESTIMADOR.alimento(n)||{}; return {n, g, l:f.l, u:f.u, uN:f.uN, por:f.por, k:f.k, auto:false}; }
 // Medida casera aproximada para una cantidad en gramos: unidades del alimento, vasos o cucharadas, puñados y platos.
@@ -402,7 +406,7 @@ function medidaCasera(g, f){
   return g<=8? "1 cucharadita" : g<=20? "1 cucharada" : g<=35? "2 cucharadas" : g<=55? "1 puñado" : g<=130? "½ plato" : g<=280? "1 plato" : "1 plato grande";
 }
 function pasosRegistro(r, txt){
-  const seg=[], yog=[], por=[];
+  const seg=[], yog=[], ral=[], por=[];
   r.items.forEach((it,i)=>{
     if(it.relleno) seg.push({id:"seg_"+i, titulo:`¿Qué tenía el ${minus(it.n)}?`, sub:"Podés marcar varias.", tipo:"multi", opts:RELLENOS.map(([n,t])=>[n,t])});
     else if(it.n==="Ensalada mixta" && !it.alias) seg.push({id:"seg_"+i, titulo:"¿Qué tenía la ensalada?", sub:"Podés marcar varias.", tipo:"multi", opts:ENSALADA.map(([n,t])=>[n,t])});
@@ -410,13 +414,14 @@ function pasosRegistro(r, txt){
     else if(it.n==="Hamburguesa con pan" && it.alias==="hamburguesa") seg.push({id:"seg_"+i, titulo:"¿Qué más tenía la hamburguesa?", sub:"Podés marcar varias, o ninguna.", tipo:"multi", opts:HAMBURGUESA.map(([n,t])=>[n,t])});
     else if(VARIANTES[it.n] && VARIANTES[it.n].al.includes(it.alias)) seg.push({id:"seg_"+i, titulo:VARIANTES[it.n].t, tipo:"single", opts:VARIANTES[it.n].o});
     if(it.n==="Yogur bebible" && ["yogur","yogurt"].includes(it.alias)) yog.push({id:"yog_"+i, titulo:"¿El yogur era bebible o firme?", tipo:"single", opts:[["bebible","Bebible"],["firme","Firme (de cuchara)"]]});
-    if(!it.explicita && !it.auto && !(it.n==="Ensalada mixta" && !it.alias)) por.push([i, it]);
+    if(it.n==="Queso rallado" && !it.explicita) ral.push({id:"ral_"+i, titulo:"¿Cuánto queso rallado le pusiste?", tipo:"single", opts:PUNADOS});
+    else if(!it.explicita && !it.auto && !(it.n==="Ensalada mixta" && !it.alias)) por.push([i, it]);
   });
   por.sort((a,b)=>b[1].g*(b[1].k||0)-a[1].g*(a[1].k||0));   // primero lo que más energía aporta
   const pPor=por.map(([i,it])=>({id:"por_"+i, titulo:`¿Qué porción de ${minus(it.n)} comiste?`, tipo:"single",
     opts:[["poco","Poco"],["normal","Normal",medidaCasera(it.g, it)],["mucho","Mucho"],["nose","No sé"]]}));
   const pMarcas={dyn: resp=>pasosMarcas(marcasPendientes({items:aplicarRespuestas(r, resp)}, txt))};
-  return [...seg, ...yog, ...pPor, pMarcas, pasoHambre, pasoMotivo];
+  return [...seg, ...yog, ...ral, ...pPor, pMarcas, pasoHambre, pasoMotivo];
 }
 function aplicarRespuestas(r, resp){
   const its=r.items.map(x=>({...x})), extra=[], fuera=new Set();
@@ -431,6 +436,7 @@ function aplicarRespuestas(r, resp){
     } else if(typeof sg==="string" && sg){ Object.assign(it, nuevoItem(sg, it.g)); }
     if(resp["yog_"+i]==="firme"){ const potes=it.g/(it.u||it.por||200); Object.assign(it, nuevoItem("Yogur firme", 1)); it.g=Math.round(potes*(it.u||it.por)); }
     const pr=resp["por_"+i]; if(pr) it.g=Math.max(1, Math.round(it.g*PORCION[pr]));
+    if(resp["ral_"+i]) it.g=+resp["ral_"+i];
   });
   return its.filter((_,i)=>!fuera.has(i)).concat(extra);
 }
@@ -594,7 +600,7 @@ function renderHoy(){
     const nombre=cap(txt).replace(/[.\s]+$/,"");
     flujoPreguntas(pasosRegistro(r, txt), resp=>{ guardarMarcas(marcasDe(resp)); const its=aplicarRespuestas(r, resp), t=ESTIMADOR.totales(its), a=conMarcas(t, txt), emo=emoDe(resp);
       addComida({slot:sel.value, recetaId:null, nombre:nombre.length>140?nombre.slice(0,137)+"…":nombre, kcal:a.kcal, prot:a.prot, carb:a.carb, grasa:a.grasa, fibra:a.fibra,
-      verduras:t.verduras, frutas:t.frutas, integrales:t.integrales, nueces:t.nueces, vitC:t.vitC, roja:t.roja, atun:t.atun, fuera:true, texto:txt,
+      verduras:t.verduras, frutas:t.frutas, integrales:t.integrales, nueces:t.nueces, vitC:t.vitC, vitCDe:t.vitCDe||undefined, roja:t.roja, atun:t.atun, fuera:true, texto:txt,
       items:a.items, marcas:a.marcas, noRec:r.sobras, ...emo}); }); };
   otro.addEventListener("keydown",e=>{ if(e.key==="Enter"&&!e.shiftKey){ e.preventDefault(); registrar(); } });
   box.append(el("section",{class:"card"}, el("h3",{},"Registro de hoy"),
@@ -657,13 +663,30 @@ function progreso(comidas){
     return el("div",{class:"pi"+(over?" over":done?" done":"")}, el("div",{class:"k"},k), el("div",{class:"v"},opt.txt||nf(v,1), el("small",{}, opt.txt? (opt.unidad? " · "+opt.unidad : "") : ` / ${nf(goal)}${unit}`)), el("div",{class:"bar"},el("i",{style:`width:${pct}%`}))); };
   const dato=(k,v,unit)=>el("div",{class:"pi"}, el("div",{class:"k"},k), el("div",{class:"v"},nf(v), el("small",{},unit)));
   if(!PLAN.care) box.append(item("Energía",t.kcal,target()," kcal"));
-  box.append(item("Proteína (mín.)",t.prot,PLAN.prot," g"), dato("Carbohidratos",t.carb," g"));
-  const gMin=M.grasaMin; box.append(item("Grasas (mín.)",t.grasa,gMin," g",{txt: t.grasa<=0? "Falta" : t.grasa>=gMin? "Cubierta" : null, unidad:`${nf(t.grasa)} / ${nf(gMin)} g`}), dato("Fibra",t.fibra," g"));
+  box.append(item("Proteína (mín.)",t.prot,PLAN.prot," g"), item("Carbohidratos",t.carb,metaCarb()," g"));
+  const gMin=M.grasaMin; box.append(item("Grasas (mín.)",t.grasa,gMin," g",{txt: t.grasa<=0? "Falta" : t.grasa>=gMin? "Cubierta" : null, unidad: t.grasa>=gMin? null : `${nf(t.grasa)} / ${nf(gMin)} g`}), dato("Fibra",t.fibra," g"));
   box.append(item("Frutas",t.frutas,M.frutas,""), item("Verduras",t.verduras,M.verduras,""), item("Integrales",t.integrales,M.integrales,""));
   if(M.nueces) box.append(item("Frutos secos",t.nueces,M.nueces,""));
-  box.append(item("Vitamina C",t.vitC?1:0,1,"",{txt:t.vitC?"Cubierta":"Falta una fuente"}));
-  if(!PLAN.excl.has("vacuna")) box.append(item("Carne roja · 7 días",weekCount("roja"),M.rojaSem,"",{max:true}));
+  const vc=item("Vitamina C",t.vitC?1:0,1,"",{txt:t.vitC?"Cubierta":"Falta una fuente"});
+  vc.append(el("button",{class:"btn small ghost fuentes",type:"button",onclick:()=>verFuentesVitC(comidas)},"Ver fuentes"));
+  box.append(vc);
   return box;
+}
+// Vitamina C: con qué la cubrió hoy y buenas fuentes, en porciones caseras (cada una alcanza para el día).
+const FUENTES_VITC=[[["Naranja","Jugo de naranja exprimido"],"Naranja","1 naranja o 1 vaso de jugo exprimido"],[["Mandarina"],"Mandarina","2 mandarinas"],
+  [["Kiwi"],"Kiwi","1 kiwi"],[["Frutillas"],"Frutillas","1 taza"],[["Pomelo"],"Pomelo","½ pomelo"],[["Morrón rojo","Morrón","Morrón verde"],"Morrón","½ morrón, crudo o cocido"],
+  [["Brócoli"],"Brócoli","1 taza"],[["Coliflor"],"Coliflor","1 taza"],[["Ananá","Mango","Papaya","Melón","Frambuesas","Maracuyá","Ensalada de frutas"],"Ananá, mango, papaya o melón","1 taza"]];
+function verFuentesVitC(comidas){
+  const con=ordenar(comidas.filter(c=>c.vitC)), comidos=new Set(con.map(c=>c.vitCDe).filter(Boolean)), sheet=$("#sheet");
+  sheet.replaceChildren(el("div",{class:"sheet-card vitc"}, el("h2",{},"Vitamina C"),
+    con.length? el("div",{class:"cubierta"}, el("div",{class:"label"},"Hoy la cubriste con"),
+        el("ul",{}, con.map(c=>el("li",{}, el("b",{},c.vitCDe||c.nombre), " · "+(SLOTDEF[c.slot]?.n||"")))))
+      : el("p",{class:"note"},"Todavía no comiste una fuente hoy. Con una porción de cualquiera de estas alcanza para el día."),
+    el("div",{class:"label"},"Buenas fuentes"),
+    el("ul",{class:"fuentes-lista"}, FUENTES_VITC.map(([ns,n,p])=>{ const hoy=ns.some(x=>comidos.has(x));
+      return el("li",{class:hoy?"on":""}, el("span",{}, el("b",{},n), el("small",{},p)), hoy? el("span",{class:"tag c"},"✓ Hoy") : null); })),
+    el("button",{class:"btn primary",type:"button",onclick:cerrarSheet},"Listo")));
+  sheet.hidden=false;
 }
 function cardSueno(){
   const st={horas:null, calidad:null};

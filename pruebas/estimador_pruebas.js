@@ -31,6 +31,10 @@ const CASOS = [
   ["una lata de atun",                     {kcal:[120,160], prot:[28,34]}],
   // Pastas, guisos y vegetariano
   ["fideos con tuco y queso rallado",      {kcal:[500,620], prot:[20,27], carb:[80,100], grasa:[6,14], verd:[1,2]}],
+  // «queso» a secas sobre pastas, polenta o sopas: rallado (un puñado), no una feta de cremoso
+  ["fideos con queso",                     {kcal:[460,540], prot:[19,26], grasa:[3,8]}],
+  ["polenta con queso",                    {kcal:[200,270], prot:[7,12]}],
+  ["fideos con 2 fetas de queso",          {kcal:[520,620], prot:[24,30], grasa:[8,14]}],
   ["noquis con tuco",                      {kcal:[420,520], prot:[10,15]}],
   ["guiso de lentejas",                    {kcal:[380,460], prot:[22,28], carb:[35,50], grasa:[10,18]}],
   ["tofu salteado con verduras",           {kcal:[140,220], prot:[10,16], verd:[2,3]}],
@@ -78,6 +82,17 @@ const CASOS = [
   ["wrap de pollo, con pollo, remolacha, cebolla", {kcal:[320,420]}],
   ["un sandwich, una ensalada y un yogur", {kcal:[620,780]}],
   ["un yogur firme",                       {kcal:[160,200]}],
+  // Frases reales revisadas en la versión 0.7.0
+  ["Pan casero con sésamo: 3 tiras finitas. Yogur: 25 g aprox. Pasta de maní proteica: 1 cucharadita de té. Galletita Integra: 1½ unidades en total. Chocolate: 1 cuadradito mini. Reese’s: 1 unidad. Dulce de leche: 2 cucharadas soperas rasas. Coco rallado: 1 cucharadita de té. Brownie casero: ½ porción de un cuadrado de 6–7 cm.", {kcal:[560,760]}],
+  ["Carne vacuna: 1 pedazo, cocinado en air fryer sin aceite. Yogur Tregar limón: 60 g aprox. Y una galletita integra", {kcal:[240,340], fruta:[0,0]}],
+  ["1 cucharadita de té de pasta de maní",  {kcal:[25,40]}],
+  ["½ porción de brownie, un cuadrado de 6 cm", {kcal:[130,190]}],
+  ["¼ de lata de garbanzos",                {kcal:[85,115]}],
+  ["2 sándwiches de miga de jamón y queso", {kcal:[200,290]}],
+  ["un reese",                              {kcal:[95,120]}],
+  ["galletitas 1½ unidades",                {kcal:[50,90]}],
+  ["wok de pollo con verduras",             {kcal:[360,480], verd:[1,2]}],
+  ["sorrentinos con crema",                 {kcal:[700,850]}],
 ];
 let fallas=0;
 for(const [frase, esp] of CASOS){

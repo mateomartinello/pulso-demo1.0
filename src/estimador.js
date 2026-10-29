@@ -174,7 +174,7 @@ Lentejas|lentejas;lenteja;ensalada de lentejas|116|9|8|180||porción|gr=0.4 hc=1
 Garbanzos|garbanzos;garbanzo;ensalada de garbanzos|164|9|7.6|150||porción|gr=2.6 hc=22.5
 Porotos|porotos;poroto;porotos negros;porotos colorados;frijoles;alubias|127|8.7|6.4|150||porción|gr=0.5 hc=18.5
 Arvejas|arvejas;arveja;arvejas en lata;guisantes|81|5.4|5|80||porción|v1 gr=0.4 hc=11.5
-Hummus|hummus;humus|170|8|6|50||porción|gr=10 hc=9
+Hummus|hummus;humus|170|8|6|50||porción|gr=10 hc=14
 Falafel|falafel;faláfel|330|13|5|100|25|unidad|F gr=18 hc=26.5
 Tofu|tofu|76|8|0.3|100||porción|gr=4.8 hc=1.9
 Seitán|seitan|120|21|0.6|100||porción|gr=1.5 hc=5.3
@@ -186,7 +186,7 @@ Guiso de lentejas|guiso de lentejas;lentejas guisadas;guiso de garbanzos;guiso d
 Parrillada|parrillada;parrilla;parrillada mixta;asado completo|300|23|0|350||porción|r gr=22 hc=2.5
 Locro|locro|140|7|3|350||plato|r gr=6 hc=13
 Pastel de papa|pastel de papa;pastel de papas;hachis parmentier|140|8|1.5|300||porción|r gr=6.5 hc=11.5
-Wok de pollo|wok;wok de pollo;salteado de pollo;pollo con verduras;pollo al wok;chop suey|120|11|1.5|350||plato|v.4 gr=4.5 hc=8.1
+Wok de pollo|wok;wok de pollo;wok de pollo con verduras;wok de verduras con pollo;wok con verduras;salteado de pollo;salteado de pollo con verduras;pollo con verduras;pollo al wok;chop suey|120|11|1.5|350||plato|v.4 gr=4.5 hc=8.1
 Quesadilla|quesadilla;quesadillas|300|13|2|150|75|quesadilla|gr=15 hc=27
 Nachos con queso|nachos con queso;nachos con cheddar;nachos con guacamole|320|7|3|150||porción|F gr=18 hc=31
 Guiso de pollo|estofado de pollo;guiso de pollo;pollo guisado;pollo al disco con verduras;cazuela de pollo|120|11|1.5|350||plato|v.2 gr=4 hc=9.2
@@ -282,7 +282,7 @@ Chocolate amargo|chocolate amargo;chocolate 70;chocolate negro;chocolate semiama
 Caramelos|caramelo;caramelos;chupetin;chupetines;gomitas;mogul;gomita;pastillas;sugus;flynn paff;menthoplus;chicle;chicles;turron;turrón;marshmallow;malvaviscos;chupetin|380|0|0|20|5|caramelo|gr=0.5 hc=94
 Galletitas dulces|galletitas;galletas;galletitas dulces;galletitas rellenas;galletitas de chocolate;oreo;oreos;pepitos;chocolinas;rumba;rumbas;tentaciones;sonrisas;mana;manon;merengadas;opera;toddy galletitas;terrabusi;melba;diversion;lincoln;surtidas;galletitas surtidas;galletitas de vainilla;galletitas de limon;anillos;galletitas pepitos;cookies;cookie;galletitas con chips;criollitas dulces;formis;macucas|480|5|2|40|10|galletita|gr=20 hc=69 S
 Galletitas de agua|galletitas de agua;galletas de agua;criollitas;crackers;galletitas saladas;express;galletitas express;club social;traviata;traviatas;mediatarde;media tarde;pepas saladas;bay biscuit|420|10|3|30|7|galletita|gr=12 hc=66.5
-Galletitas integrales|galletitas integrales;galletas integrales;galletitas de salvado;granix;cerealitas;galletitas de avena;galletas de avena;galletitas con semillas;tostaditas integrales;galletitas multicereal|420|11|8|30|7|galletita|i.6 gr=14 hc=58.5
+Galletitas integrales|galletitas integrales;galletas integrales;galletita integra;galletitas integra;galletitas de salvado;granix;cerealitas;galletitas de avena;galletas de avena;galletitas con semillas;tostaditas integrales;galletitas multicereal|420|11|8|30|7|galletita|i.6 gr=14 hc=58.5
 Salmas|salmas;galletitas salmas;galletas salmas|390|9|4|18|6|galletita|gr=10 hc=63
 Vainillas|vainilla;vainillas;bizcochuelo;vainillas de huevo;piononos|390|8|1|40|7|vainilla|gr=4 hc=80
 Torta|torta;tortas;torta de chocolate;torta de cumpleaños;chocotorta;tiramisu;lemon pie;cheesecake;torta de ricota;torta de manzana;torta galesa;selva negra;rogel;torta rogel;marquise;tarta de frutilla;tarta de manzana;pastafrola;pasta frola;tarta dulce;budin;budín;budines;muffin;muffins;cupcake;cupcakes;magdalena;magdalenas;madalena;madalenas;bizcochuelo de chocolate;torta frita;tortas fritas;crumble;carrot cake;red velvet;postre helado;tarta de coco|370|5|1.2|100|100|porción|gr=16 hc=51
@@ -294,6 +294,7 @@ Mermelada|mermelada;mermeladas;dulce de membrillo;membrillo;dulce de batata;merm
 Miel|miel|304|0.3|0|20|20|cucharada|gr=0 hc=75.5
 Azúcar|azucar;azucarado;azúcar|400|0|0|5|5|cucharadita|gr=0 hc=100
 Nutella|nutella;crema de avellanas;crema de cacao;mantecol untable|540|6|3|20|15|cucharada|gr=31 hc=58
+Bocadito de maní|reese;reeses;reese s;bocadito de mani;bocaditos de mani;bombon de mani|515|10|3|21|21|unidad|gr=30 hc=55
 Barrita de cereal|barrita;barritas;barrita de cereal;barritas de cereal;barra de cereal;cereal bar;granix barrita;mix barrita;quaker barrita;barrita de mani;dubar;barrita dubar|400|6|3|25|25|barrita|gr=12 hc=65.5 S
 Barrita proteica|barrita proteica;barra proteica;barritas proteicas;barrita de proteina;barra de proteina;protein bar|380|30|5|50|50|barrita|S gr=12 hc=34
 Pochoclo|pochoclo;pochoclos;pop corn;popcorn;palomitas;pochoclo dulce;pochoclo salado;pororo|450|8|8|40||porción|i1 gr=20 hc=55.5
@@ -341,7 +342,11 @@ const ESTIMADOR = (function(){
     .replace(/([a-z])\/([a-z])/g,"$1 $2")   // «natural/común» → dos palabras
     .replace(/[,;](?!\d)|\.(?!\d)/g," | ")      // comas y puntos separan partes de la frase («un sándwich, una ensalada»)
     .replace(/(\d),(\d)/g,"$1.$2").replace(/(\d)\s*%/g,"$1").replace(/(\d)([a-z])/g,(m,a,b)=> a+" "+b)
-    .replace(/[^a-z0-9.\/|\s]+/g," ").replace(/\.(?!\d)/g," ").replace(/\s+/g," ").trim();
+    .replace(/[^a-z0-9.\/|\s]+/g," ").replace(/\.(?!\d)/g," ").replace(/\s+/g," ").trim()
+    .replace(/(?:\b\d+(?:\.\d+)? (?:a |x |y )?)*\b\d+(?:\.\d+)? (?:cm|centimetros?)\b/g," ")   // medidas («un cuadrado de 6 a 7 cm») no son cantidades
+    .replace(/\bcuchar(?:adita|ita|a)s? (?:de )?(?:te|cafe|postre)\b/g,"cucharadita")   // «cucharadita de té»: medida, no un té
+    .replace(/\b(\d+) (\d+)\/(\d+)\b/g,(m,a,b,c)=> +c? String(+a + b/c) : m)   // «1½» → 1.5
+    .replace(/\s+/g," ").trim();
   // "x2" se separa en "x 2" y "7up"/"3d"/"h2o" se rearman abajo.
   const GLUE = {"7 up":"7up","3 d":"3d","h2 o":"h2o","h 2 o":"h2o","9 de oro":"9 de oro"};
   function sing(t){
@@ -374,7 +379,7 @@ const ESTIMADOR = (function(){
     pote:{g:190,un:"pote"},potecito:{g:120},caja:{g:200,un:"caja"},cajita:{g:200},
     rebanada:{u:1,g:30,un:"rebanada"},feta:{u:1,g:20,un:"feta"},tajada:{u:1,g:30,un:"tajada"},rodaja:{u:1,g:25,un:"rodaja"},
     unidad:{u:1},pieza:{u:1,g:25,un:"pieza"},bocha:{g:80,un:"bocha"},cucurucho:{g:160},
-    cucharada:{g:15,un:"cucharada"},cuchara:{g:15,un:"cucharada"},hoja:{g:8,un:"hoja"},cda:{g:15,un:"cucharada"},cucharadon:{g:20},cucharadita:{g:5,un:"cucharadita"},cdita:{g:5,un:"cucharadita"},
+    cucharada:{g:15,un:"cucharada"},cuchara:{g:15,un:"cucharada"},hoja:{g:8,un:"hoja"},cda:{g:15,un:"cucharada"},cucharadon:{g:20},cucharadita:{g:5,un:"cucharadita"},cucharita:{g:5,un:"cucharadita"},cdita:{g:5,un:"cucharadita"},
     punado:{g:30,un:"punado"},cuadradito:{g:7,un:"cuadradito"},cuadrado:{g:7,un:"cuadradito"},trozo:{p:0.6},pedazo:{p:0.6},pedacito:{p:0.3},
     paquete:{g:100,un:"paquete"},paquetito:{g:40},bolsita:{g:45},sobre:{g:10},
     medida:{g:45,un:"medida"},chorrito:{g:10},chorro:{g:10},hilo:{g:5},puntita:{g:5},
@@ -382,13 +387,13 @@ const ESTIMADOR = (function(){
   };
   const SIZE = {grande:1.4,grandes:1.4,enorme:1.8,abundante:1.4,generoso:1.3,generosa:1.3,mucho:1.4,mucha:1.4,bastante:1.3,doble:2,triple:3,
     chico:0.7,chica:0.7,pequeno:0.7,pequena:0.7,chiquito:0.5,chiquita:0.5,poco:0.5,poca:0.5,poquito:0.35,poquita:0.35,mediano:1,mediana:1,
-    mini:0.5,minimo:0.4,minima:0.4,normal:1,regular:1,comun:1};
+    mini:0.5,minimo:0.4,minima:0.4,normal:1,regular:1,comun:1,fina:0.6,fino:0.6,finita:0.6,finito:0.6,finas:0.6,finos:0.6,finitas:0.6,finitos:0.6};
   const ADJ = new Set(["hervido","hervida","cocido","cocida","asado","asada","horno","plancha","grillado","grillada","parrilla","vapor","salteado","salteada",
     "casero","casera","natural","entero","entera","crudo","cruda","rallado","rallada","picado","picadito","relleno","rellena","gratinado","gratinada","tostado","tostada",
     "light","descremado","descremada","fresco","fresca","frio","fria","caliente","tibio","tibia","dorado","dorada","horneado","horneada","aire","freidora",
     "rodaja","cubo","tira","pure","pisado","pisada","fileteado","maduro","madura","verde","rojo","roja","amarillo","sola","solo","comun","clasico","clasica",
     "suave","picante","condimentado","condimentada","sabor","sabores","recalentado","calentado","tostadito","congelado","congelada","prefrito","rebozado","rebozada","empanado","empanada_adj","apanado","apanada",
-    "congelado","congelada","empanizado","empanizada","sopera","entero"]);
+    "congelado","congelada","empanizado","empanizada","sopera","entero","proteica","proteico","rasa","raso","colmada","colmado"]);
   const FRITO = new Set(["frito","frita","fritito","frititos"]);
   const STOP = new Set(["comi","comimo","almorce","cene","desayune","meriende","tome","tomo","bebi","picotee","pique","probe","pedi","compre","hice","cocine","prepare","termine",
     "me","mi","mis","con","y","e","o","u","ni","sin","mas","tambien","despue","antes","luego","hoy","ayer","manana","noche","tarde","mediodia","temprano",
@@ -497,6 +502,7 @@ const ESTIMADOR = (function(){
       }
       if(!hit) continue;
       let end=hitEnd; for(let j=i;j<end;j++) used[j]=true;
+      if(hit.food.S && end+1<T.length && !used[end] && STOP.has(T[end].t) && !["con","y","e","o","u","mas","sin"].includes(T[end].raw) && SABORES.has(T[end+1].t)){ used[end]=true; end++; }   // «yogur Tregar limón»: la marca en el medio
       if(hit.food.S && end<T.length && SABORES.has(T[end].t)){   // sabores: «de chocolate y naranja»
         while(end<T.length && !used[end] && (SABORES.has(T[end].t) || (T[end].raw==="y" && end+1<T.length && SABORES.has(T[end+1].t)))){ used[end]=true; end++; } }
       items.push({food:hit.food, s:i, e:end, head:hit.tk[0], al:hit.tk.length, tk:hit.tk, sz0:talla}); i=end-1;
@@ -518,7 +524,7 @@ const ESTIMADOR = (function(){
         break;
       }
       if(nums.length) it.num = nums.reduce((a,b)=>a*b,1);
-      let k=it.e; guard=0;
+      let k=it.e, tomo=false; guard=0;
       while(free(k) && guard++<5){
         const o=T[k];
         if(o.t==="integral"){ it.integral=true; used[k]=true; k++; continue; }
@@ -528,7 +534,8 @@ const ESTIMADOR = (function(){
         if(/^x\d/.test(o.raw)){ it.num=numOf(o); used[k]=true; k++; continue; }
         if((o.raw==="como"||o.raw==="aprox"||o.raw==="aproximadamente"||o.raw==="unos"||o.raw==="unas") && T[k+1] && isNum(T[k+1])){ used[k]=true; k++; continue; }
         if(isNum(o) && numOf(o)!=null && T[k+1] && UNIT[T[k+1].t] && !(inicios.has(k+2) && T[k+2].de)){   // «… ¼ de lata de garbanzos»: esa cantidad es del alimento que sigue
-          const u=UNIT[T[k+1].t];
+          if(tomo){ used[k]=used[k+1]=true; break; }   // «½ porción de un cuadrado»: vale la primera cantidad
+          tomo=true; const u=UNIT[T[k+1].t];
           if(pesoPuro(u)) it.gExp=numOf(o)*u.g; else { it.num=numOf(o); it.unit=u; it.unitW=T[k+1].t; }
           used[k]=used[k+1]=true; k+=2; continue; }
         break;
@@ -551,8 +558,10 @@ const ESTIMADOR = (function(){
       else {
         let base;
         const uMatch = unit && f.u && (unit.u || (unit.un && f.uN && sing(norm(f.uN))===unit.un));
-        if(uMatch) base=f.u;
+        if(it.unitW==="tira" && f.b) base=25;     // «3 tiras de pan»: como rebanadas
+        else if(uMatch) base=f.u;
         else if(unit && unit.p) base=f.por*unit.p;
+        else if(it.unitW==="lata" && !f.l) base=240;   // lata de legumbres o choclo: lo escurrido
         else if(unit && unit.g) base=unit.g;
         else if(num!=null) base = f.cnt || f.u || f.por;
         else base = f.por;
@@ -583,6 +592,22 @@ const ESTIMADOR = (function(){
     }
     // lo que ya trae leche (licuado, café con leche) no suma "leche" aparte cerca
     for(const p of out.filter(i=>i.food.M)){ out = out.filter(i=> i===p || !(i.food.n==="Leche" && Math.abs(i.s-p.s)<=5)); }
+    // el sándwich de miga ya trae su relleno: «de jamón y queso», «con huevo y jamón» no suman aparte
+    const DE_MIGA = new Set(["Jamón cocido","Jamón crudo","Queso","Huevo","Tomate","Lechuga","Palta","Atún al natural","Atún en aceite","Pollo (pechuga)","Pollo al horno",
+      "Queso azul","Ananá","Morrón","Aceitunas","Mayonesa","Salame","Pavita","Rúcula","Choclo","Zanahoria","Arrollado de pollo","Paleta"]);
+    for(const c of out.filter(i=>i.food.n==="Sándwich de miga")){
+      out = out.filter(i=>{ if(i===c || !DE_MIGA.has(i.food.n) || i.s<=c.s || i.s-c.e>8 || i.num!=null || i.gExp!=null) return true;
+        const entre=T.slice(c.e,i.s); return entre.some((o,k)=>o.raw==="|" && !["con","de"].includes(entre[k+1]?.raw)); });
+    }
+    // «pan con sésamo» o «galletitas con semillas»: lo que lleva encima, no una porción de semillas; la cantidad es del pan
+    for(const c of out.filter(i=>i.food.b)){
+      const sm=out.find(i=>i.food.n==="Semillas" && i.s>c.s && i.s-c.e<=1 && T[c.e]?.raw==="con" && i.gExp==null && [undefined,"tira","rebanada","rodaja","unidad"].includes(i.unitW));
+      if(!sm) continue;
+      if(sm.num!=null && c.num==null){   // «pan con sésamo: 3 tiras finitas»
+        const base = sm.unitW==="tira"? 25 : (c.food.u||c.food.por);
+        c.num=sm.num; c.g=Math.max(1, Math.round(sm.num*base*(sm.size||1)*(c.size||1))); }
+      sm.g=3; sm.num=null; sm.unit=null; sm.nota="encima";
+    }
     // relleno de sándwiches, tostados, wraps y tacos: porción de relleno, no de plato
     for(const c of out.filter(i=>i.food.B)){
       const fx = Math.min(Math.max(c.g/80, 0.75), 1.2);
@@ -596,6 +621,19 @@ const ESTIMADOR = (function(){
       const tope = Math.min(150, Math.round(25*Math.max(1, c.g/(c.food.u||c.g))));
       for(const i of out){ if(i===c || i.s<=c.s || i.s-c.e>6 || i.num!=null || i.gExp!=null || i.food.l || i.food.T) continue;
         if(i.food.v>=1 || i.food.fr>=1 || COBERTURA.has(i.food.n)) i.g = Math.min(i.g, tope); }
+    }
+    // «queso» a secas sobre pastas, arroz, polenta, sopas o guisos («fideos con queso»): es rallado, no una feta de cremoso
+    const RALLADO = new Set(["Fideos","Fideos integrales","Ravioles","Sorrentinos","Ñoquis","Canelones","Lasaña","Capeletinis","Arroz","Arroz integral",
+      "Risotto","Arroz con pollo","Polenta","Guiso","Guiso de lentejas","Guiso de pollo","Locro","Sopa","Caldo","Lentejas"]);
+    for(const c of out.filter(i=>RALLADO.has(i.food.n))){
+      for(const i of out){ if(i.food.n!=="Queso" || (i.tk||[]).join(" ")!=="queso" || i.s<=c.s || i.s-c.e>6 || T.slice(c.e,i.s).some(o=>o.raw==="|")) continue;
+        if(i.unit!=null || i.num!=null) continue;   // «2 fetas de queso»: sigue siendo cremoso
+        const r=BYNAME["Queso rallado"]; if(i.gExp==null) i.g=Math.max(1, Math.round(r.por*(i.size||1))); i.food=r; }
+    }
+    // «sorrentinos con crema»: es la salsa, no una cucharada de crema
+    for(const c of out.filter(i=>RALLADO.has(i.food.n) && !/Sopa|Caldo|Guiso|Locro|Lentejas/.test(i.food.n))){
+      for(const i of out){ if(i.food.n!=="Crema" || (i.tk||[]).join(" ")!=="crema" || i.s<=c.s || i.s-c.e>4 || i.num!=null || i.gExp!=null || i.unit!=null) continue;
+        const r=BYNAME["Salsa de crema"]; i.food=r; i.g=Math.max(1, Math.round(r.por*(i.size||1))); }
     }
     // panes que se rellenan (sándwich, tostado, wrap) sin relleno nombrado: relleno típico
     const extra=[];
@@ -637,15 +675,15 @@ const ESTIMADOR = (function(){
     return t;
   }
   function calcular(out){
-    let kcal=0,prot=0,carb=0,grasa=0,fibra=0,veg=0,fru=0,integ=0,nuez=0,vitC=false,roja=false,atun=false;
+    let kcal=0,prot=0,carb=0,grasa=0,fibra=0,veg=0,fru=0,integ=0,nuez=0,vitC=false,vitCDe=null,roja=false,atun=false;
     for(const it of out){ const f=it.food, g=it.g;
       kcal+=f.k*g/100 + (it.frito? g*0.5 : 0); prot+=f.p*g/100; fibra+=f.f*g/100;
       carb+=f.hc*g/100; grasa+=f.gr*g/100 + (it.frito? g*0.5/9 : 0);   // frito: el aceite absorbido suma grasa
-      veg+=g*f.v; fru+=g*f.fr; integ+=g*(it.integral && f.b ? Math.max(f.ig,1) : f.ig); if(f.nz) nuez+=g; if(f.c && g>=60) vitC=true; if(f.r) roja=true; if(f.a) atun=true; }
+      veg+=g*f.v; fru+=g*f.fr; integ+=g*(it.integral && f.b ? Math.max(f.ig,1) : f.ig); if(f.nz) nuez+=g; if(f.c && g>=60){ vitC=true; vitCDe=vitCDe||f.n; } if(f.r) roja=true; if(f.a) atun=true; }
     return {
       kcal:Math.round(kcal), prot:Math.round(prot), carb:Math.round(carb), grasa:Math.round(grasa), fibra:Math.round(fibra),
       verduras:Math.round(veg/80*2)/2, frutas:Math.round(fru/150*2)/2, integrales:Math.round(integ/30*2)/2,
-      nueces: nuez>=15?1:0, vitC, roja, atun
+      nueces: nuez>=15?1:0, vitC, vitCDe, roja, atun
     };
   }
   // Recalcula una comida a partir de ítems [{n, g, frito, integral}] (después de las preguntas de porción e ingredientes).
