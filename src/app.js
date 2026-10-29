@@ -381,6 +381,9 @@ const RELLENOS=[["Jamón cocido","Jamón",40],["Queso","Queso",30],["Tomate","To
   ["Pollo (pechuga)","Pollo",80],["Carne vacuna","Carne",80],["Atún al natural","Atún",60],["Palta","Palta",30],["Mayonesa","Mayonesa",10]];
 const ENSALADA=[["Lechuga","Lechuga",40],["Tomate","Tomate",80],["Zanahoria","Zanahoria",40],["Cebolla","Cebolla",30],["Huevo","Huevo",50],
   ["Atún al natural","Atún",60],["Pollo (pechuga)","Pollo",80],["Queso","Queso",30],["Palta","Palta",40],["Aceite","Aceite o aderezo",8]];
+// Picada: lo que suele llevar, en porciones para una persona.
+const PICADA=[["Salame","Salame",30],["Queso","Queso",40],["Jamón crudo","Jamón crudo",25],["Jamón cocido","Jamón cocido",25],["Mortadela","Mortadela",25],
+  ["Aceitunas","Aceitunas",20],["Maní","Maní",20],["Pan blanco","Pan",40],["Grisines","Grisines",15],["Papas fritas de paquete","Papas fritas",25]];
 const HAMBURGUESA=[["Cheddar","Queso",20],["Panceta","Panceta",20],["Huevo frito","Huevo frito",50],["Lechuga","Lechuga y tomate",10],["Cebolla","Cebolla",15]];
 const VARIANTES={
   Tarta:{al:["tarta"], t:"¿De qué era la tarta?", o:[["Tarta","Jamón y queso"],["Tarta de verdura","Verdura"],["Tarta de choclo","Choclo"],["Tarta de atún","Atún"]]},
@@ -403,6 +406,7 @@ function pasosRegistro(r, txt){
   r.items.forEach((it,i)=>{
     if(it.relleno) seg.push({id:"seg_"+i, titulo:`¿Qué tenía el ${minus(it.n)}?`, sub:"Podés marcar varias.", tipo:"multi", opts:RELLENOS.map(([n,t])=>[n,t])});
     else if(it.n==="Ensalada mixta" && !it.alias) seg.push({id:"seg_"+i, titulo:"¿Qué tenía la ensalada?", sub:"Podés marcar varias.", tipo:"multi", opts:ENSALADA.map(([n,t])=>[n,t])});
+    else if(it.n==="Picada") seg.push({id:"seg_"+i, titulo:"¿Qué tenía la picada?", sub:"Podés marcar varias.", tipo:"multi", opts:PICADA.map(([n,t])=>[n,t])});
     else if(it.n==="Hamburguesa con pan" && it.alias==="hamburguesa") seg.push({id:"seg_"+i, titulo:"¿Qué más tenía la hamburguesa?", sub:"Podés marcar varias, o ninguna.", tipo:"multi", opts:HAMBURGUESA.map(([n,t])=>[n,t])});
     else if(VARIANTES[it.n] && VARIANTES[it.n].al.includes(it.alias)) seg.push({id:"seg_"+i, titulo:VARIANTES[it.n].t, tipo:"single", opts:VARIANTES[it.n].o});
     if(it.n==="Yogur bebible" && ["yogur","yogurt"].includes(it.alias)) yog.push({id:"yog_"+i, titulo:"¿El yogur era bebible o firme?", tipo:"single", opts:[["bebible","Bebible"],["firme","Firme (de cuchara)"]]});
@@ -419,10 +423,11 @@ function aplicarRespuestas(r, resp){
   its.forEach((it,i)=>{
     const sg=resp["seg_"+i];
     if(Array.isArray(sg) && sg.length){
-      const tabla = it.relleno? RELLENOS : it.n==="Ensalada mixta"? ENSALADA : HAMBURGUESA;
+      const tabla = it.relleno? RELLENOS : it.n==="Ensalada mixta"? ENSALADA : it.n==="Picada"? PICADA : HAMBURGUESA;
       if(it.relleno) for(let j=i+1;j<its.length && its[j].auto;j++) fuera.add(j);   // el relleno típico se reemplaza por lo elegido
-      if(it.n==="Ensalada mixta") fuera.add(i);
-      for(const n of sg){ const x=tabla.find(t=>t[0]===n); if(x) extra.push(nuevoItem(n,x[2])); if(it.n==="Hamburguesa con pan" && n==="Lechuga") extra.push(nuevoItem("Tomate",25)); }
+      if(it.n==="Ensalada mixta" || it.n==="Picada") fuera.add(i);
+      const k = it.n==="Picada"? (PORCION[resp["por_"+i]]||1)*(it.g/(it.por||150)) : 1;   // picada: lo elegido, según la porción que dijo
+      for(const n of sg){ const x=tabla.find(t=>t[0]===n); if(x) extra.push(nuevoItem(n,Math.max(1,Math.round(x[2]*k)))); if(it.n==="Hamburguesa con pan" && n==="Lechuga") extra.push(nuevoItem("Tomate",25)); }
     } else if(typeof sg==="string" && sg){ Object.assign(it, nuevoItem(sg, it.g)); }
     if(resp["yog_"+i]==="firme"){ const potes=it.g/(it.u||it.por||200); Object.assign(it, nuevoItem("Yogur firme", 1)); it.g=Math.round(potes*(it.u||it.por)); }
     const pr=resp["por_"+i]; if(pr) it.g=Math.max(1, Math.round(it.g*PORCION[pr]));
@@ -560,7 +565,7 @@ function renderHoy(){
   const d=day();
   if(!d.sueno && new Date().getHours()<16) box.append(cardSueno());
   if(d.ejercicio.length){ if(DB.movResumenOculto!==S.today) box.append(movHoyResumen(d.ejercicio)); }   // ya anotó movimiento hoy: se muestra (sin volver a preguntar) hasta que lo desliza
-  else if(!movAunNo()) box.append(cardMovRapido(true));
+  else if(!movAunNo()) box.append(cardMovRapido());
   if(cicloInfo()?.antojos && !d.antojo) box.append(cardAntojo());
   // momentos del día
   const hechos=new Set(d.comidas.map(c=>c.slot));
@@ -711,11 +716,13 @@ const MOV_VUELVE=30*60000;
 function movAunNo(){ return !!DB.movAunNo && dayKey(new Date(DB.movAunNo))===S.today; }
 function movAlVolver(){ if(DB.cerradaDesde && Date.now()-DB.cerradaDesde>=MOV_VUELVE && DB.movAunNo){ delete DB.movAunNo; persist(); return true; } return false; }
 // Movimiento ya anotado hoy: lo registrado y el enlace para anotar otra actividad. Deslizarla hacia un costado la saca por el resto del día.
-function movHoyResumen(lista){
+function movHoyResumen(lista, borrar){
   const card=el("section",{class:"card tarjeta mov-hoy"}, el("h3",{},"Tu movimiento de hoy"),
-    el("p",{style:"margin:0"}, "✓ "+lista.map(e=>`${ACT_TXT[e.tipo]||e.otro||"Actividad"} · ${e.min} min`).join(" · ")),
+    borrar? el("ul",{class:"log"}, lista.map(e=>el("li",{}, el("div",{},"✓ "+`${ACT_TXT[e.tipo]||e.otro||"Actividad"} · ${e.min} min`),
+        el("button",{class:"x",type:"button","aria-label":"Borrar actividad",onclick:()=>delEjercicio(e.id)},"×"))))
+      : el("p",{style:"margin:0"}, "✓ "+lista.map(e=>`${ACT_TXT[e.tipo]||e.otro||"Actividad"} · ${e.min} min`).join(" · ")),
     el("button",{class:"btn link",type:"button",onclick:anotarMovimiento},"Anotar otra actividad"));
-  deslizable(card, ()=>{ DB.movResumenOculto=S.today; persist(); render(); });
+  if(!borrar) deslizable(card, ()=>{ DB.movResumenOculto=S.today; persist(); render(); });   // en Hoy se puede sacar; en Movimiento queda fija
   return card;
 }
 // Anotar movimiento: pantalla grande con el formato del cuestionario. Primero qué hizo (pasa sola a la siguiente),
@@ -728,16 +735,11 @@ function anotarMovimiento(){
     addEjercicio({tipo:resp.tipo, otro: resp.tipo==="otro"? (resp.tipoOtro||"Otra actividad") : undefined, min, kcal:Math.round((met-1)*PLAN.peso*min/60)}); },
   {eyebrow:"Movimiento", cancelar:true, pantalla:true});
 }
-// En Hoy: «¿Te moviste hoy?» con «Sí, anotar» o «Aún no». En Movimiento: lo de hoy y «Anotar actividad».
-function cardMovRapido(conAunNo){
-  const hoy=day().ejercicio;
-  if(conAunNo) return el("section",{class:"card"}, el("h3",{},"¿Te moviste hoy?"), el("div",{class:"row"},
+// «¿Te moviste hoy?» con «Sí, anotar» o «Aún no» (en Hoy y en Movimiento).
+function cardMovRapido(){
+  return el("section",{class:"card"}, el("h3",{},"¿Te moviste hoy?"), el("div",{class:"row"},
     el("button",{class:"btn small primary",type:"button",onclick:anotarMovimiento},"Sí, anotar"),
     el("button",{class:"btn small ghost",type:"button",onclick:()=>{ DB.movAunNo=Date.now(); persist(); render(); }},"Aún no")));
-  return el("section",{class:"card"}, el("h3",{},"Hoy"),
-    hoy.length? el("ul",{class:"log"}, hoy.map(e=>el("li",{}, el("div",{}, el("div",{},`${ACT_TXT[e.tipo]||e.otro||"Actividad"} · ${e.min} min`), PLAN.care?null:el("div",{class:"note"},`≈ ${nf(e.kcal)} kcal`)),
-      el("button",{class:"x",type:"button","aria-label":"Borrar actividad",onclick:()=>delEjercicio(e.id)},"×")))) : el("p",{class:"note",style:"margin:0"},"Todavía no anotaste movimiento hoy."),
-    el("button",{class:"btn small primary",type:"button",style:"margin-top:10px",onclick:anotarMovimiento},"Anotar actividad"));
 }
 function semanaMov(){ let min=0, fuerza=0; for(const k of last7()){ for(const e of (DB.dias[k]?.ejercicio||[])){ if(e.tipo==="fuerza") fuerza++; else min+=e.min; }
   for(const e of (saludDia(k)?.entrenos||[])){ if(/fuerza|pesas|strength/i.test(e.tipo)) fuerza++; else min+=e.min||0; } } return {min, fuerza}; }
@@ -757,7 +759,14 @@ function renderMov(){
         movDia(k).length? el("div",{}, movDia(k).join(" · ")) : null,
         saludDia(k)?.pasos!=null? el("div",{class:"note"}, `${nf(saludDia(k).pasos)} pasos`) : null))))
         : el("p",{class:"note",style:"margin:0"},"Todavía no registraste actividad en los últimos 7 días.")),
-    cardMovRapido());
+    tarjetaMovimiento());
+}
+// La misma tarjeta que en Hoy: «¿Te moviste hoy?» con «Sí, anotar» / «Aún no», o lo anotado hoy con «Anotar otra actividad».
+// En Movimiento siempre se ve lo anotado (con × para borrar), aunque en Hoy se haya deslizado.
+function tarjetaMovimiento(){
+  const d=day();
+  if(d.ejercicio.length) return movHoyResumen(d.ejercicio, true);
+  return movAunNo()? el("section",{class:"card"}, el("h3",{},"¿Te moviste hoy?"), el("button",{class:"btn small primary",type:"button",onclick:anotarMovimiento},"Anotar actividad")) : cardMovRapido();
 }
 
 // ==== SEMANA ====
