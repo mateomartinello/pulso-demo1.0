@@ -436,7 +436,7 @@ const MOTIVO=[["hambre","Hambre física"],["horario","Horario o costumbre"],["em
 // Preguntas después de registrar: de a una, con barra de progreso y opciones en columna (formato del cuestionario).
 // Máximo 6, siempre con «Saltear». Hambre y motivo van siempre al final; el resto se recorta si no entra.
 const MAX_PREGUNTAS=6;
-function flujoPreguntas(pasos, alTerminar){
+function flujoPreguntas(pasos, alTerminar, opc={}){
   const resp={}, cola=pasos.slice(); let hechas=0;
   const reservadas = () => cola.filter(p=>p.fija).length;
   const sheet=$("#sheet");
@@ -453,19 +453,22 @@ function flujoPreguntas(pasos, alTerminar){
     const otroIn=el("input",{type:"text",id:"preg-otro",placeholder:"Contalo en pocas palabras",hidden:true});
     otroIn.addEventListener("input",()=>{ otro=otroIn.value; });
     const listo=v=>{ resp[p.id]= p.tipo==="multi"? v : v; if(v==="otro") resp[p.id+"Otro"]=otro||undefined; siguiente(); };
-    const sig=el("button",{class:"btn primary",type:"button",onclick:()=>listo(sel)},"Siguiente");
+    const sig=el("button",{class:"btn primary",type:"button",onclick:()=>{ if(sel!=null) listo(sel); }}, p.confirmar||"Siguiente");
     const draw=()=>{ opts.replaceChildren(...p.opts.concat(p.otro? [["otro","Otro"]] : []).map(([v,t,d])=>{ const on = p.tipo==="multi"? sel.includes(v) : sel===v;
       return el("button",{type:"button",class:"choice"+(on?" on":""),"aria-pressed":String(on),onclick:()=>{
         if(p.tipo==="multi"){ sel = on? sel.filter(x=>x!==v) : sel.concat(v); draw(); return; }
-        sel=v; draw(); if(v==="otro"){ otroIn.hidden=false; otroIn.focus(); sig.hidden=false; return; } setTimeout(()=>listo(v),160); }},
+        sel=v; draw(); if(v==="otro"){ otroIn.hidden=false; otroIn.focus(); sig.hidden=false; return; }
+        if(p.confirmar){ sig.hidden=false; return; }   // se elige y se confirma con el botón («Guardar»)
+        setTimeout(()=>listo(v),160); }},
         t, d? el("span",{class:"choice-det"},d) : null); })); };
     draw(); sig.hidden = p.tipo!=="multi";
     sheet.replaceChildren(el("div",{class:"sheet-card preguntas"},
       el("div",{class:"onb-prog"}, el("i",{style:`width:${hechas/Math.max(total,1)*100}%`})),
-      el("div",{class:"eyebrow"},"Antes de guardar"), el("h2",{},p.titulo), p.sub? el("p",{class:"note"},p.sub) : null,
+      el("div",{class:"eyebrow"}, opc.eyebrow||"Antes de guardar"), el("h2",{},p.titulo), p.sub? el("p",{class:"note"},p.sub) : null,
       opts, otroIn,
-      el("div",{class:"row onb-nav"}, el("button",{class:"btn ghost",type:"button",onclick:()=>siguiente()},"Saltear"), sig)));
-    sheet.hidden=false;
+      el("div",{class:"row onb-nav"}, opc.cancelar? el("button",{class:"btn ghost",type:"button",onclick:cerrarSheet},"Cancelar")
+        : el("button",{class:"btn ghost",type:"button",onclick:()=>siguiente()},"Saltear"), sig)));
+    sheet.classList.toggle("pantalla", !!opc.pantalla); sheet.hidden=false;
   };
   siguiente();
 }
@@ -479,7 +482,7 @@ const marcasDe = resp => Object.fromEntries(Object.entries(resp).filter(([k])=>k
 function preguntarEmocion(onDone, marcasPend=[]){
   flujoPreguntas([...pasosMarcas(marcasPend), pasoHambre, pasoMotivo], resp=>{ guardarMarcas(marcasDe(resp)); onDone(emoDe(resp)); });
 }
-function cerrarSheet(){ $("#sheet").hidden=true; $("#sheet").replaceChildren(); }
+function cerrarSheet(){ $("#sheet").hidden=true; $("#sheet").classList.remove("pantalla"); $("#sheet").replaceChildren(); }
 
 // ==== RENDER: GENERAL ====
 function render(){
@@ -711,27 +714,30 @@ function movAlVolver(){ if(DB.cerradaDesde && Date.now()-DB.cerradaDesde>=MOV_VU
 function movHoyResumen(lista){
   const card=el("section",{class:"card tarjeta mov-hoy"}, el("h3",{},"Tu movimiento de hoy"),
     el("p",{style:"margin:0"}, "✓ "+lista.map(e=>`${ACT_TXT[e.tipo]||e.otro||"Actividad"} · ${e.min} min`).join(" · ")),
-    el("button",{class:"btn link",type:"button",onclick:()=>{ S.view="mov"; render(); window.scrollTo(0,0); }},"Anotar otra actividad en Movimiento"));
+    el("button",{class:"btn link",type:"button",onclick:anotarMovimiento},"Anotar otra actividad"));
   deslizable(card, ()=>{ DB.movResumenOculto=S.today; persist(); render(); });
   return card;
 }
+// Anotar movimiento: pantalla grande con el formato del cuestionario. Primero qué hizo (pasa sola a la siguiente),
+// después cuánto tiempo, con «Guardar» abajo.
+function anotarMovimiento(){
+  flujoPreguntas([
+    {id:"tipo", titulo:"¿Qué hiciste?", tipo:"single", otro:true, opts:ACT.map(([v,t])=>[v,t])},
+    {id:"min", titulo:"¿Cuánto tiempo?", tipo:"single", confirmar:"Guardar", opts:[["15","15 minutos"],["30","30 minutos"],["45","45 minutos"],["60","1 hora"],["90","1 hora y media"]]},
+  ], resp=>{ if(!resp.tipo || !resp.min) return; const min=+resp.min, met=ACT_MET[resp.tipo]||5;
+    addEjercicio({tipo:resp.tipo, otro: resp.tipo==="otro"? (resp.tipoOtro||"Otra actividad") : undefined, min, kcal:Math.round((met-1)*PLAN.peso*min/60)}); },
+  {eyebrow:"Movimiento", cancelar:true, pantalla:true});
+}
+// En Hoy: «¿Te moviste hoy?» con «Sí, anotar» o «Aún no». En Movimiento: lo de hoy y «Anotar actividad».
 function cardMovRapido(conAunNo){
-  const st={tipo:null, min:null, abierto:!conAunNo};
-  const box=el("section",{class:"card"});
-  const draw=()=>{ const hoy=day().ejercicio;
-    if(!st.abierto){   // en Hoy: primero la pregunta, con «Sí, anotar» o «Aún no»
-      box.replaceChildren(el("h3",{},"¿Te moviste hoy?"), el("div",{class:"row"},
-        el("button",{class:"btn small primary",type:"button",onclick:()=>{ st.abierto=true; draw(); }},"Sí, anotar"),
-        el("button",{class:"btn small ghost",type:"button",onclick:()=>{ DB.movAunNo=Date.now(); persist(); render(); }},"Aún no")));
-      return; }
-    box.replaceChildren(...[el("h3",{},"¿Te moviste hoy?"),
-      hoy.length? el("ul",{class:"log"}, hoy.map(e=>el("li",{}, el("div",{}, el("div",{},`${ACT_TXT[e.tipo]||e.otro||"Actividad"} · ${e.min} min`), PLAN.care?null:el("div",{class:"note"},`≈ ${nf(e.kcal)} kcal`)),
-        el("button",{class:"x",type:"button","aria-label":"Borrar actividad",onclick:()=>delEjercicio(e.id)},"×")))):null,
-      el("div",{class:"opts"}, ACT.map(([v,t])=>el("button",{type:"button",class:"opt"+(st.tipo===v?" on":""),onclick:()=>{st.tipo=v; draw();}},t)), el("button",{type:"button",class:"opt"+(st.tipo==="otro"?" on":""),onclick:()=>{st.tipo="otro"; draw();}},"Otro")),
-      st.tipo? el("div",{class:"opts",style:"margin-top:8px"}, [15,30,45,60].map(m=>el("button",{type:"button",class:"opt"+(st.min===m?" on":""),onclick:()=>{st.min=m; draw();}},m+" min"))) : null,
-      st.tipo && st.min? el("button",{class:"btn small primary",type:"button",style:"margin-top:10px",onclick:()=>{ const met=ACT_MET[st.tipo]||5; addEjercicio({tipo:st.tipo, min:st.min, kcal:Math.round((met-1)*PLAN.peso*st.min/60)}); }},"Guardar") : null].filter(Boolean));
-  };
-  draw(); return box;
+  const hoy=day().ejercicio;
+  if(conAunNo) return el("section",{class:"card"}, el("h3",{},"¿Te moviste hoy?"), el("div",{class:"row"},
+    el("button",{class:"btn small primary",type:"button",onclick:anotarMovimiento},"Sí, anotar"),
+    el("button",{class:"btn small ghost",type:"button",onclick:()=>{ DB.movAunNo=Date.now(); persist(); render(); }},"Aún no")));
+  return el("section",{class:"card"}, el("h3",{},"Hoy"),
+    hoy.length? el("ul",{class:"log"}, hoy.map(e=>el("li",{}, el("div",{}, el("div",{},`${ACT_TXT[e.tipo]||e.otro||"Actividad"} · ${e.min} min`), PLAN.care?null:el("div",{class:"note"},`≈ ${nf(e.kcal)} kcal`)),
+      el("button",{class:"x",type:"button","aria-label":"Borrar actividad",onclick:()=>delEjercicio(e.id)},"×")))) : el("p",{class:"note",style:"margin:0"},"Todavía no anotaste movimiento hoy."),
+    el("button",{class:"btn small primary",type:"button",style:"margin-top:10px",onclick:anotarMovimiento},"Anotar actividad"));
 }
 function semanaMov(){ let min=0, fuerza=0; for(const k of last7()){ for(const e of (DB.dias[k]?.ejercicio||[])){ if(e.tipo==="fuerza") fuerza++; else min+=e.min; }
   for(const e of (saludDia(k)?.entrenos||[])){ if(/fuerza|pesas|strength/i.test(e.tipo)) fuerza++; else min+=e.min||0; } } return {min, fuerza}; }
