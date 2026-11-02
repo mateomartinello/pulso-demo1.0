@@ -93,6 +93,18 @@ const CASOS = [
   ["galletitas 1½ unidades",                {kcal:[50,90]}],
   ["wok de pollo con verduras",             {kcal:[360,480], verd:[1,2]}],
   ["sorrentinos con crema",                 {kcal:[700,850]}],
+  // Frases reales de «Comer mejor» (versión 0.7.2)
+  ["Media pizza grande de queso y jamón.",  {kcal:[1100,1400], prot:[45,65]}],
+  ["Milanesa de carne grande (300g)",       {kcal:[700,860]}],
+  ["Palitos sabor queso Pehuamar 165 g",    {kcal:[760,880]}],
+  ["Papas fritas (2 paquetes de 65 g c/u), con Coca Zero.", {kcal:[640,760]}],
+  ["Dos rapiditas comunes, con queso, tomate, y lechuga. Con una Tita de postre.", {kcal:[480,640]}],
+  ["Dos tostadas integrales con palta (una entera para las dos tostadas de 150g), con queso crema. Con cafe (260g de cafe americano)", {kcal:[430,560]}],
+  ["Tres galletitas Cerealitas Clásicas, con queso crema, y una banana.", {kcal:[210,290], fruta:[1,1]}],
+  ["Milanesa de pollo 100g con ensalada de lechuga y tomates cherry condimentado con aceite de oliva y sal, con dos huevos hervidos.", {kcal:[460,580]}],
+  ["Milanesa de pollo 100g con un huevo hervido, más una ensalada de un tomate y lechuga, con aceite de oliva. Con Fanta común.", {kcal:[540,640]}],
+  ["una palta entera",                      {kcal:[220,260]}],
+  ["2 paquetes de 65 g de papas fritas",    {kcal:[640,760]}],
 ];
 let fallas=0;
 for(const [frase, esp] of CASOS){

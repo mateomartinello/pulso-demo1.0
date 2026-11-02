@@ -1,0 +1,17 @@
+{
+  "id": "./",
+  "name": "Pulso",
+  "short_name": "Pulso",
+  "description": "Comer, moverte y descansar mejor, con un plan hecho para vos.",
+  "lang": "es-AR",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F5F0E8",
+  "theme_color": "#F5F0E8",
+  "icons": [
+    {"src": "iconos/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "iconos/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "iconos/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}
