@@ -534,12 +534,30 @@ function flujoPreguntas(pasos, alTerminar, opc={}){
         if(p.confirmar){ sig.hidden=false; return; }   // se elige y se confirma con el botón («Guardar»)
         setTimeout(()=>listo(v),160); }},
         t, d? el("span",{class:"choice-det"},d) : null); })); };
-    draw(); sig.hidden = p.tipo!=="multi";
+    let campo=null;
+    if(p.tipo==="numero"){   // número con el teclado numérico y, si hay, la unidad abajo («Minutos» o «Kilómetros»)
+      let unidad=p.unidades? null : "";
+      const inp=el("input",{type:"text",inputmode:"decimal",id:"preg-num",autocomplete:"off",placeholder:p.placeholder||"",class:"num-grande","aria-label":p.titulo});
+      const valor=()=>{ const v=parseFloat(inp.value.replace(",",".")); return v>0? v : null; };
+      const rango=u=>(p.rangos||{})[u||"_"]||[0.1,1000];
+      const valido=()=>{ const v=valor(); if(v==null || unidad==null) return false; const [mn,mx]=rango(unidad); return v>=mn && v<=mx; };
+      const act=()=>{ sig.disabled=!valido(); if(p.etiqueta) sig.textContent=p.etiqueta(unidad); };
+      inp.addEventListener("input",act);
+      const unis=el("div",{class:"choices unidades"});
+      const drawU=()=>unis.replaceChildren(...(p.unidades||[]).map(([v,t])=>el("button",{type:"button",class:"choice"+(unidad===v?" on":""),"aria-pressed":String(unidad===v),
+        onclick:()=>{ unidad=v; drawU(); act(); }}, t)));
+      drawU();
+      sig.onclick=()=>{ if(!valido()) return; resp[p.id]=valor(); if(p.unidades) resp[p.id+"Unidad"]=unidad; siguiente(); };
+      campo=el("div",{class:"stack",style:"gap:12px"}, inp, p.unidades? unis : null);
+      setTimeout(()=>inp.focus(),50); act();
+    }
+    else draw();
+    sig.hidden = p.tipo!=="multi" && p.tipo!=="numero";
     sheet.replaceChildren(el("div",{class:"sheet-card preguntas"},
       el("div",{class:"onb-prog"}, el("i",{style:`width:${hechas/Math.max(total,1)*100}%`})),
       el("div",{class:"eyebrow"}, opc.eyebrow||"Antes de guardar"), el("h2",{},p.titulo), p.sub? el("p",{class:"note"},p.sub) : null,
-      opts, otroIn,
-      el("div",{class:"row onb-nav"}, opc.cancelar? el("button",{class:"btn ghost",type:"button",onclick:cerrarSheet},"Cancelar")
+      campo || opts, campo? null : otroIn,
+      el("div",{class:"row onb-nav"}, opc.cancelar && !p.saltable? el("button",{class:"btn ghost",type:"button",onclick:cerrarSheet},"Cancelar")
         : el("button",{class:"btn ghost",type:"button",onclick:()=>siguiente()},"Saltear"), sig)));
     sheet.classList.toggle("pantalla", !!opc.pantalla); sheet.hidden=false;
   };
@@ -804,23 +822,37 @@ function movAlVolver(){ if(DB.cerradaDesde && Date.now()-DB.cerradaDesde>=MOV_VU
 // Movimiento ya anotado hoy: lo registrado y el enlace para anotar otra actividad. Deslizarla hacia un costado la saca por el resto del día.
 function movHoyResumen(lista, borrar){
   const card=el("section",{class:"card tarjeta mov-hoy"}, el("h3",{},"Tu movimiento de hoy"),
-    borrar? el("ul",{class:"log"}, lista.map(e=>el("li",{}, el("div",{},"✓ "+`${ACT_TXT[e.tipo]||e.otro||"Actividad"} · ${e.min} min`),
+    borrar? el("ul",{class:"log"}, lista.map(e=>el("li",{}, el("div",{},"✓ "+movTxt(e)),
         el("button",{class:"x",type:"button","aria-label":"Borrar actividad",onclick:()=>delEjercicio(e.id)},"×"))))
-      : el("p",{style:"margin:0"}, "✓ "+lista.map(e=>`${ACT_TXT[e.tipo]||e.otro||"Actividad"} · ${e.min} min`).join(" · ")),
+      : el("p",{style:"margin:0"}, "✓ "+lista.map(movTxt).join(" · ")),
     el("button",{class:"btn link",type:"button",onclick:anotarMovimiento},"Anotar otra actividad"));
   if(!borrar) deslizable(card, ()=>{ DB.movResumenOculto=S.today; persist(); render(); });   // en Hoy se puede sacar; en Movimiento queda fija
   return card;
 }
 // Anotar movimiento: pantalla grande con el formato del cuestionario. Primero qué hizo (pasa sola a la siguiente),
 // después cuánto tiempo, con «Guardar» abajo.
+// Correr se anota en minutos o en kilómetros (con el tiempo, si lo sabe); el resto, con opciones de tiempo.
+const MIN_POR_KM=6;
 function anotarMovimiento(){
+  const pasoMin={id:"min", titulo:"¿Cuánto tiempo?", tipo:"single", confirmar:"Guardar", opts:[["15","15 minutos"],["30","30 minutos"],["45","45 minutos"],["60","1 hora"],["90","1 hora y media"]]};
+  const pasoCorrer={id:"cuanto", titulo:"¿Cuánto corriste?", tipo:"numero", placeholder:"Ej.: 30", unidades:[["min","Minutos"],["km","Kilómetros"]],
+    rangos:{min:[1,600], km:[0.1,100]}, etiqueta:u=>u==="km"? "Siguiente" : "Guardar"};
+  const pasoTardaste={id:"tardaste", titulo:"¿Cuánto tardaste?", sub:"En minutos. Si no lo sabés, salteá: se calcula a 6 minutos por kilómetro.", tipo:"numero",
+    placeholder:"Ej.: 28", rangos:{_:[1,600]}, saltable:true, etiqueta:()=>"Guardar"};
   flujoPreguntas([
     {id:"tipo", titulo:"¿Qué hiciste?", tipo:"single", otro:true, opts:ACT.map(([v,t])=>[v,t])},
-    {id:"min", titulo:"¿Cuánto tiempo?", tipo:"single", confirmar:"Guardar", opts:[["15","15 minutos"],["30","30 minutos"],["45","45 minutos"],["60","1 hora"],["90","1 hora y media"]]},
-  ], resp=>{ if(!resp.tipo || !resp.min) return; const min=+resp.min, met=ACT_MET[resp.tipo]||5;
+    {dyn: r=> r.tipo==="correr"? [pasoCorrer, {dyn: r2=> r2.cuantoUnidad==="km"? [pasoTardaste] : []}] : [pasoMin]},
+  ], resp=>{ if(!resp.tipo) return; const met=ACT_MET[resp.tipo]||5;
+    if(resp.tipo==="correr" && resp.cuanto){
+      if(resp.cuantoUnidad==="km"){ const km=Math.round(resp.cuanto*10)/10, min=Math.round(resp.tardaste || km*MIN_POR_KM);
+        addEjercicio({tipo:"correr", km, min, kcal:Math.round(PLAN.peso*km)}); }   // correr: ≈ 1 kcal por kilo y por km
+      else { const min=Math.round(resp.cuanto); addEjercicio({tipo:"correr", min, kcal:Math.round((met-1)*PLAN.peso*min/60)}); }
+      return; }
+    if(!resp.min) return; const min=+resp.min;
     addEjercicio({tipo:resp.tipo, otro: resp.tipo==="otro"? (resp.tipoOtro||"Otra actividad") : undefined, min, kcal:Math.round((met-1)*PLAN.peso*min/60)}); },
   {eyebrow:"Movimiento", cancelar:true, pantalla:true});
 }
+const movTxt = e => `${ACT_TXT[e.tipo]||e.otro||"Actividad"}${e.km? ` · ${nf(e.km,1)} km` : ""} · ${e.min} min`;
 // «¿Te moviste hoy?» con «Sí, anotar» o «Aún no» (en Hoy y en Movimiento).
 function cardMovRapido(){
   return el("section",{class:"card"}, el("h3",{},"¿Te moviste hoy?"), el("div",{class:"row"},
@@ -829,7 +861,7 @@ function cardMovRapido(){
 }
 function semanaMov(){ let min=0, fuerza=0; for(const k of last7()){ for(const e of (DB.dias[k]?.ejercicio||[])){ if(e.tipo==="fuerza") fuerza++; else min+=e.min; }
   for(const e of (saludDia(k)?.entrenos||[])){ if(/fuerza|pesas|strength/i.test(e.tipo)) fuerza++; else min+=e.min||0; } } return {min, fuerza}; }
-function movDia(k){ return (DB.dias[k]?.ejercicio||[]).map(e=>`${ACT_TXT[e.tipo]||e.otro||"Actividad"} · ${e.min} min`).concat((saludDia(k)?.entrenos||[]).map(e=>`${e.tipo} · ${e.min} min (desde Salud)`)); }
+function movDia(k){ return (DB.dias[k]?.ejercicio||[]).map(movTxt).concat((saludDia(k)?.entrenos||[]).map(e=>`${e.tipo} · ${e.min} min (desde Salud)`)); }
 function renderMov(){
   const box=$("#v-mov"); box.replaceChildren();
   const s=semanaMov(), dias=last7().slice().reverse().filter(k=>movDia(k).length || saludDia(k)?.pasos!=null);
