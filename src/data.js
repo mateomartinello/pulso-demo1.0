@@ -48,6 +48,7 @@ const ING = {
   mandarina:   {n:"Mandarina", k:53, p:0.8, f:1.8, hc:11, gr:0.3, fruta:true, vitC:true, u:100, uN:"mandarina"},
   kiwi:        {n:"Kiwi", k:61, p:1.1, f:3, hc:11.5, gr:0.5, fruta:true, vitC:true, u:75, uN:"kiwi"},
   frutillas:   {n:"Frutillas", k:32, p:0.7, f:2, hc:5.7, gr:0.3, fruta:true, vitC:true},
+  pomelo:      {n:"Pomelo", k:42, p:0.8, f:1.6, hc:8.4, gr:0.1, fruta:true, vitC:true},
   nueces:      {n:"Nueces", k:654, p:15, f:6.7, hc:7, gr:65, nuez:true, g:["nuez"]},
   almendras:   {n:"Almendras", k:579, p:21, f:12.5, hc:9.5, gr:50, nuez:true, g:["nuez"]},
   mani:        {n:"Maní tostado sin sal", k:585, p:24, f:8, hc:13, gr:49, nuez:true, g:["mani","nuez"]},
@@ -215,6 +216,24 @@ const RECETAS = [
   {id:"n6", s:"p", n:"Ensalada de garbanzos con huevo, tomate y zanahoria", t:12, cost:1, eq:["hornalla"], tipo:"ensaladas",
    i:[["garbanzos",150,1],["huevo",100,1],["tomate",120],["zanahoria",60],["lechuga",40],["aceite",10,1]],
    pasos:["Herví los huevos 10 min.","Mezclá los garbanzos escurridos con el tomate en cubos, la zanahoria rallada y la lechuga.","Sumá los huevos en cuartos; aceite, limón y sal."]},
+
+  // ---- Del recetario de «Cocina de Mateo» (02/11/2026) ----
+  {id:"n7", s:"p", n:"Milanesa de carne con ensalada mixta y pan integral", t:25, cost:2, eq:["horno|freidora"], tipo:"milanesas",
+   i:[["vacuna",100,1],["panRallado",35,1],["huevo",25,1],["pan",76,1],["lechuga",60],["tomate",150],["zanahoria",60],["aceite",15,1]],
+   pasos:["Pasá la carne fileteada por huevo batido y pan rallado; freidora de aire o horno a 200 °C, 10 min, dándola vuelta a mitad.","Ensalada de lechuga, tomate y zanahoria rallada con aceite y limón.","Acompañá con dos rebanadas de pan integral."]},
+  {id:"n8", s:"d", n:"Rapiditas integrales con queso y tomate, y una mandarina", t:8, cost:1, eq:["horno|freidora"], tipo:"tostadas",
+   i:[["rapiditaInt",80,1],["quesoCrem",50,1],["tomate",80],["mandarina",100]], pasos:["Queso y tomate sobre las rapiditas; freidora de aire u horno a 180 °C, 4–5 min, hasta que el queso se derrita.","De postre, una mandarina."]},
+  {id:"n9", s:"d", n:"Tostadas integrales con queso untable, tomate y huevo, y una naranja", t:12, cost:1, eq:["hornalla"], tipo:"tostadas",
+   i:[["pan",76,1],["quesoUnt",40,1],["tomate",80],["huevo",50,1],["naranja",180]], pasos:["Herví el huevo 10 min.","Tostá el pan, untá el queso y sumá el tomate en rodajas y el huevo en láminas.","De postre, una naranja."]},
+  {id:"n10", s:"d", n:"Yogur natural con frutillas y nueces, y tostada con queso", t:5, cost:2, eq:[], tipo:"yogur",
+   i:[["yogNat",200,1],["frutillas",150],["nueces",15],["pan",38,1],["quesoUnt",20,1]], pasos:["Frutillas cortadas y nueces sobre el yogur.","Una tostada integral con queso untable."]},
+  {id:"n11", s:"d", n:"Yogur griego con banana y almendras", t:2, cost:2, eq:[], tipo:"yogur",
+   i:[["yogGriego",200,1],["banana",120],["almendras",20]], pasos:["Cortá la banana sobre el yogur y sumá las almendras."]},
+  {id:"n12", s:"c", n:"Pera y maní", t:0, cost:1, eq:[], i:[["pera",180],["mani",20,1]], pasos:["Un puñado chico de maní tostado sin sal."]},
+  {id:"n13", s:"c", n:"Pomelo y almendras", t:0, cost:2, eq:[], i:[["pomelo",250],["almendras",15,1]], pasos:["Medio pomelo grande, con cuchara; las almendras aparte."]},
+  {id:"n14", s:"c", n:"Manzana y chocolate 70%", t:0, cost:1, eq:[], i:[["manzana",180],["choco70",20,1]], pasos:["Dos o tres cuadraditos de chocolate con 70% de cacao o más."]},
+  {id:"n15", s:"c", n:"Naranja y chocolate 70%", t:0, cost:1, eq:[], i:[["naranja",180],["choco70",20,1]], pasos:["Pelala o llevala en gajos; dos o tres cuadraditos de chocolate."]},
+  {id:"n16", s:"c", n:"Dos mandarinas y nueces", t:0, cost:2, eq:[], i:[["mandarina",200],["nueces",20,1]], pasos:["Fáciles de llevar y pelar en cualquier lado."]},
 ];
 
 // Energía por momento del día según la estructura elegida (proporción del total)
@@ -297,7 +316,7 @@ const MARCAS = {
 
 // Dificultad de cada receta: 1 básica (armar o hervir) · 2 intermedia (plancha, horno, salteados) · 3 más elaborada (milanesas, tortilla).
 // Se cruza con el nivel que surge de «¿Qué te sale bien sin mirar una receta?».
-const DIFICULTAD = {d14:2, p1:3, p3:2, p4:2, p5:2, p6:2, p7:2, p9:2, p10:2, p12:2, p13:3, p14:2, p16:2, p17:2, p20:2, n1:2, n2:3, n4:2};
+const DIFICULTAD = {n7:2, d14:2, p1:3, p3:2, p4:2, p5:2, p6:2, p7:2, p9:2, p10:2, p12:2, p13:3, p14:2, p16:2, p17:2, p20:2, n1:2, n2:3, n4:2};
 for(const r of RECETAS) r.dif = DIFICULTAD[r.id] || 1;
 
 // ==== MEDIDAS CASERAS de los ingredientes (las recetas no muestran gramos) ====
@@ -314,7 +333,7 @@ const CASERA = {
   lechuga:[40,"puñado","puñados"], rucula:[20,"puñado","puñados"], espinaca:[30,"puñado","puñados"], zanahoria:[80,"zanahoria","zanahorias"],
   remolacha:[100,"remolacha chica","remolachas chicas"], zapallo:[150,"taza en cubos","tazas en cubos"], zucchini:[200,"zucchini","zucchinis"],
   morron:[150,"morrón","morrones"], cebolla:[120,"cebolla","cebollas"], palta:[140,"palta","paltas"],
-  frutillas:[150,"taza","tazas"], nueces:[30,"puñado","puñados"], almendras:[30,"puñado","puñados"], mani:[30,"puñado","puñados"],
+  frutillas:[150,"taza","tazas"], pomelo:[250,"medio pomelo grande","medios pomelos grandes",1], nueces:[30,"puñado","puñados"], almendras:[30,"puñado","puñados"], mani:[30,"puñado","puñados"],
   mantMani:[15,"cucharada","cucharadas"], choco70:[7,"cuadradito","cuadraditos",1], aceite:[13,"cucharada","cucharadas"],
   miel:[7,"cucharadita","cucharaditas"], aceitunas:[4,"aceituna","aceitunas",1],
 };

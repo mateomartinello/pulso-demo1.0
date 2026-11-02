@@ -92,7 +92,8 @@ persist();
 function ans(id){ return DB.perfil?.resp?.[id]; }
 function has(id,v){ const a=ans(id); return Array.isArray(a)? a.includes(v) : a===v; }
 function calcPlan(p){
-  const r=p.resp; const edad=+r.cuerpo?.edad||25, alt=+r.cuerpo?.altura||170, peso=+r.cuerpo?.peso||70;
+  // planFijo: perfil cargado sin cuestionario (por ejemplo, traído de otra app): calorías, proteína y horarios propios.
+  const r=p.resp, fijo=r.planFijo||{}; const edad=+r.cuerpo?.edad||25, alt=+r.cuerpo?.altura||170, peso=+r.cuerpo?.peso||+fijo.peso||70;
   // Modo cuidado (menores de 18 o relación difícil con la comida): la app no muestra calorías. Todo lo demás es igual.
   const care = edad<18 || r.relacion==="control" || r.relacion==="tca";
   const s = r.sexo==="h"? 5 : r.sexo==="m"? -161 : -78;
@@ -104,6 +105,7 @@ function calcPlan(p){
   if(bajar && !ganar) kcal = Math.max(kcal*0.85, bmr*1.1);
   if(ganar && !bajar) kcal *= 1.10;
   kcal = Math.round(kcal/50)*50;
+  if(fijo.kcal) kcal = +fijo.kcal;
   const protKg = (bajar||ganar) ? 1.6 : 1.0;
   const excl = new Set();
   const pat=r.patron;
@@ -115,18 +117,25 @@ function calcPlan(p){
   let eq = new Set((r.equipo||[]).filter(x=>x!=="otro")); if(!eq.size) eq=new Set(["hornalla"]);
   const tmax = r.tiempo==="15"?15 : r.tiempo==="30"?30 : r.tiempo==="60"?60 : r.tiempo==="tandas"?60 : 40;
   const hm=h=>Math.floor(h)+":"+pad(Math.round((h%1)*60));
-  const {slots, horas} = armarComidas(comidasDe(r), +r.hAlm || 13, +r.hCen || 21, hm);
+  const {slots, horas} = fijo.horarios? comidasFijas(fijo) : armarComidas(comidasDe(r), +r.hAlm || 13, +r.hCen || 21, hm);
   const hE=HORA_ENTRENO[r.entreno];
   if(hE){ horas.pre=hm(hE-1.5); horas.post=hm(hE+1.5); }   // antes: 1 h 30 min antes; después: al terminar (se supone 1 h de entreno)
   const habil=(r.cocina||[]).filter(x=>x!=="ninguna").length;
   const nivel = !r.cocina ? 3 : habil<=1 ? 1 : habil<=3 ? 2 : 3;   // recetas: 1 básicas · 2 intermedias · 3 todas
   const repetir = {repito:1, roto:3, nuevo:6}[r.variedad] || 3;     // días antes de volver a sugerir una receta
-  return { care, edad, peso, kcal, prot:Math.round(peso*protKg), excl, eq, tmax, slots, horas, nivel, repetir, entrenoDias: hE? (r.entrenoDias||[]) : [],
+  return { care, edad, peso, kcal, prot: fijo.prot? +fijo.prot : Math.round(peso*protKg), excl, noIng:new Set(r.noIng||[]), fijo:!!fijo.kcal, eq, tmax, slots, horas, nivel, repetir, entrenoDias: hE? (r.entrenoDias||[]) : [],
     pan: PANES[DB.marcas?.pan] || PANES[r.pan] || PANES.generico, sinLactosa:(r.restric||[]).includes("lactosa"),
     metas:{grasaMin:Math.round(kcal*0.2/9), frutas:2, verduras:3, integrales:excl.has("gluten")?2:3, nueces:excl.has("nuez")?0:1, movMin:150, fuerza:2, sueno:7},
     flex: pat==="flex", budget:r.presupuesto, platos:r.platos||[], prefMov:(r.mov||[]).filter(x=>x!=="otro") };
 }
 let PLAN = null;
+// Momentos del día de un plan fijo: {horarios:{col:"9:30", alm:"13:00", …}, reparto:{col:300, alm:750, …}}.
+function comidasFijas(f){
+  const hr=k=>{ const [a,b]=f.horarios[k].split(":").map(Number); return a+b/60; };
+  const ks=Object.keys(f.horarios).filter(k=>SLOTDEF[k]).sort((a,b)=>hr(a)-hr(b));
+  const peso=k=>+(f.reparto||{})[k] || PESO_COMIDA[k] || .1, total=ks.reduce((t,k)=>t+peso(k),0);
+  return {slots: ks.map(k=>[k, peso(k)/total]), horas: Object.fromEntries(ks.map(k=>[k, f.horarios[k]]))};
+}
 // Momentos del día a partir de las comidas marcadas. Si marcó «snacks»: colaciones en los huecos de más de 4 h (máx. 2, las de más espacio)
 // o, si no hay huecos así, una en el hueco más largo. Reparto de energía proporcional a estos pesos.
 const PESO_COMIDA = {des:.20, alm:.35, mer:.15, cen:.30, col:.08, col2:.08};
@@ -169,7 +178,7 @@ function nutr(rec, factor){
 }
 function usable(rec){
   if(!PLAN) return true;
-  for(const [id] of rec.i){ const x=ING[id]; if(id==="pan" && PLAN.excl.has("pan")) return false; for(const g of (x.g||[])) if(PLAN.excl.has(g)) return false; }
+  for(const [id] of rec.i){ const x=ING[id]; if(PLAN.noIng.has(id)) return false; if(id==="pan" && PLAN.excl.has("pan")) return false; for(const g of (x.g||[])) if(PLAN.excl.has(g)) return false; }
   for(const req of rec.eq){ if(!req.split("|").some(e=>PLAN.eq.has(e))) return false; }
   if(rec.t>PLAN.tmax) return false;
   if((rec.dif||1)>PLAN.nivel) return false;   // según lo que le sale bien cocinar
@@ -938,13 +947,27 @@ function seccionPlan(){
     const inp=el("input",{type:"number",id:"plan-"+k,inputmode:"decimal",min:String(mn),max:String(mx),value:c[k]??""});
     return [k,mn,mx,inp, el("label",{class:"num",for:"plan-"+k}, el("span",{},lab), el("span",{class:"numrow"}, inp, el("small",{},un)))]; });
   const guardar=()=>{ const nuevo={...c}; for(const [k,mn,mx,inp] of campos){ const v=+inp.value; if(!(v>=mn && v<=mx)){ msg.textContent="Revisá los valores: alguno está fuera de rango."; inp.focus(); return; } nuevo[k]=inp.value; }
-    DB.perfil.resp.cuerpo=nuevo; DB.perfil.actualizado=new Date().toISOString(); persist(); enviar("perfil", perfilCompartible()); respaldoPronto(true); render(); };
+    DB.perfil.resp.cuerpo=nuevo;
+    const f=DB.perfil.resp.planFijo; if(f){ delete f.kcal; delete f.prot; }   // con datos físicos, Pulso pasa a calcular calorías y proteína
+    DB.perfil.actualizado=new Date().toISOString(); persist(); enviar("perfil", perfilCompartible()); respaldoPronto(true); render(); };
+  // Plan fijo (perfil cargado sin cuestionario): calorías y proteína se editan acá.
+  const fijos = P.fijo? (()=>{ const f=DB.perfil.resp.planFijo, m2=el("p",{class:"note",role:"status",style:"margin:8px 0 0"});
+    const k=el("input",{type:"number",id:"plan-kcal",inputmode:"numeric",min:"1200",max:"5000",value:f.kcal}), pr=el("input",{type:"number",id:"plan-prot",inputmode:"numeric",min:"30",max:"300",value:f.prot});
+    const ok=()=>{ if(!(+k.value>=1200 && +k.value<=5000)){ m2.textContent="Las calorías tienen que estar entre 1.200 y 5.000."; k.focus(); return; }
+      if(!(+pr.value>=30 && +pr.value<=300)){ m2.textContent="La proteína tiene que estar entre 30 y 300 g."; pr.focus(); return; }
+      f.kcal=Math.round(+k.value); f.prot=Math.round(+pr.value); DB.perfil.actualizado=new Date().toISOString(); persist(); enviar("perfil", perfilCompartible()); respaldoPronto(true); render(); };
+    return el("section",{class:"card"}, el("h3",{},"Tus valores"),
+      el("div",{class:"nums"}, el("label",{class:"num",for:"plan-kcal"}, el("span",{},"Energía por día"), el("span",{class:"numrow"}, k, el("small",{},"kcal"))),
+        el("label",{class:"num",for:"plan-prot"}, el("span",{},"Proteína mínima"), el("span",{class:"numrow"}, pr, el("small",{},"g")))),
+      el("button",{class:"btn small primary",type:"button",style:"margin-top:12px",onclick:ok},"Guardar"), m2); })() : null;
   return [
     el("section",{class:"card hero"}, el("div",{class:"label"},"Tu plan"),
       el("div",{class:"meta",style:"margin-top:8px"}, P.care? null : el("span",{},el("b",{},nf(P.kcal))," kcal por día de referencia"), el("span",{},el("b",{},nf(P.prot))," g de proteína como mínimo")),
       el("div",{class:"meta",style:"margin-top:8px"}, ...slotsHoy().map(([k])=>el("span",{},`${SLOTDEF[k].n} ${P.horas[k]} h`))),
       cicloInfo()? el("p",{class:"note",style:"margin:10px 0 0"},`Tu ciclo: próximo período estimado el ${keyDate(cicloInfo().proximo).toLocaleDateString("es-AR",{day:"numeric",month:"long"})}.`) : null,
-      el("p",{class:"note",style:"margin:10px 0 0"},"La energía se estima con la ecuación de Mifflin-St Jeor y tu nivel de actividad. Es una referencia: si tu peso cambia, actualizá tus datos.")),
+      el("p",{class:"note",style:"margin:10px 0 0"}, P.fijo? "Calorías y proteína fijas, traídas de tu plan anterior. Podés cambiarlas acá abajo o, si cargás tus datos físicos, Pulso las calcula."
+        : "La energía se estima con la ecuación de Mifflin-St Jeor y tu nivel de actividad. Es una referencia: si tu peso cambia, actualizá tus datos.")),
+    fijos,
     el("section",{class:"card"}, el("h3",{},"Tus datos físicos"), el("div",{class:"nums"}, campos.map(x=>x[4])),
       el("button",{class:"btn small primary",type:"button",style:"margin-top:12px",onclick:guardar},"Guardar"), msg)];
 }
@@ -1110,7 +1133,8 @@ function renderConsent(box){
 function finalizarCuestionario(){
   const ahora=new Date().toISOString();
   const tiempos=Object.fromEntries(Object.entries(ONB.tiempos).map(([k,v])=>[k, Math.round(v/100)/10]));
-  DB.perfil={resp:ONB.draft||DB.perfil.resp, completo:true, actualizado:ahora, creado:DB.perfil?.creado||ahora, tiempos};
+  const draft = ONB.draft && Object.keys(ONB.draft).length? ONB.draft : null;   // un borrador vacío no pisa un perfil ya cargado
+  DB.perfil={resp:draft||DB.perfil.resp, completo:true, actualizado:ahora, creado:DB.perfil?.creado||ahora, tiempos};
   if(!DB.consent?.acepta) DB.consent={acepta:true, share:true, fecha:ahora, version:CONFIG.APP_VERSION};
   ONB.draft=null; ONB.i=-1; ONB.tiempos={}; S.view="hoy"; S.slot=null; persist();
   enviar("perfil", perfilCompartible());
