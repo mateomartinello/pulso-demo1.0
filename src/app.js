@@ -213,6 +213,8 @@ function totals(comidas){
 }
 function last7(){ return Array.from({length:7},(_,i)=>keyShift(S.today,i-6)); }
 function weekCount(field){ let n=0; for(const k of last7()) for(const c of (DB.dias[k]?.comidas||[])) if(c[field]) n++; return n; }
+// Sin crear el día si no existe (para sumar la semana).
+function kcalQuemadas(k){ return (DB.dias[k]?.ejercicio||[]).reduce((a,e)=>a+(e.kcal||0),0) + (saludDia(k)?.entrenos||[]).reduce((a,e)=>a+(e.kcal||0),0); }
 function exKcal(k){ return (day(k).ejercicio||[]).reduce((a,e)=>a+(e.kcal||0),0) + (saludDia(k||S.today)?.entrenos||[]).reduce((a,e)=>a+(e.kcal||0),0); }
 function target(){ return PLAN.kcal + exKcal(); }
 // Meta de carbohidratos: lo que completa las calorías del día después de la proteína y de las grasas al 30 %.
@@ -866,18 +868,23 @@ function renderMov(){
   const box=$("#v-mov"); box.replaceChildren();
   const s=semanaMov(), dias=last7().slice().reverse().filter(k=>movDia(k).length || saludDia(k)?.pasos!=null);
   const pasos=last7().map(k=>saludDia(k)?.pasos).filter(x=>x!=null);
+  // calorías quemadas (lo anotado y lo que llega de Salud); en modo cuidado no se muestran
+  const kcalBox=(k,v,sub)=>el("div",{class:"pi ancho"}, el("div",{class:"k"},k), el("div",{class:"v"},nf(v),el("small",{}," kcal")), sub? el("div",{class:"note"},sub) : null);
+  const hoyTxt=cap(keyDate(S.today).toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long"}).replace(",",""));
   box.append(
+    tarjetaMovimiento(),
     el("div",{class:"prog"},
       el("div",{class:"pi"}, el("div",{class:"k"},"Actividad aeróbica · 7 días"), el("div",{class:"v"},nf(s.min),el("small",{}," min"))),
       el("div",{class:"pi"}, el("div",{class:"k"},"Sesiones de fuerza · 7 días"), el("div",{class:"v"},s.fuerza)),
-      pasos.length? el("div",{class:"pi"}, el("div",{class:"k"},"Pasos por día · promedio"), el("div",{class:"v"},nf(pasos.reduce((a,b)=>a+b,0)/pasos.length))) : null),
+      pasos.length? el("div",{class:"pi"}, el("div",{class:"k"},"Pasos por día · promedio"), el("div",{class:"v"},nf(pasos.reduce((a,b)=>a+b,0)/pasos.length))) : null,
+      PLAN.care? null : kcalBox("Calorías quemadas hoy", kcalQuemadas(S.today), hoyTxt),
+      PLAN.care? null : kcalBox("Calorías quemadas en la semana", last7().reduce((t,k)=>t+kcalQuemadas(k),0), "Últimos 7 días")),
     el("section",{class:"card"}, el("h3",{},"Lo que registraste esta semana"),
       dias.length? el("ul",{class:"log"}, dias.map(k=>el("li",{}, el("div",{},
         el("div",{class:"s"}, cap(keyDate(k).toLocaleDateString("es-AR",{weekday:"long",day:"numeric"}))+(k===S.today?" · hoy":"")),
         movDia(k).length? el("div",{}, movDia(k).join(" · ")) : null,
         saludDia(k)?.pasos!=null? el("div",{class:"note"}, `${nf(saludDia(k).pasos)} pasos`) : null))))
-        : el("p",{class:"note",style:"margin:0"},"Todavía no registraste actividad en los últimos 7 días.")),
-    tarjetaMovimiento());
+        : el("p",{class:"note",style:"margin:0"},"Todavía no registraste actividad en los últimos 7 días.")));
 }
 // La misma tarjeta que en Hoy: «¿Te moviste hoy?» con «Sí, anotar» / «Aún no», o lo anotado hoy con «Anotar otra actividad».
 // En Movimiento siempre se ve lo anotado (con × para borrar), aunque en Hoy se haya deslizado.
