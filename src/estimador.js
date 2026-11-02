@@ -500,7 +500,7 @@ const ESTIMADOR = (function(){
       if(i>0 && isNum(T[i-1]) && items.length){
         // "3 empanadas de carne y 2 de pollo": primero probar con el plato anterior
         const h=items[items.length-1].head; const alt=(BYFIRST.get(h)||[]).find(a=> a.tk.length>1 && i+a.tk.length-1<=T.length && a.tk.slice(1).every((t,j)=>T[i+j].t===t && !used[i+j]));
-        if(alt && (!hit || alt.tk.length-1>=hit.tk.length)){ const end=i+alt.tk.length-1; for(let j=i;j<end;j++) used[j]=true; items.push({food:alt.food, s:i, e:end, head:h}); i=end-1; continue; }
+        if(alt && (!hit || alt.tk.length-1>=hit.tk.length)){ const end=i+alt.tk.length-1; for(let j=i;j<end;j++) used[j]=true; items.push({food:alt.food, s:i, e:end, head:h, alt:true}); i=end-1; continue; }
       }
       if(!hit) continue;
       let end=hitEnd; for(let j=i;j<end;j++) used[j]=true;
@@ -561,7 +561,7 @@ const ESTIMADOR = (function(){
       if(it.food.n==="Papas fritas" && ["paquete","paquetito","bolsita"].includes(it.envase||it.unitW)) it.food=BYNAME["Papas fritas de paquete"];   // «papas fritas, 2 paquetes»
       const f=it.food; const unit=it.unit, num=it.num;
       let g;
-      if(it.gExp!=null) g=it.gExp;
+      if(it.gExp!=null) g = it.gExp*(num!=null && !unit && !it.envase ? num : 1);   // «2 empanadas de 90 g»: cada una
       else if(pesoPuro(unit)) g=(num==null?1:num)*unit.g;
       else {
         let base;
@@ -586,7 +586,8 @@ const ESTIMADOR = (function(){
       const entre=T.slice(a.e,b.s), aclara=entre.some(o=>["aproximadamente","aprox","osea"].includes(o.raw));   // «2 pedacitos, aproximadamente ½ boniato»
       if(!(a.food===b.food || (a.head===b.head && (b.al||1)===1)) || b.s-a.e>5 || (conCant(a) && !aclara)) continue;
       if(entre.some(o=>["y","e","con","mas"].includes(o.raw))) continue;
-      a.g = a.food===b.food? b.g : Math.max(1, Math.round(b.g/(b.food.u||b.food.por)*(a.food.u||a.food.por)));
+      if(b.alt){ a.food=b.food; a.g=b.g; }   // «papas fritas, 2 paquetes»: la variante nombrada después es la que vale
+      else a.g = a.food===b.food? b.g : Math.max(1, Math.round(b.g/(b.food.u||b.food.por)*(a.food.u||a.food.por)));
       a.e=b.e; items.splice(i,1); }
     // panes seguidos («rebanada de pan lactal Fargo negro»): vale el más específico, con la cantidad del primero
     for(let i=items.length-1;i>0;i--){ const a=items[i-1], b=items[i];

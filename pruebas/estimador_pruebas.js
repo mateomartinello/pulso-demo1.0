@@ -105,6 +105,9 @@ const CASOS = [
   ["Milanesa de pollo 100g con un huevo hervido, más una ensalada de un tomate y lechuga, con aceite de oliva. Con Fanta común.", {kcal:[540,640]}],
   ["una palta entera",                      {kcal:[220,260]}],
   ["2 paquetes de 65 g de papas fritas",    {kcal:[640,760]}],
+  ["papas fritas, 2 paquetes de 65 g",      {kcal:[640,760]}],
+  ["2 empanadas de 90 g",                   {kcal:[450,560]}],
+  ["dos rapiditas",                         {kcal:[450,600]}],
 ];
 let fallas=0;
 for(const [frase, esp] of CASOS){

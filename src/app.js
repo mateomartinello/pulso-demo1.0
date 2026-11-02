@@ -461,7 +461,7 @@ function medidaCasera(g, f){
 function pasosRegistro(r, txt){
   const seg=[], yog=[], ral=[], por=[];
   r.items.forEach((it,i)=>{
-    if(it.relleno) seg.push({id:"seg_"+i, titulo:`¿Qué tenía el ${minus(it.n)}?`, sub:"Podés marcar varias.", tipo:"multi", opts:RELLENOS.map(([n,t])=>[n,t])});
+    if(it.relleno) seg.push({id:"seg_"+i, titulo:`¿Qué tenía ${/a$/.test(it.n.split(" ")[0])?"la":"el"} ${minus(it.n)}?`, sub:"Podés marcar varias.", tipo:"multi", opts:RELLENOS.map(([n,t])=>[n,t])});
     else if(it.n==="Ensalada mixta" && !it.alias) seg.push({id:"seg_"+i, titulo:"¿Qué tenía la ensalada?", sub:"Podés marcar varias.", tipo:"multi", opts:ENSALADA.map(([n,t])=>[n,t])});
     else if(it.n==="Picada") seg.push({id:"seg_"+i, titulo:"¿Qué tenía la picada?", sub:"Podés marcar varias.", tipo:"multi", opts:PICADA.map(([n,t])=>[n,t])});
     else if(it.n==="Hamburguesa con pan" && it.alias==="hamburguesa") seg.push({id:"seg_"+i, titulo:"¿Qué más tenía la hamburguesa?", sub:"Podés marcar varias, o ninguna.", tipo:"multi", opts:HAMBURGUESA.map(([n,t])=>[n,t])});
