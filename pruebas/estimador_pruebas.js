@@ -98,7 +98,7 @@ const CASOS = [
   ["Milanesa de carne grande (300g)",       {kcal:[700,860]}],
   ["Palitos sabor queso Pehuamar 165 g",    {kcal:[760,880]}],
   ["Papas fritas (2 paquetes de 65 g c/u), con Coca Zero.", {kcal:[640,760]}],
-  ["Dos rapiditas comunes, con queso, tomate, y lechuga. Con una Tita de postre.", {kcal:[480,640]}],
+  ["Dos rapiditas comunes, con queso, tomate, y lechuga. Con una Tita de postre.", {kcal:[440,600]}],   // Tita: 19 g (rótulo)
   ["Dos tostadas integrales con palta (una entera para las dos tostadas de 150g), con queso crema. Con cafe (260g de cafe americano)", {kcal:[430,560]}],
   ["Tres galletitas Cerealitas Clásicas, con queso crema, y una banana.", {kcal:[210,290], fruta:[1,1]}],
   ["Milanesa de pollo 100g con ensalada de lechuga y tomates cherry condimentado con aceite de oliva y sal, con dos huevos hervidos.", {kcal:[460,580]}],
@@ -108,6 +108,21 @@ const CASOS = [
   ["papas fritas, 2 paquetes de 65 g",      {kcal:[640,760]}],
   ["2 empanadas de 90 g",                   {kcal:[450,560]}],
   ["dos rapiditas",                         {kcal:[450,600]}],
+  // Marcas con rótulo argentino (versión 0.8.0: Open Food Facts y FatSecret)
+  ["3 oreos",                               {kcal:[150,170]}],
+  ["dos rumbas",                            {kcal:[120,140]}],
+  ["4 melbas",                              {kcal:[200,230]}],
+  ["5 chocolinas",                          {kcal:[140,160]}],
+  ["un alfajor jorgito",                    {kcal:[210,235]}],
+  ["un havanna",                            {kcal:[195,220]}],
+  ["un guaymallen",                         {kcal:[140,165]}],
+  ["una tita",                              {kcal:[85,100]}],
+  ["un bon o bon",                          {kcal:[75,90]}],
+  ["6 criollitas",                          {kcal:[90,110]}],
+  ["3 salmas",                              {kcal:[60,75]}],
+  ["una cepita",                            {kcal:[95,115]}],
+  ["un paquete de doritos",                 {kcal:[480,530]}],
+  ["Rumba un paquete de 110g",              {kcal:[490,530]}],
 ];
 let fallas=0;
 for(const [frase, esp] of CASOS){

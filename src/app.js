@@ -363,10 +363,10 @@ function conMarcas(r, txt, fijas){   // fijas: las marcas ya guardadas en un reg
 }
 // ==== RECÁLCULO DE REGISTROS ESCRITOS CON UN ESTIMADOR ANTERIOR ====
 // Cada comida escrita guarda con qué versión del estimador se calculó (est). Las que no la tienen se recalculan una vez
-// desde el texto. Las anteriores a la 0.6.0 no tuvieron preguntas de porción: se recalculan completas. Las de la 0.6.0 y
-// la 0.6.1 conservan la cantidad guardada de cada alimento (ahí quedó la respuesta) y, si el plato tuvo la pregunta de
-// ingredientes, quedan como estaban.
-const EST_VER="0.7", INICIO_PREGUNTAS="2026-10-29T18:39:22Z";
+// desde el texto. Las anteriores a la 0.6.0 no tuvieron preguntas de porción: se recalculan completas. Las de la 0.6.0 en
+// adelante (y las traídas de otra app) conservan la cantidad guardada de cada alimento (ahí quedó la respuesta
+// o la aclaración) y, si el plato tuvo la pregunta de ingredientes, quedan como estaban.
+const EST_VER="0.8", INICIO_PREGUNTAS="2026-10-29T18:39:22Z";
 function cantidadesGuardadas(items){
   const m=new Map();
   for(let s of items||[]){
@@ -388,17 +388,19 @@ function conPreguntaDeIngredientes(it){
 function recalcularRegistros(){
   let cambiados=0;
   for(const d of Object.values(DB.dias||{})) for(const c of (d.comidas||[])){
-    if(c.est || c.recetaId || !c.texto) continue;
+    if(c.est===EST_VER || c.recetaId || !c.texto) continue;   // calculadas con otra versión del estimador (o sin versión): se recalculan
     const r=ESTIMADOR.analizar(c.texto); c.est=EST_VER;
     if(!r.items.length) continue;
     let its=r.items.map(x=>({...x}));
-    if(String(c.hora||"")>=INICIO_PREGUNTAS){
+    if(String(c.hora||"")>=INICIO_PREGUNTAS || c.origen){   // con respuestas o traídas de otra app con aclaraciones: se conservan las cantidades
       if(its.some(conPreguntaDeIngredientes)) continue;
       const viejas=cantidadesGuardadas(c.items);
       const tomar = n => { const l=viejas.get(n); return l && l.length? Math.max(1, Math.round(l.shift())) : null; };
       its=its.map(it=>{
         if(it.n==="Yogur bebible" && viejas.get("Yogur firme")?.length) return {...nuevoItem("Yogur firme",1), g:tomar("Yogur firme")};
-        const g=tomar(it.n); return g!=null? {...it, g} : it; });
+        const g=tomar(it.n); if(g!=null) return {...it, g};
+        const ni=ESTIMADOR.integralDe(it.n);   // estaba guardado como integral («tostadas» aclaradas como integrales)
+        return ni && viejas.get(ni)?.length? {...nuevoItem(ni,1), g:tomar(ni)} : it; });
     }
     const t=ESTIMADOR.totales(its), a=conMarcas(t, c.texto, c.marcas||{});
     const nuevo={kcal:a.kcal, prot:a.prot, carb:a.carb, grasa:a.grasa, fibra:a.fibra, verduras:t.verduras, frutas:t.frutas, integrales:t.integrales,

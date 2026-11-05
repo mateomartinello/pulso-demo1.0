@@ -8,7 +8,7 @@ Milanesa de carne|milanesa;milanesa de carne;milanesa de nalga;milanesa de pecet
 Milanesa napolitana|milanesa napolitana;mila napolitana;milanesa napo;mila napo;napolitana de carne|250|19|1|230|230|milanesa|r F gr=13 hc=14
 Milanesa de pollo|milanesa de pollo;mila de pollo;suprema;suprema de pollo;milanesa de pechuga;suprema frita|240|22|1|150|150|milanesa|F gr=11 hc=13
 Suprema napolitana|suprema napolitana;milanesa de pollo napolitana;suprema a la napolitana;mila de pollo napolitana|235|21|1|230|230|suprema|F gr=11 hc=12.5
-Milanesa de soja|milanesa de soja;mila de soja;milanesas de soja|200|14|4|110|110|milanesa|gr=8 hc=16
+Milanesa de soja|milanesa de soja;mila de soja;milanesas de soja|280|12|3.5|80|80|milanesa|gr=12 hc=31
 Milanesa de berenjena|milanesa de berenjena|190|5|4|100|100|milanesa|v.4 gr=11 hc=16
 Milanesa de pescado|milanesa de pescado;milanesa de merluza|220|15|1|150|150|milanesa|F gr=11 hc=15
 Bife|bife;bife de chorizo;bife de lomo;churrasco;bifecito;entrecot;ojo de bife;bife angosto;bife ancho;carne a la plancha;bife a la plancha;churrasquito|220|27|0|200|200|bife|r gr=12 hc=1
@@ -19,7 +19,8 @@ Matambre|matambre;matambre a la pizza;matambrito|260|25|0|180||porción|r gr=17.
 Carne vacuna|carne;carne vacuna;carne de vaca;carne al horno;nalga;peceto;cuadril;colita de cuadril;roast beef;carne asada;carne guisada;cuadrada;bola de lomo;tapa de nalga;picana;entraña;carne de ternera;ternera;osobuco;roti|200|27|0|180||porción|r gr=10 hc=0.5
 Carne picada|carne picada;picadillo|250|20|0|120||porción|r gr=18.5 hc=0.9
 Hamburguesa con pan|hamburguesa;hamburguesas;hamburguesa completa;hamburguesa con pan;burger;hamburguesa doble;hamburguesa con queso;cheeseburger;hamburguesa casera con pan|255|14|1.5|220|220|hamburguesa|r P T gr=12 hc=22
-Medallón de carne|medallon;medallon de carne;paty;patty;hamburguesa al plato;hamburguesa sin pan;hamburguesa casera;medallones|250|18|0|110|110|medallón|r gr=19 hc=1.8
+Medallón de carne|medallon;medallon de carne;patty;hamburguesa al plato;hamburguesa sin pan;hamburguesa casera;medallones|250|18|0|110|110|medallón|r gr=19 hc=1.8
+Paty|paty;patys;hamburguesa paty;medallon paty|266|20|2|80|80|paty|r gr=20 hc=1.6
 Big Mac|big mac;bigmac|257|12|1.7|215|215|unidad|r P gr=13.5 hc=21
 Cuarto de libra|cuarto de libra;cuarto libra;cuarto de libra con queso|260|15|1.5|200|200|unidad|r P gr=13.5 hc=19
 Whopper|whopper;stacker;whopper doble|240|11|1.5|270|270|unidad|r P gr=14 hc=17
@@ -66,7 +67,11 @@ Clara de huevo|clara;claras;clara de huevo|52|11|0|33|33|clara|gr=0.2 hc=1.6
 Queso|queso;queso cremoso;queso fresco;cremoso;port salut;por salut;queso port salut;queso por salut;queso de barra;queso pategras;pategras;queso gouda;gouda;queso holanda;queso dambo;queso danbo;danbo;dambo;queso tybo;tybo;queso de maquina;queso en fetas;queso fundido;queso derretido;queso light|310|22|0|30|20|feta|gr=24 hc=1.5
 Mozzarella|mozzarella;muzzarella;muzarella;mozarella;muzza;mozza;bocconcino;bocconcinos|280|20|0|50||porción|gr=21.5 hc=1.6
 Queso rallado|queso rallado;rallado;parmesano;reggianito;sardo;queso sardo;queso parmesano;grana padano;provolone rallado|390|33|0|15||porción|gr=27.5 hc=2.6
-Queso untable|queso untable;queso crema;casancrem;finlandia;queso blanco;queso untable descremado;queso untable light;mendicrim;queso philadelphia;philadelphia;queso finlandia|200|8|0|30|15|cucharada|gr=17 hc=3.8
+Queso untable|queso untable;queso crema;queso blanco;queso untable descremado;queso untable light;mendicrim;queso philadelphia;philadelphia|200|8|0|30|15|cucharada|gr=17 hc=3.8
+Finlandia|finlandia;queso finlandia;finlandia clasico|270|8|0|30|15|cucharada|gr=25.3 hc=3.3
+Finlandia light|finlandia light;queso finlandia light|190|9|0|30|15|cucharada|gr=16 hc=3.8
+Casancrem|casancrem;casan crem;queso casancrem|220|6|0|30|15|cucharada|gr=19.7 hc=5
+Casancrem light|casancrem light;casancrem balance|130|8.7|0|30|15|cucharada|gr=7 hc=7.7
 Ricota|ricota;ricotta|140|11|0|60||porción|gr=9 hc=3.8
 Provoleta|provoleta;provolone|350|25|0|120|120|provoleta|gr=27 hc=1.8
 Queso azul|roquefort;queso azul;gorgonzola|360|21|0|30||porción|gr=30 hc=1.5
@@ -163,7 +168,9 @@ Granola|granola;muesli;cereales integrales;salvado;salvado de avena;fibra;all br
 # ---- Papas y similares ----
 Papa|papa;papas;papa hervida;papas hervidas;papa al vapor;papines;papa cocida;papas naturales|77|2|2.2|200|150|papa|gr=0.1 hc=16
 Papas fritas|papas fritas;papa frita;papas fritas caseras;papas bastones;fritas;papas a caballo;papas cheddar;papas con cheddar;papas mcdonalds;papas medianas;papas grandes;papas fritas medianas;papas fritas grandes|300|3.4|3.5|150||porción|F gr=15 hc=36
-Papas fritas de paquete|papas fritas de paquete;papas de paquete;papitas;lays;papas lays;pringles;papas pay;papas pai;snack;snacks;papas fritas lays;papas kesbeb;krachitos|536|7|4.5|45||paquete|F gr=35 hc=46
+Papas fritas de paquete|papas fritas de paquete;papas de paquete;papitas;papas pay;papas pai;snack;snacks;papas kesbeb;krachitos|536|7|4.5|45||paquete|F gr=35 hc=46
+Papas Lay's|lays;papas lays;papas fritas lays;lays clasicas|552|6|4.4|45||paquete|F gr=35.6 hc=52
+Pringles|pringles;papas pringles|530|4.5|3.5|40||porción|F gr=31 hc=57
 Papas al horno|papas al horno;papa al horno;papas rusticas;papa rustica;papas noisette;papas a la provenzal;papas españolas;papas en la freidora;papas al aire;papas en freidora de aire;papas a la crema;papas gratinadas|140|2.5|2.5|200||porción|gr=5 hc=20
 Puré de papa|pure;pure de papa;pure de papas;pure mixto;pure de papa y zapallo;pure de papa y calabaza|100|2|1.5|200||porción|gr=4 hc=13
 Puré de calabaza|pure de calabaza;pure de zapallo;pure de zapallo anco;pure de batata|60|1.2|1.5|200||porción|v1 gr=2.5 hc=7.4
@@ -274,17 +281,47 @@ Semillas|semillas;semillas de chia;chia;lino;semillas de lino;semillas de giraso
 Coco rallado|coco;coco rallado|660|6.9|16|10||cucharada|gr=65 hc=7
 Pasas de uva|pasas;pasas de uva;pasa de uva;datiles;datil;orejones;ciruelas pasas;frutas secas;fruta seca deshidratada|290|2.5|5|30||puñado|f3 gr=0.5 hc=66.5
 # ---- Dulces, snacks y golosinas ----
-Alfajor|alfajor;alfajores;alfajor simple;alfajor de chocolate;alfajor de dulce de leche;alfajor guaymallen;guaymallen;jorgito;havanna;cachafaz;fantoche;capitan del espacio;alfajor de fruta;alfajor milka;bon o bon alfajor;tatin|440|5|1.5|50|50|alfajor|gr=18 hc=64 S
-Alfajor triple|alfajor triple;alfajores triples;triple de chocolate;fantoche triple;jorgito triple;terrabusi triple;guaymallen triple|440|5|1.5|75|75|alfajor|gr=18 hc=64 S
+Alfajor|alfajor;alfajores;alfajor simple;alfajor de chocolate;alfajor de dulce de leche;cachafaz;alfajor de fruta;bon o bon alfajor;tatin|440|5|1.5|50|50|alfajor|gr=18 hc=64 S
+Alfajor triple|alfajor triple;alfajores triples;triple de chocolate;terrabusi triple;guaymallen triple|440|5|1.5|75|75|alfajor|gr=18 hc=64 S
+Alfajor Jorgito|jorgito;alfajor jorgito|404|5.8|1.6|55|55|alfajor|gr=14.9 hc=60
+Alfajor Jorgito triple|jorgito triple;alfajor jorgito triple|402|5.9|0.6|85|85|alfajor|gr=15.3 hc=60
+Alfajor Guaymallén|guaymallen;alfajor guaymallen|400|5.8|2.4|38|38|alfajor|gr=13.7 hc=63.2
+Alfajor Havanna|havanna;alfajor havanna|376|6.4|1|55|55|alfajor|gr=12.7 hc=58
+Alfajor Terrabusi|alfajor terrabusi|400|6.7|1.9|50|50|alfajor|gr=15 hc=59
+Alfajor Milka|alfajor milka;milka mousse;alfajor milka mousse|515|5.5|1|42|42|alfajor|gr=27 hc=60
+Alfajor Capitán del Espacio|capitan del espacio;alfajor capitan del espacio|410|6.5|4.5|40|40|alfajor|gr=15 hc=62.5
+Alfajor Fantoche triple|fantoche;fantoche triple;alfajor fantoche|467|5.3|1.2|85|85|alfajor|gr=15.3 hc=75.3
 Alfajor de maicena|alfajor de maicena;alfajores de maicena;alfajorcito;alfajorcitos|420|5|1|40|40|alfajor|gr=17 hc=61 S
-Chocolate|chocolate;chocolate con leche;barra de chocolate;tableta de chocolate;aguila;cofler;milka;block;cadbury;kit kat;kitkat;twix;snickers;mantecol;rocklets;chocolate blanco;rhodesia;huevo de pascua;chocolate con mani|540|7|2|25|7|cuadradito|cnt=45 gr=31 hc=57
-Bombón|bombon;bombones;bon o bon;bonobon;chocolatin;chocolatines;kinder;marroc;cabsha;bananita dolca;bananita|500|6|2|15|15|bombón|gr=27 hc=57 S
+Chocolate|chocolate;chocolate con leche;barra de chocolate;tableta de chocolate;aguila;cofler;milka;cadbury;kit kat;kitkat;twix;snickers;rocklets;chocolate blanco;huevo de pascua;chocolate con mani|540|7|2|25|7|cuadradito|cnt=45 gr=31 hc=57
+Mantecol|mantecol|503|14|7|25|25|porción|n gr=31 hc=42
+Cofler Block|block;cofler block;chocolate block|541|14|3.5|38|38|barra|gr=34 hc=45
+Bombón|bombon;bombones;chocolatin;chocolatines;kinder;marroc;cabsha;bananita dolca;bananita|500|6|2|15|15|bombón|gr=27 hc=57 S
+Bon o Bon|bon o bon;bonobon;bon o bones;bombon bon o bon|556|9.1|2|15|15|bombón|gr=36 hc=48
 Chocolate amargo|chocolate amargo;chocolate 70;chocolate negro;chocolate semiamargo;chocolate 70 por ciento;chocolate 85;chocolate oscuro;cacao amargo|600|7.8|11|20|7|cuadradito|gr=43 hc=40
 Caramelos|caramelo;caramelos;chupetin;chupetines;gomitas;mogul;gomita;pastillas;sugus;flynn paff;menthoplus;chicle;chicles;turron;turrón;marshmallow;malvaviscos;chupetin|380|0|0|20|5|caramelo|gr=0.5 hc=94
-Galletitas dulces|galletitas;galletas;galletitas dulces;galletitas rellenas;galletitas de chocolate;oreo;oreos;pepitos;chocolinas;rumba;rumbas;tentaciones;sonrisas;mana;manon;merengadas;opera;toddy galletitas;terrabusi;melba;diversion;lincoln;surtidas;galletitas surtidas;galletitas de vainilla;galletitas de limon;anillos;galletitas pepitos;cookies;cookie;galletitas con chips;criollitas dulces;formis;macucas|480|5|2|40|10|galletita|gr=20 hc=69 S
-Galletitas de agua|galletitas de agua;galletas de agua;criollitas;crackers;galletitas saladas;express;galletitas express;club social;traviata;traviatas;mediatarde;media tarde;pepas saladas;bay biscuit|420|10|3|30|7|galletita|gr=12 hc=66.5
-Galletitas integrales|galletitas integrales;galletas integrales;galletita integra;galletitas integra;galletitas cerealitas;galletita cerealitas;cerealitas clasicas;galletitas de salvado;granix;cerealitas;galletitas de avena;galletas de avena;galletitas con semillas;tostaditas integrales;galletitas multicereal|420|11|8|30|7|galletita|i.6 gr=14 hc=58.5
-Salmas|salmas;galletitas salmas;galletas salmas|390|9|4|18|6|galletita|gr=10 hc=63
+Galletitas dulces|galletitas;galletas;galletitas dulces;galletitas rellenas;galletitas de chocolate;tentaciones;manon;merengadas;terrabusi;diversion;surtidas;galletitas surtidas;galletitas de vainilla;galletitas de limon;anillos;cookies;cookie;galletitas con chips;criollitas dulces;formis|480|5|2|40|10|galletita|gr=20 hc=69 S
+# marcas (rótulos argentinos: Open Food Facts, 2026): valores cada 100 g y peso de cada galletita
+Oreo|oreo;oreos;galletitas oreo|494|5|2.2|32|10.7|galletita|gr=23 hc=65.6
+Melba|melba;melbas;galletitas melba|479|5.9|2.4|34|11.3|galletita|gr=20.6 hc=67.6
+Rumba|rumba;rumbas;galletitas rumba|464|7.5|3.1|28|14|galletita|gr=17 hc=70
+Pepitos|pepitos;pepito;galletitas pepitos|458|6.7|2.4|33|11|galletita|gr=18.2 hc=66.7
+Chocolinas|chocolinas;chocolina;galletitas chocolinas|453|8.9|4|33|6.6|galletita|gr=17 hc=67
+Sonrisas|sonrisas;galletitas sonrisas|412|7.1|2.2|30|10|galletita|gr=12 hc=69
+Maná|mana;manas;galletitas mana;mana rellenas|457|6.6|1.8|25|12.5|galletita|gr=16 hc=73
+Lincoln|lincoln;galletitas lincoln|440|7.7|2|30|7.5|galletita|gr=13.3 hc=73.3
+Macucas|macucas;galletitas macucas|478|6.8|3|25|12.5|galletita|gr=21 hc=66
+Opera|opera;obleas opera;oblea opera;operas|509|5.4|1.1|28|4.7|oblea|gr=23 hc=69
+Galletitas Toddy|toddy galletitas;galletitas toddy;toddy cookies|477|5.3|2.7|30|10|galletita|gr=20.3 hc=63.3
+Frutigran|frutigran;galletitas frutigran|436|7.5|4.5|30|15|galletita|i.4 gr=14 hc=68
+Galletitas de agua|galletitas de agua;galletas de agua;crackers;galletitas saladas;mediatarde;media tarde;pepas saladas;bay biscuit|420|10|3|30|7|galletita|gr=12 hc=66.5
+Criollitas|criollitas;criollita;galletitas criollitas|438|11|2.6|30|3.8|galletita|gr=13 hc=69
+Express|express;galletitas express;terrabusi express|432|11|2.6|30|6|galletita|gr=12 hc=68
+Club Social|club social;galletitas club social|447|6.6|2.5|24|24|paquetito|gr=16.7 hc=69.6
+Traviata|traviata;traviatas;galletitas traviata|444|11|2.5|30|5|galletita|gr=14 hc=67
+Galletitas integrales|galletitas integrales;galletas integrales;galletita integra;galletitas integra;galletitas de salvado;granix;galletitas de avena;galletas de avena;galletitas con semillas;tostaditas integrales;galletitas multicereal|420|11|8|30|7|galletita|i.6 gr=14 hc=58.5
+Cerealitas|cerealitas;galletitas cerealitas;galletita cerealitas;cerealitas clasicas|437|10|4.1|30|6|galletita|i.5 gr=14.5 hc=64
+Hogareñas|hogarenas;galletitas hogarenas|430|11|5.5|31|4.4|galletita|i.5 gr=15 hc=62
+Salmas|salmas;galletitas salmas;galletas salmas|378|7.2|7.8|18|6|galletita|gr=3.9 hc=77.8
 Vainillas|vainilla;vainillas;bizcochuelo;vainillas de huevo;piononos|390|8|1|40|7|vainilla|gr=4 hc=80
 Torta|torta;tortas;torta de chocolate;torta de cumpleaños;chocotorta;tiramisu;lemon pie;cheesecake;torta de ricota;torta de manzana;torta galesa;selva negra;rogel;torta rogel;marquise;tarta de frutilla;tarta de manzana;pastafrola;pasta frola;tarta dulce;budin;budín;budines;muffin;muffins;cupcake;cupcakes;magdalena;magdalenas;madalena;madalenas;bizcochuelo de chocolate;torta frita;tortas fritas;crumble;carrot cake;red velvet;postre helado;tarta de coco|370|5|1.2|100|100|porción|gr=16 hc=51
 Brownie|brownie;brownies;blondie|450|5|2|70|70|brownie|gr=24 hc=52.5
@@ -295,12 +332,19 @@ Mermelada|mermelada;mermeladas;dulce de membrillo;membrillo;dulce de batata;merm
 Miel|miel|304|0.3|0|20|20|cucharada|gr=0 hc=75.5
 Azúcar|azucar;azucarado;azúcar|400|0|0|5|5|cucharadita|gr=0 hc=100
 Nutella|nutella;crema de avellanas;crema de cacao;mantecol untable|540|6|3|20|15|cucharada|gr=31 hc=58
-Tita|tita;titas;rhodesia;rhodesias|480|5|1.5|36|36|unidad|gr=22 hc=64
+Tita|tita;titas|495|5.3|1|19|19|unidad|gr=23.7 hc=63.2
+Rhodesia|rhodesia;rhodesias|548|4.8|3.3|22|22|unidad|gr=29 hc=66.7
 Bocadito de maní|reese;reeses;reese s;bocadito de mani;bocaditos de mani;bombon de mani|515|10|3|21|21|unidad|gr=30 hc=55
-Barrita de cereal|barrita;barritas;barrita de cereal;barritas de cereal;barra de cereal;cereal bar;granix barrita;mix barrita;quaker barrita;barrita de mani;dubar;barrita dubar|400|6|3|25|25|barrita|gr=12 hc=65.5 S
+Barrita de cereal|barrita;barritas;barrita de cereal;barritas de cereal;barra de cereal;cereal bar;granix barrita;quaker barrita;barrita de mani;dubar;barrita dubar|400|6|3|25|25|barrita|gr=12 hc=65.5 S
+Cereal Mix|cereal mix;barrita cereal mix;barra cereal mix|402|6.5|3.3|23|23|barrita|gr=13 hc=66
+Barrita proteica Íntegra|barrita proteica integra;barrita integra;integra barrita;barra proteica integra|340|34|18|45|45|barrita|gr=11 hc=26
 Barrita proteica|barrita proteica;barra proteica;barritas proteicas;barrita de proteina;barra de proteina;protein bar|380|30|5|50|50|barrita|S gr=12 hc=34
 Pochoclo|pochoclo;pochoclos;pop corn;popcorn;palomitas;pochoclo dulce;pochoclo salado;pororo|450|8|8|40||porción|i1 gr=20 hc=55.5
-Snacks salados|palitos;palitos salados;palitos sabor queso;palitos con queso;palitos queso;chizitos;chizito;doritos;nachos;conitos;3d;tostitos;cheetos;saladix;papas fritas de bolsa;mani saborizado;palitos de queso de paquete|500|6|3|40||paquete|F gr=28 hc=54.5
+Snacks salados|palitos;palitos salados;nachos;conitos;tostitos;saladix;papas fritas de bolsa;mani saborizado;palitos de queso de paquete|500|6|3|40||paquete|F gr=28 hc=54.5
+Palitos de queso|palitos sabor queso;palitos con queso;palitos queso;palitos pehuamar|516|7.2|1.5|40||paquete|F gr=29.2 hc=56
+Doritos|doritos|504|6|4|40||paquete|F gr=24.8 hc=64
+3D|3d;tres d|516|5.2|3.6|40||paquete|F gr=30 hc=56
+Cheetos|cheetos;chizitos;chizito|484|7|3.8|40||paquete|F gr=23 hc=62
 # ---- Condimentos ----
 Aceite|aceite;aceite de oliva;aceite de girasol;oliva;aceite de canola;chorrito de aceite;aliño;alino;aderezo de aceite|884|0|0|10|13|cucharada|gr=100 hc=0
 Mayonesa|mayonesa;mayo;hellmanns;hellmann's;natura mayonesa;alioli;salsa tartara;salsa golf;golf;salsa golf light|680|1|0|15|15|cucharada|gr=75 hc=0.2
@@ -313,12 +357,15 @@ Aderezo|aderezo;aderezos;aderezo cesar;salsa cesar;ranch;salsa ranch;salsa de yo
 Vinagre|vinagre;aceto;aceto balsamico;vinagre balsamico|20|0|0|10|10|cucharadita|gr=0 hc=0.5
 # ---- Bebidas ----
 Agua|agua;agua mineral;agua de la canilla;agua con gas;agua sin gas;soda;sifon;agua fria;botella de agua;aguita|0|0|0|500|500|botella|l gr=0 hc=0
-Gaseosa|coca;coca cola;cocacola;coca-cola;coca comun;coca normal;gaseosa;gaseosas;pepsi;sprite;seven up;7up;fanta;mirinda;paso de los toros;cunnington;manaos;schweppes;tonica;agua tonica;crush;pomelo neuss;neuss;cola;pritty;secco;gaseosa comun;bebida;refresco;refrescos|42|0|0|350|350|vaso|l gr=0 hc=10.5
+Gaseosa|coca;coca cola;cocacola;coca-cola;coca comun;coca normal;gaseosa;gaseosas;pepsi;seven up;7up;fanta;mirinda;paso de los toros;cunnington;manaos;schweppes;tonica;agua tonica;crush;pomelo neuss;neuss;cola;pritty;secco;gaseosa comun;bebida;refresco;refrescos|42|0|0|350|350|vaso|l gr=0 hc=10.5
+Sprite|sprite|20|0|0|350|350|vaso|l gr=0 hc=5
 Gaseosa sin azúcar|coca zero;coca cero;coca light;coca sin azucar;coca-cola zero;coca cola zero;cocacola zero;pepsi black;pepsi light;pepsi zero;gaseosa zero;gaseosa cero;gaseosa light;gaseosa sin azucar;gaseosa diet;sprite zero;7up free;seven up free;fanta zero;coca diet;zero;cero azucar;schweppes zero|0.4|0|0|350|350|vaso|l gr=0 hc=0.1
 Agua saborizada|agua saborizada;levite;aquarius;saborizada;villavicencio saborizada;ser agua;agua con sabor;agua saborizada de pomelo;agua saborizada de manzana;awafrut|20|0|0|500|500|botella|l gr=0 hc=5
 Agua saborizada sin azúcar|agua saborizada sin azucar;levite cero;levite zero;aquarius zero;aquarius cero;agua saborizada cero;agua saborizada light|1|0|0|500|500|botella|l gr=0 hc=0.2
 Jugo de naranja exprimido|jugo de naranja;jugo exprimido;jugo natural;exprimido;jugo de naranja exprimido;naranja exprimida;jugo de mandarina;jugo de pomelo;jugo de frutas natural;jugo natural de naranja|45|0.7|0.2|250|250|vaso|l c gr=0.2 hc=10
-Jugo|jugo;jugos;jugo de caja;jugo en caja;cepita;baggio;jugo de manzana;jugo de durazno;jugo de multifruta;ades;jugo ades;jugo de soja;jugo de fruta;jugo exprimido de manzana;jugo de pera;jugo de uva;limonada;limonada con menta|45|0.3|0.2|250|200|caja|l gr=0.1 hc=10.5
+Jugo|jugo;jugos;jugo de caja;jugo en caja;jugo de manzana;jugo de durazno;jugo de multifruta;ades;jugo ades;jugo de soja;jugo de fruta;jugo exprimido de manzana;jugo de pera;jugo de uva;limonada;limonada con menta|45|0.3|0.2|250|200|caja|l gr=0.1 hc=10.5
+Cepita|cepita;jugo cepita;cepita del valle|53|0|0|200|200|caja|l gr=0 hc=13
+Baggio|baggio;jugo baggio;baggio pronto|47|0.4|0|200|200|caja|l gr=0 hc=11.5
 Jugo en polvo|tang;clight;jugo en polvo;jugo de sobre;jugo light;arcor jugo en polvo;verao;baggio en polvo;jugo de polvo|8|0|0|250|250|vaso|l gr=0 hc=2
 Cerveza|cerveza;cervezas;birra;birras;porron;quilmes;stella;stella artois;brahma;heineken;patagonia;andes;corona;cerveza artesanal;pinta;pintas;chopp;imperial;budweiser;schneider;isenbeck;cerveza negra;cerveza rubia;ipa;cerveza roja|43|0.5|0|500|473|lata|l gr=0 hc=3.6
 Cerveza sin alcohol|cerveza sin alcohol;cerveza cero;birra sin alcohol;cerveza 0;cerveza 0,0|20|0.3|0|473|473|lata|l gr=0 hc=4.7
@@ -329,7 +376,7 @@ Trago|trago;tragos;cocktail;coctel;daikiri;daiquiri;mojito;caipirinha;caipiroska
 Bebida blanca|whisky;whiskey;vodka;ron;gin;tequila;shot;shots;chupito;licor;licor de dulce de leche;jagger;jagermeister;grappa;caña;cognac;brandy;baileys|230|0|0|45|45|medida|l gr=0 hc=0
 Energizante|energizante;energizantes;red bull;speed;monster;energy drink;bebida energizante;rockstar;burn|45|0|0|250|250|lata|l gr=0 hc=11
 Energizante sin azúcar|red bull sin azucar;speed sin azucar;monster zero;monster ultra;speed zero;red bull zero;energizante sin azucar|2|0|0|250|250|lata|l gr=0 hc=0.5
-Bebida deportiva|gatorade;powerade;isotonica;bebida isotonica;bebida deportiva;h2o|25|0|0|500|500|botella|l gr=0 hc=6.2
+Bebida deportiva|gatorade;powerade;isotonica;bebida isotonica;bebida deportiva;h2o|24|0|0|500|500|botella|l gr=0 hc=6
 Café|cafe;cafe solo;espresso;expreso;cafe negro;cafecito;cafe americano;americano;cafe sin leche;cafe de filtro;cafe instantaneo;nescafe;cafe de maquina;ristretto;doppio;cafe chico;cafe doble;cafe con azucar;cafe con edulcorante|2|0.1|0|100|100|taza|l gr=0 hc=0.4
 Cortado|cortado;cortadito;cafe cortado|20|1|0|120|120|taza|l M gr=0.8 hc=2.2
 Café con leche|cafe con leche;lagrima;lágrima;capuchino;capuccino;cappuccino;latte;cafe latte;flat white;mocaccino;moca;macchiato;latte macchiato;cafe con leche de almendras;te con leche;mate cocido con leche;caramel macchiato;frappuccino;cafe frio;ice latte;iced latte;cafe helado;lagrimita|45|2.2|0|200|200|taza|l M gr=1.5 hc=5.7
@@ -717,6 +764,6 @@ const ESTIMADOR = (function(){
     return `${it.n} ${it.g} ${unidad}`;
   }
   function plural(w){ if(/[aeiouáéí]$/.test(w)) return w+"s"; if(w.endsWith("z")) return w.slice(0,-1)+"ces"; if(w.endsWith("ón")) return w.slice(0,-2)+"ones"; if(w.endsWith("án")) return w.slice(0,-2)+"anes"; return w+"es"; }
-  return {init, analizar, totales, describir, alimento:n=>BYNAME[n], norm, _toks:toks};
+  return {init, analizar, totales, describir, alimento:n=>BYNAME[n], integralDe:n=>INTEG[n], norm, _toks:toks};
 })();
 ESTIMADOR.init(ALIMENTOS);
