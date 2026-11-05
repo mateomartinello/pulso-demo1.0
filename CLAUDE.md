@@ -14,7 +14,7 @@ PWA de un solo archivo para comer, moverse y descansar mejor. La usan amigos de 
 - Sintaxis: `/System/Library/Frameworks/JavaScriptCore.framework/Versions/Current/Helpers/jsc -e "checkSyntax('src/app.js')"` (no hay node).
 - Pruebas del estimador: `sh pruebas/correr.sh` (frases con rangos esperados en `pruebas/estimador_pruebas.js`).
 - Navegador local: `preview_start` con «pulso» (`.claude/launch.json`, puerto 8000).
-- Supabase (proyecto «pulso», id `aihixquihhpirxmjhumg`): por el navegador integrado; el SQL Editor no acepta pegar, se carga con `monaco.editor.getModels()[0].setValue(q)` y se toca Run.
+- Supabase (proyecto «pulso», id `aihixquihhpirxmjhumg`): MCP de Supabase del proyecto (`.mcp.json`, se autoriza con la cuenta de Mateo) o, si no está disponible, por el navegador integrado; el SQL Editor no acepta pegar, se carga con `monaco.editor.getModels()[0].setValue(q)` y se toca Run.
 
 ## Mapa del código (`src/`, se concatena en este orden)
 Buscar símbolos con `grep -n 'function nombre' src/archivo.js` y leer solo ese rango.
