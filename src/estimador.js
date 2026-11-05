@@ -2,7 +2,7 @@
 // Para agregar algo: una línea nueva con el mismo formato. Los alias van sin importar tildes, mayúsculas ni plurales.
 const ALIMENTOS = `
 ## nombre|alias;alias|kcal|prot|fibra (por 100 g o 100 ml)|porción típica (g)|unidad (g)|nombre de la unidad|marcas
-## marcas: gr=grasas y hc=carbohidratos disponibles (g por 100 g; hc sale por diferencia con la energía, salvo frutos secos y bebidas con alcohol), v=verdura (v.5 = mitad del peso cuenta como verdura), f=fruta, i.4=equivale a 40% de su peso en cereal integral, n=fruto seco, c=fuente de vitamina C, r=carne roja o embutido, a=lata de atún, l=líquido (ml), F=ya frito, P=incluye pan, b=pan, B=hay que ver con qué se rellenó, cnt=gramos de "una" entera
+## marcas: gr=grasas y hc=carbohidratos disponibles (g por 100 g; hc sale por diferencia con la energía, salvo frutos secos y bebidas con alcohol), v=verdura (v.5 = mitad del peso cuenta como verdura), f=fruta, i.4=equivale a 40% de su peso en cereal integral, n=fruto seco, c=fuente de vitamina C, r=carne roja o embutido, a=lata de atún, l=líquido (ml), F=ya frito, P=incluye pan, b=pan, B=hay que ver con qué se rellenó, cnt=gramos de "una" entera, paq=gramos del paquete
 # ---- Carnes vacunas y de cerdo ----
 Milanesa de carne|milanesa;milanesa de carne;milanesa de nalga;milanesa de peceto;milanesa vacuna;mila;milanga;milanesa de ternera;milanesa al horno;milanesa frita|260|20|1|150|150|milanesa|r F gr=13 hc=15
 Milanesa napolitana|milanesa napolitana;mila napolitana;milanesa napo;mila napo;napolitana de carne|250|19|1|230|230|milanesa|r F gr=13 hc=14
@@ -111,7 +111,7 @@ Medialuna de grasa|medialuna de grasa;medialunas de grasa|400|7|1.6|80|40|medial
 Factura|factura;facturas;vigilante;cañoncito;canoncito;bola de fraile;berlinesa;tortita negra;sacramento;librito;moño;chicharron;ensaimada;palmerita;palmeritas;cañon de dulce de leche|400|6|1.5|100|50|factura|gr=19 hc=50.5
 Churro|churro;churros;churro relleno;churros rellenos|400|5|1.5|80|40|churro|F gr=20 hc=49
 Bizcochitos|bizcochitos;bizcochito;bizcochitos de grasa;bizcochos;9 de oro;nueve de oro;don satur|450|9|2|30|5|bizcochito|gr=22 hc=53
-Chipá|chipa;chipas;chipacitos;chipá|340|9|1|60|20|chipá|gr=17 hc=37
+Chipá|chipa;chipas;chipacitos;chipá;pan de queso;panes de queso;pancito de queso|340|9|1|60|20|chipá|gr=17 hc=37
 Pan dulce|pan dulce;panettone;budin ingles|370|7|2|80||porción|gr=13 hc=55
 Grisines|grisines;grisin;grissini;palitos de pan|410|12|3|20|5|grisín|gr=12 hc=62
 Galletas de arroz|galletas de arroz;galletas de arroz inflado;tostadas de arroz;galletitas de arroz;arroz inflado|380|8|3|20|10|galleta|i.8 gr=3 hc=79
@@ -301,27 +301,27 @@ Chocolate amargo|chocolate amargo;chocolate 70;chocolate negro;chocolate semiama
 Caramelos|caramelo;caramelos;chupetin;chupetines;gomitas;mogul;gomita;pastillas;sugus;flynn paff;menthoplus;chicle;chicles;turron;turrón;marshmallow;malvaviscos;chupetin|380|0|0|20|5|caramelo|gr=0.5 hc=94
 Galletitas dulces|galletitas;galletas;galletitas dulces;galletitas rellenas;galletitas de chocolate;tentaciones;manon;merengadas;terrabusi;diversion;surtidas;galletitas surtidas;galletitas de vainilla;galletitas de limon;anillos;cookies;cookie;galletitas con chips;criollitas dulces;formis|480|5|2|40|10|galletita|gr=20 hc=69 S
 # marcas (rótulos argentinos: Open Food Facts, 2026): valores cada 100 g y peso de cada galletita
-Oreo|oreo;oreos;galletitas oreo|494|5|2.2|32|10.7|galletita|gr=23 hc=65.6
-Melba|melba;melbas;galletitas melba|479|5.9|2.4|34|11.3|galletita|gr=20.6 hc=67.6
-Rumba|rumba;rumbas;galletitas rumba|464|7.5|3.1|28|14|galletita|gr=17 hc=70
-Pepitos|pepitos;pepito;galletitas pepitos|458|6.7|2.4|33|11|galletita|gr=18.2 hc=66.7
-Chocolinas|chocolinas;chocolina;galletitas chocolinas|453|8.9|4|33|6.6|galletita|gr=17 hc=67
-Sonrisas|sonrisas;galletitas sonrisas|412|7.1|2.2|30|10|galletita|gr=12 hc=69
-Maná|mana;manas;galletitas mana;mana rellenas|457|6.6|1.8|25|12.5|galletita|gr=16 hc=73
-Lincoln|lincoln;galletitas lincoln|440|7.7|2|30|7.5|galletita|gr=13.3 hc=73.3
-Macucas|macucas;galletitas macucas|478|6.8|3|25|12.5|galletita|gr=21 hc=66
-Opera|opera;obleas opera;oblea opera;operas|509|5.4|1.1|28|4.7|oblea|gr=23 hc=69
-Galletitas Toddy|toddy galletitas;galletitas toddy;toddy cookies|477|5.3|2.7|30|10|galletita|gr=20.3 hc=63.3
-Frutigran|frutigran;galletitas frutigran|436|7.5|4.5|30|15|galletita|i.4 gr=14 hc=68
+Oreo|oreo;oreos;galletitas oreo|494|5|2.2|32|10.7|galletita|gr=23 hc=65.6 paq=118
+Melba|melba;melbas;galletitas melba|479|5.9|2.4|34|11.3|galletita|gr=20.6 hc=67.6 paq=120
+Rumba|rumba;rumbas;galletitas rumba|464|7.5|3.1|28|14|galletita|gr=17 hc=70 paq=108
+Pepitos|pepitos;pepito;galletitas pepitos|458|6.7|2.4|33|11|galletita|gr=18.2 hc=66.7 paq=119
+Chocolinas|chocolinas;chocolina;galletitas chocolinas|453|8.9|4|33|6.6|galletita|gr=17 hc=67 paq=170
+Sonrisas|sonrisas;galletitas sonrisas|412|7.1|2.2|30|10|galletita|gr=12 hc=69 paq=108
+Maná|mana;manas;galletitas mana;mana rellenas|457|6.6|1.8|25|12.5|galletita|gr=16 hc=73 paq=152
+Lincoln|lincoln;galletitas lincoln|440|7.7|2|30|7.5|galletita|gr=13.3 hc=73.3 paq=153
+Macucas|macucas;galletitas macucas|478|6.8|3|25|12.5|galletita|gr=21 hc=66 paq=110
+Opera|opera;obleas opera;oblea opera;operas|509|5.4|1.1|28|4.7|oblea|gr=23 hc=69 paq=92
+Galletitas Toddy|toddy galletitas;galletitas toddy;toddy cookies|477|5.3|2.7|30|10|galletita|gr=20.3 hc=63.3 paq=126
+Frutigran|frutigran;galletitas frutigran|436|7.5|4.5|30|15|galletita|i.4 gr=14 hc=68 paq=250
 Galletitas de agua|galletitas de agua;galletas de agua;crackers;galletitas saladas;mediatarde;media tarde;pepas saladas;bay biscuit|420|10|3|30|7|galletita|gr=12 hc=66.5
-Criollitas|criollitas;criollita;galletitas criollitas|438|11|2.6|30|3.8|galletita|gr=13 hc=69
-Express|express;galletitas express;terrabusi express|432|11|2.6|30|6|galletita|gr=12 hc=68
+Criollitas|criollitas;criollita;galletitas criollitas|438|11|2.6|30|3.8|galletita|gr=13 hc=69 paq=100
+Express|express;galletitas express;terrabusi express|432|11|2.6|30|6|galletita|gr=12 hc=68 paq=110
 Club Social|club social;galletitas club social|447|6.6|2.5|24|24|paquetito|gr=16.7 hc=69.6
-Traviata|traviata;traviatas;galletitas traviata|444|11|2.5|30|5|galletita|gr=14 hc=67
+Traviata|traviata;traviatas;galletitas traviata|444|11|2.5|30|5|galletita|gr=14 hc=67 paq=96
 Galletitas integrales|galletitas integrales;galletas integrales;galletita integra;galletitas integra;galletitas de salvado;granix;galletitas de avena;galletas de avena;galletitas con semillas;tostaditas integrales;galletitas multicereal|420|11|8|30|7|galletita|i.6 gr=14 hc=58.5
-Cerealitas|cerealitas;galletitas cerealitas;galletita cerealitas;cerealitas clasicas|437|10|4.1|30|6|galletita|i.5 gr=14.5 hc=64
-Hogareñas|hogarenas;galletitas hogarenas|430|11|5.5|31|4.4|galletita|i.5 gr=15 hc=62
-Salmas|salmas;galletitas salmas;galletas salmas|378|7.2|7.8|18|6|galletita|gr=3.9 hc=77.8
+Cerealitas|cerealitas;galletitas cerealitas;galletita cerealitas;cerealitas clasicas|437|10|4.1|30|6|galletita|i.5 gr=14.5 hc=64 paq=200
+Hogareñas|hogarenas;galletitas hogarenas|430|11|5.5|31|4.4|galletita|i.5 gr=15 hc=62 paq=167
+Salmas|salmas;galletitas salmas;galletas salmas|378|7.2|7.8|18|6|galletita|gr=3.9 hc=77.8 paq=90
 Vainillas|vainilla;vainillas;bizcochuelo;vainillas de huevo;piononos|390|8|1|40|7|vainilla|gr=4 hc=80
 Torta|torta;tortas;torta de chocolate;torta de cumpleaños;chocotorta;tiramisu;lemon pie;cheesecake;torta de ricota;torta de manzana;torta galesa;selva negra;rogel;torta rogel;marquise;tarta de frutilla;tarta de manzana;pastafrola;pasta frola;tarta dulce;budin;budín;budines;muffin;muffins;cupcake;cupcakes;magdalena;magdalenas;madalena;madalenas;bizcochuelo de chocolate;torta frita;tortas fritas;crumble;carrot cake;red velvet;postre helado;tarta de coco|370|5|1.2|100|100|porción|gr=16 hc=51
 Brownie|brownie;brownies;blondie|450|5|2|70|70|brownie|gr=24 hc=52.5
@@ -334,6 +334,7 @@ Azúcar|azucar;azucarado;azúcar|400|0|0|5|5|cucharadita|gr=0 hc=100
 Nutella|nutella;crema de avellanas;crema de cacao;mantecol untable|540|6|3|20|15|cucharada|gr=31 hc=58
 Tita|tita;titas|495|5.3|1|19|19|unidad|gr=23.7 hc=63.2
 Rhodesia|rhodesia;rhodesias|548|4.8|3.3|22|22|unidad|gr=29 hc=66.7
+Galletitas Havanna|galletita havanna;galletitas havanna;galletitas de limon havanna;galletita de limon havanna|452|5.2|0.4|25|25|galletita|gr=20 hc=64
 Bocadito de maní|reese;reeses;reese s;bocadito de mani;bocaditos de mani;bombon de mani|515|10|3|21|21|unidad|gr=30 hc=55
 Barrita de cereal|barrita;barritas;barrita de cereal;barritas de cereal;barra de cereal;cereal bar;granix barrita;quaker barrita;barrita de mani;dubar;barrita dubar|400|6|3|25|25|barrita|gr=12 hc=65.5 S
 Cereal Mix|cereal mix;barrita cereal mix;barra cereal mix|402|6.5|3.3|23|23|barrita|gr=13 hc=66
@@ -452,7 +453,7 @@ const ESTIMADOR = (function(){
     "especia","pimenton","aji","molido","albahaca","perejil","comino","curry","nuez_moscada","edulcorante","sacarina","stevia","hielo","agua_","porcion_","cosa","alguna","alguno",
     "dulce","salado","salada","casi","aprox","aproximadamente","mas_o_meno","meno","menos","maso","cerca","unos","unas","x","segundo","segunda","primero","primera","vez","veces",
     "nomas","solamente","sobre","encima","arriba","adentro","mezclado","mezclada","acompanado","acompanada","tambien","porque","lugar","bar","cafeteria","facultad","facu","trabajo",
-    "serenisima","sancor","pehuamar","fargo","bimbo","terrabusi","arcor","clasica","clasicas","clasico","clasicos","ilolay","paladini","cagnoli","fela","fiambreria","variedad","marca","tregar","gallo","granja","sol","integra",
+    "serenisima","sancor","pehuamar","palma","mano","manos","dedo","dedos","ancho","tamano","foto","referencia","etiqueta","segun","pasaste","aparentemente","aclaraste","fargo","bimbo","terrabusi","arcor","clasica","clasicas","clasico","clasicos","ilolay","paladini","cagnoli","fela","fiambreria","variedad","marca","tregar","gallo","granja","sol","integra",
     "hecha","hecho","agregado","agregada","previamente","parte","puno","menor","mayor","tu","total","ademas","tirando","proteina","kcal","caloria",
     "air","fryer","airfryer","sobro","quedo_","aproximado","aproximada",
     "oficina","amigo","amiga","familia","novia","novio","vieja","viejo","abuela","abuelo","mama","papa_","hermano","hermana","companero","companera","cumple","cumpleano","juntada","asadito_","mcdonald","burger","king","starbuck","havanna_","freddo_","mostrador","kiosco","super","supermercado","mismo","misma"]);
@@ -470,7 +471,7 @@ const ESTIMADOR = (function(){
         else if(key==="n") x.nz=true; else if(key==="c") x.c=true; else if(key==="r") x.r=true; else if(key==="a") x.a=true;
         else if(key==="l") x.l=true; else if(key==="F") x.F=true; else if(key==="P") x.P=true; else if(key==="b") x.b=true; else if(key==="B") x.B=true;
         else if(key==="gr") x.gr=+val; else if(key==="hc") x.hc=+val;
-        else if(key==="cnt") x.cnt=+val; else if(key==="M") x.M=true; else if(key==="T") x.T=true; else if(key==="S") x.S=true;
+        else if(key==="cnt") x.cnt=+val; else if(key==="paq") x.paq=+val; else if(key==="M") x.M=true; else if(key==="T") x.T=true; else if(key==="S") x.S=true;
       }
       x.id=foods.length; foods.push(x);
       const seen=new Set();
@@ -575,6 +576,9 @@ const ESTIMADOR = (function(){
         break;
       }
       if(nums.length) it.num = nums.reduce((a,b)=>a*b,1);
+      if(nums.length && it.unit==null && T[j]?.raw==="y"){   // «un paquete de rumba y medio de Melba»: medio paquete
+        const ant=items.filter(x=>x!==it && x.e<=j && j-x.e<=1).pop();
+        if(ant && ant.unit && !pesoPuro(ant.unit)){ it.unit=ant.unit; it.unitW=ant.unitW; } }
       let k=it.e, tomo=false; guard=0;
       while(free(k) && guard++<5){
         const o=T[k];
@@ -584,6 +588,10 @@ const ESTIMADOR = (function(){
         if(SIZE[o.raw]!==undefined){ it.size*=SIZE[o.raw]; used[k]=true; k++; continue; }
         if(/^x\d/.test(o.raw)){ it.num=numOf(o); used[k]=true; k++; continue; }
         if((o.raw==="como"||o.raw==="aprox"||o.raw==="aproximadamente"||o.raw==="unos"||o.raw==="unas") && T[k+1] && isNum(T[k+1])){ used[k]=true; k++; continue; }
+        if(isNum(o) && numOf(o)!=null && !tomo && ["un","una"].includes(T[k+1]?.raw) && T[k+2] && UNIT[T[k+2].t] && !(inicios.has(k+3) && T[k+3].de)){   // «budín: ¼ de una porción»
+          tomo=true; const u=UNIT[T[k+2].t];
+          if(pesoPuro(u)) it.gExp=numOf(o)*u.g; else { it.num=numOf(o); it.unit=u; it.unitW=T[k+2].t; }
+          used[k]=used[k+1]=used[k+2]=true; k+=3; continue; }
         if(isNum(o) && numOf(o)!=null && !tomo && T[k+1] && /^enter[ao]s?$/.test(T[k+1].raw)){ it.num=numOf(o); it.entera=true; tomo=true; used[k]=used[k+1]=true; k+=2; continue; }   // «palta (una entera)»
         if(isNum(o) && numOf(o)!=null && T[k+1] && UNIT[T[k+1].t] && !(inicios.has(k+2) && T[k+2].de)){   // «… ¼ de lata de garbanzos»: esa cantidad es del alimento que sigue
           if(tomo && it.num!=null && it.unit && !pesoPuro(it.unit) && pesoPuro(UNIT[T[k+1].t])){   // «2 paquetes de 65 g c/u»: cada envase pesa eso
@@ -616,7 +624,8 @@ const ESTIMADOR = (function(){
         if(it.unitW==="tira" && f.b) base=25;     // «3 tiras de pan»: como rebanadas
         else if(uMatch) base=f.u;
         else if(unit && unit.p) base=f.por*unit.p;
-        else if(it.unitW==="lata" && !f.l) base=240;   // lata de legumbres o choclo: lo escurrido
+        else if(it.unitW==="lata" && !f.l) base=240;
+        else if(f.paq && ["paquete","paquetito"].includes(it.unitW)) base=f.paq;   // «un paquete de Melba»: lo que trae el paquete   // lata de legumbres o choclo: lo escurrido
         else if(unit && unit.g) base=unit.g;
         else if(num!=null) base = f.cnt || f.u || f.por;
         else base = f.por;
@@ -651,7 +660,7 @@ const ESTIMADOR = (function(){
       out = out.filter(i=> i===p || !(i.food.b && !i.food.B && Math.abs(i.s-p.s)<=8));
     }
     // lo que ya trae leche (licuado, café con leche) no suma "leche" aparte cerca
-    for(const p of out.filter(i=>i.food.M)){ out = out.filter(i=> i===p || !(i.food.n==="Leche" && Math.abs(i.s-p.s)<=5)); }
+    for(const p of out.filter(i=>i.food.M)){ out = out.filter(i=> i===p || !(i.food.n==="Leche" && Math.abs(i.s-p.s)<=7)); }
     // el sándwich de miga ya trae su relleno: «de jamón y queso», «con huevo y jamón» no suman aparte
     const DE_MIGA = new Set(["Jamón cocido","Jamón crudo","Queso","Huevo","Tomate","Lechuga","Palta","Atún al natural","Atún en aceite","Pollo (pechuga)","Pollo al horno",
       "Queso azul","Ananá","Morrón","Aceitunas","Mayonesa","Salame","Pavita","Rúcula","Choclo","Zanahoria","Arrollado de pollo","Paleta"]);

@@ -123,6 +123,12 @@ const CASOS = [
   ["una cepita",                            {kcal:[95,115]}],
   ["un paquete de doritos",                 {kcal:[480,530]}],
   ["Rumba un paquete de 110g",              {kcal:[490,530]}],
+  ["Un paquete de Melba",                   {kcal:[550,600]}],
+  ["Un paquete de rumba y medio de Melba",  {kcal:[760,820]}],
+  ["un paquete de oreos",                   {kcal:[560,600]}],
+  ["Galletita Havanna: 1 unidad de 25 g",   {kcal:[105,120]}],
+  ["Pan de queso: 1 unidad del tamaño aproximado de la palma de tu mano.", {kcal:[55,90]}],
+  ["Budín: ¼ de una porción de aproximadamente 2 dedos de ancho. Chicle: 1 unidad aprox.", {kcal:[85,115]}],
 ];
 let fallas=0;
 for(const [frase, esp] of CASOS){

@@ -1,6 +1,6 @@
 // ==== SERVICE WORKER: abrir sin conexión y recibir los recordatorios ====
 // build.py pone una marca de versión nueva en CACHE en cada armado, así el navegador detecta la versión nueva.
-const CACHE = "pulso-0b719b709d";
+const CACHE = "pulso-52bf256f26";
 const BASE = ["./", "./manifest.webmanifest", "./iconos/icon-192.png", "./iconos/apple-touch-icon.png"];
 
 self.addEventListener("install", e => {
